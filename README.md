@@ -1,6 +1,6 @@
-# PRESENT_SAMPLE
+# Simple Domain
 
-**Dominio Simple — Adaptive Pattern System**
+**Adaptive Pattern System**
 
 > **Estado del documento:** Documento de investigación provisional (Fase 0: Formulación de problemas, hipótesis y protocolo experimental).  
 > **Versión:** `0.1.0-research`  
@@ -10,7 +10,7 @@
 
 ## 1. Visión y Propósito de la Investigación
 
-PRESENT_SAMPLE es un proyecto experimental de ingeniería e investigación que explora el desarrollo de un sistema compacto y transparente de aprendizaje estructural adaptativo.
+Simple Domain es un proyecto experimental de ingeniería e investigación que explora el desarrollo de un sistema compacto y transparente de aprendizaje estructural adaptativo.
 
 El objetivo central es investigar si es posible construir un sistema capaz de:
 1. Observar datos heterogéneos (comenzando por estructuras tabulares y secuencias básicas).
@@ -111,9 +111,11 @@ Para mantener la integridad científica del proyecto, las siguientes decisiones 
 ## 7. Estructura de Documentación del Repositorio
 
 ```text
-PRESENT_SAMPLE/
+simple_domain/
 ├── README.md                                    # Marco general y objetivos del proyecto
 ├── pyproject.toml                               # Entorno de pruebas mínimas
+├── src/
+│   └── simple_domain/                           # Módulos del sistema
 ├── docs/
 │   ├── theory/
 │   │   └── cognitive_core_synthesis.md          # Análisis detallado de líneas, hipótesis y protocolo

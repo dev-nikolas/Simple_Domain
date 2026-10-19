@@ -1,7 +1,7 @@
 # Líneas de Investigación y Protocolo Experimental
 
 **Documento de Trabajo Provisional — Fase de Fundamentación Conceptual**  
-*Proyecto:* PRESENT_SAMPLE — Dominio Simple  
+*Proyecto:* Simple Domain  
 *Versión:* `0.1.0-research`
 
 ---
@@ -11,7 +11,7 @@
 Este documento establece el marco de análisis crítico sobre cinco líneas teóricas de la literatura neurocomputacional y de inteligencia artificial.
 
 **Premisas de trabajo:**
-1. Ninguna de las arquitecturas aquí descritas se asume como solución definitiva para PRESENT_SAMPLE.
+1. Ninguna de las arquitecturas aquí descritas se asume como solución definitiva para Simple Domain.
 2. No se presupone que los cinco mecanismos deban combinarse ni que sus aportes teóricos se agreguen de manera automáticamente positiva.
 3. Se pospone la formulación de ecuaciones definitivas hasta contar con la definición operacional de los datos de prueba y un modelo de referencia elemental (*Baseline 0*).
 4. El objetivo es delimitar qué hipótesis empíricas pretendemos poner a prueba antes de redactar código.
@@ -24,7 +24,7 @@ Este documento establece el marco de análisis crítico sobre cinco líneas teó
 
 ### A. Growing Neural Gas (GNG)
 
-#### 1. Problema que podría resolver en PRESENT_SAMPLE
+#### 1. Problema que podría resolver en Simple Domain
 Aprender la topología intrínseca y la conectividad de los datos de forma continua, permitiendo que la memoria incorpore nodos y enlaces según la densidad observada, sin necesidad de fijar a priori el número de clústeres o la dimensionalidad del espacio.
 
 #### 2. Hechos establecidos en la literatura
@@ -41,7 +41,7 @@ Aprender la topología intrínseca y la conectividad de los datos de forma conti
 - **Coste de búsqueda:** Encontrar los dos nodos más cercanos en cada paso escala con el número de nodos $N$ si no se emplean estructuras de particionamiento espacial.
 - **Riesgo de sobreajuste topológico:** En presencia de ruido disperso continuo, puede generar nodos espurios si la poda de aristas no está bien calibrada.
 
-#### 5. Hipótesis de investigación en PRESENT_SAMPLE
+#### 5. Hipótesis de investigación en Simple Domain
 > *Hipótesis H-GNG:* "Un grafo dinámico con inserción local y poda de aristas por envejecimiento representa transiciones entre estados de datos con menor dispersión relacional que un grafo estático de $K$ nodos fijado al inicio."
 
 #### 6. Evidencia experimental requerida para su incorporación
@@ -51,7 +51,7 @@ Demostración de que ante un flujo con un número variable de atractores, la red
 
 ### B. Adaptive Resonance Theory (ART)
 
-#### 1. Problema que podría resolver en PRESENT_SAMPLE
+#### 1. Problema que podría resolver en Simple Domain
 Gestionar el compromiso estabilidad-plasticidad: decidir formalmente si una nueva observación es suficientemente afín a un patrón conocido como para actualizarlo (resonancia), o si es lo bastante diferente como para justificar una nueva categoría, evitando el olvido catastrófico.
 
 #### 2. Hechos establecidos en la literatura
@@ -67,7 +67,7 @@ Gestionar el compromiso estabilidad-plasticidad: decidir formalmente si una nuev
 - **Dependencia del orden de presentación:** El orden temporal en que se presentan los datos influye de forma determinante en los límites de las categorías resultantes.
 - **Falta de relaciones:** ART categoriza puntos de forma aislada; no modela de forma natural cómo una categoría se relaciona con otra a lo largo del tiempo o el espacio.
 
-#### 5. Hipótesis de investigación en PRESENT_SAMPLE
+#### 5. Hipótesis de investigación en Simple Domain
 > *Hipótesis H-ART:* "Un mecanismo de vigilancia de umbral local permite incorporar nuevos tipos de registros sin degradar la precisión de reconocimiento de los tipos consolidados al inicio."
 
 #### 6. Evidencia experimental requerida para su incorporación
@@ -77,7 +77,7 @@ Demostración de retención neta: al exponer al sistema a una secuencia de distr
 
 ### C. Predictive Coding
 
-#### 1. Problema que podría resolver en PRESENT_SAMPLE
+#### 1. Problema que podría resolver en Simple Domain
 Dotar al sistema de una señal intrínseca de sorpresa y validación contextual continua. Al mantener expectativas sobre atributos o transiciones, el error de predicción funciona como un indicador cuantitativo para detectar anomalías y guiar la plasticidad.
 
 #### 2. Hechos establecidos en la literatura
@@ -92,7 +92,7 @@ Dotar al sistema de una señal intrínseca de sorpresa y validación contextual 
 - **Inestabilidad de predicción en entornos estocásticos:** Si los datos tienen alta varianza intrínseca legítima, el error de predicción será permanentemente alto sin que ello indique una anomalía real.
 - **Complejidad de inferencia:** Mantener estados predictivos simultáneos puede elevar el coste computacional por paso en CPU.
 
-#### 5. Hipótesis de investigación en PRESENT_SAMPLE
+#### 5. Hipótesis de investigación en Simple Domain
 > *Hipótesis H-PC:* "El error residual de predicción contextual separa las anomalías puntuales del ruido de fondo con mayor área bajo la curva ROC que una simple prueba de densidad estática o conteo de frecuencias."
 
 #### 6. Evidencia experimental requerida para su incorporación
@@ -102,7 +102,7 @@ Demostración de que la métrica de error predictivo detecta violaciones de tran
 
 ### D. Memoria Asociativa y Modelos de Hopfield
 
-#### 1. Problema que podría resolver en PRESENT_SAMPLE
+#### 1. Problema que podría resolver en Simple Domain
 Permitir la recuperación de patrones íntegros a partir de consultas parciales, con valores ausentes (*missing values*) o perturbadas por ruido leve.
 
 #### 2. Hechos establecidos en la literatura
@@ -116,7 +116,7 @@ Permitir la recuperación de patrones íntegros a partir de consultas parciales,
 - **Estados espurios:** Dinámicas que convergen a mínimos locales que no corresponden a ningún patrón real observado.
 - **Límite de capacidad y coste:** Las matrices de pesos simétricas requieren almacenamiento cuadrático respecto a la dimensión del vector, lo que penaliza la compacidad en CPU si las representaciones crecen.
 
-#### 5. Hipótesis de investigación en PRESENT_SAMPLE
+#### 5. Hipótesis de investigación en Simple Domain
 > *Hipótesis H-HOP:* "Una dinámica de atracción asociativa reconstruye registros tabulares con campos omitidos con mayor fidelidad que una imputación por moda o media condicional."
 
 #### 6. Evidencia experimental requerida para su incorporación
@@ -126,7 +126,7 @@ Demostración de reconstrucción fiable en presencia de un porcentaje controlado
 
 ### E. Representación y Razonamiento Neuro-Simbólicos
 
-#### 1. Problema que podría resolver en PRESENT_SAMPLE
+#### 1. Problema que podría resolver en Simple Domain
 Evitar que la memoria interna degenere en una colección de vectores abstractos incomprensibles. Garantizar que cada nodo y arista mantenga su procedencia, su significado en el dominio original y los registros específicos que lo justifican.
 
 #### 2. Hechos establecidos en la literatura
@@ -140,7 +140,7 @@ Evitar que la memoria interna degenere en una colección de vectores abstractos 
 - **Fragilidad ante inconsistencias:** Las representaciones puramente simbólicas pueden ser rígidas ante datos ruidosos o continuos si no se acoplan a un mecanismo probabilístico o continuo flexible.
 - **Sobrecarga de metadatos:** Almacenar referencias detalladas para cada observación puede disparar el uso de memoria si no se definen resúmenes estadísticos suficientes.
 
-#### 5. Hipótesis de investigación en PRESENT_SAMPLE
+#### 5. Hipótesis de investigación en Simple Domain
 > *Hipótesis H-SYM:* "Almacenar la procedencia y la tipología de las relaciones permite generar explicaciones de anomalías comprensibles para un operador humano sin degradar la velocidad de actualización de la memoria."
 
 #### 6. Evidencia experimental requerida para su incorporación

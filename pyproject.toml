@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "present_simple"
+name = "simple_domain"
 version = "0.1.0"
-description = "Dominio Simple — Adaptive Pattern System"
+description = "Simple Domain — Adaptive Pattern System"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -21,6 +21,10 @@ dev = [
     "pytest>=7.0.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+pythonpath = ["src"]
