@@ -1,0 +1,88 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  background-color: #060709;
+  color: #e2e4ed;
+  overflow-x: hidden;
+}
+
+/* Patrón sutil de rejilla de interfaz técnica */
+.cyber-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(42, 45, 61, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(42, 45, 61, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Esquinas recortadas angulares típicas de Cyberpunk / Sci-fi */
+.cut-corner-sm {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% 100%,
+    8px 100%,
+    0 calc(100% - 8px)
+  );
+}
+
+.cut-corner-lg {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+}
+
+.cut-corner-tl-br {
+  clip-path: polygon(
+    12px 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
+}
+
+/* Scanline muy sutil para ambientación */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2d3d;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #fcee0a;
+}

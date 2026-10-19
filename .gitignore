@@ -48,3 +48,9 @@ htmlcov/
 # Project specific
 experiments/logs/
 *.tmp
+
+#vaino del frontend
+node_modules/
+dist/
+.next/
+.env
