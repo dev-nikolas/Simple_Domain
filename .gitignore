@@ -47,5 +47,4 @@ htmlcov/
 
 # Project specific
 experiments/logs/
-experiments/results/
 *.tmp

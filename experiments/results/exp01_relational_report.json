@@ -1,0 +1,412 @@
+{
+  "experiment_id": "EXP-01-RELATIONAL-COMPATIBILITY",
+  "timestamp_utc": "2026-10-19T16:52:34.719153+00:00",
+  "hypothesis": "H1: Un componente que evalúa compatibilidad entre variables aporta información complementaria al score univariado y mejora la discriminación de anomalías contextuales respecto a EXP-00.",
+  "configuration": {
+    "seeds": [
+      42,
+      7,
+      101,
+      555,
+      2024
+    ],
+    "n_fit": 1000,
+    "n_calib": 300,
+    "n_eval": 1000,
+    "calibration_quantile": 0.95,
+    "relational_weight": 1.0,
+    "n_bins": 20,
+    "smoothing_alpha": 1.0
+  },
+  "summary_exp00": {
+    "roc_auc": {
+      "mean": 0.6746,
+      "std": 0.0045
+    },
+    "precision": {
+      "mean": 0.4633,
+      "std": 0.0192
+    },
+    "recall": {
+      "mean": 0.8013,
+      "std": 0.0257
+    },
+    "f1_score": {
+      "mean": 0.5868,
+      "std": 0.0141
+    },
+    "false_positive_rate": {
+      "mean": 0.3991,
+      "std": 0.0387
+    },
+    "scenario_alarm_rates": {
+      "normal_known": {
+        "mean": 0.0545,
+        "std": 0.0328
+      },
+      "legit_variation": {
+        "mean": 0.7173,
+        "std": 0.1193
+      },
+      "novelty_regime": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "point_anomaly": {
+        "mean": 0.872,
+        "std": 0.0936
+      },
+      "contextual_anomaly": {
+        "mean": 0.546,
+        "std": 0.0581
+      },
+      "incoherent_noise": {
+        "mean": 0.986,
+        "std": 0.0134
+      }
+    },
+    "latency": {
+      "mean_us": 3.34,
+      "p50_us": 3.3,
+      "p90_us": 3.5,
+      "p99_us": 3.9,
+      "min_us": 2.7,
+      "max_us": 5.4
+    },
+    "memory": {
+      "total_estimated_bytes": 3856,
+      "numeric_estimators_bytes": 2144,
+      "categorical_estimators_bytes": 1376,
+      "human_readable": "3.77 KB",
+      "methodology": "sys.getsizeof recursivo sobre estructuras internas de estimadores y listas de bines"
+    }
+  },
+  "summary_exp01": {
+    "roc_auc": {
+      "mean": 0.9844,
+      "std": 0.0015
+    },
+    "precision": {
+      "mean": 0.4936,
+      "std": 0.0135
+    },
+    "recall": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "f1_score": {
+      "mean": 0.6608,
+      "std": 0.0122
+    },
+    "false_positive_rate": {
+      "mean": 0.4403,
+      "std": 0.0245
+    },
+    "scenario_alarm_rates": {
+      "normal_known": {
+        "mean": 0.0515,
+        "std": 0.0265
+      },
+      "legit_variation": {
+        "mean": 0.9173,
+        "std": 0.0553
+      },
+      "novelty_regime": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "point_anomaly": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "contextual_anomaly": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "incoherent_noise": {
+        "mean": 1.0,
+        "std": 0.0
+      }
+    },
+    "latency": {
+      "mean_us": 11.6,
+      "p50_us": 11.5,
+      "p90_us": 11.7,
+      "p99_us": 12.4,
+      "min_us": 10.9,
+      "max_us": 41.4
+    },
+    "memory": {
+      "total_estimated_bytes": 11224,
+      "univariate_part_bytes": 3856,
+      "relational_part_bytes": 6680,
+      "human_readable": "10.96 KB",
+      "methodology": "sys.getsizeof recursivo sobre estimadores univariados, matrices inversas 2x2 y diccionarios de pares"
+    }
+  },
+  "deltas_exp01_minus_exp00": {
+    "delta_roc_auc": {
+      "mean": 0.3098,
+      "std": 0.0043
+    },
+    "delta_f1": {
+      "mean": 0.0741,
+      "std": 0.0112
+    },
+    "delta_precision": {
+      "mean": 0.0302,
+      "std": 0.011
+    },
+    "delta_recall": {
+      "mean": 0.1987,
+      "std": 0.0257
+    },
+    "delta_fpr": {
+      "mean": 0.0412,
+      "std": 0.021
+    },
+    "delta_contextual_alarm_rate": {
+      "mean": 0.454,
+      "std": 0.0581
+    },
+    "delta_normal_alarm_rate": {
+      "mean": -0.003,
+      "std": 0.0099
+    },
+    "delta_legit_variation_alarm_rate": {
+      "mean": 0.2,
+      "std": 0.077
+    },
+    "per_seed_deltas": [
+      {
+        "seed": 42,
+        "delta_roc_auc": 0.312,
+        "delta_f1": 0.0666,
+        "delta_precision": 0.0326,
+        "delta_recall": 0.17,
+        "delta_fpr": 0.0258,
+        "delta_contextual_alarm": 0.46,
+        "delta_normal_alarm": -0.015,
+        "delta_legit_variation_alarm": 0.16
+      },
+      {
+        "seed": 7,
+        "delta_roc_auc": 0.3052,
+        "delta_f1": 0.0843,
+        "delta_precision": 0.0281,
+        "delta_recall": 0.24,
+        "delta_fpr": 0.0643,
+        "delta_contextual_alarm": 0.43,
+        "delta_normal_alarm": 0.005,
+        "delta_legit_variation_alarm": 0.2867
+      },
+      {
+        "seed": 101,
+        "delta_roc_auc": 0.3162,
+        "delta_f1": 0.0822,
+        "delta_precision": 0.0416,
+        "delta_recall": 0.1933,
+        "delta_fpr": 0.02,
+        "delta_contextual_alarm": 0.54,
+        "delta_normal_alarm": -0.0125,
+        "delta_legit_variation_alarm": 0.1267
+      },
+      {
+        "seed": 555,
+        "delta_roc_auc": 0.3072,
+        "delta_f1": 0.0583,
+        "delta_precision": 0.0126,
+        "delta_recall": 0.19,
+        "delta_fpr": 0.0629,
+        "delta_contextual_alarm": 0.38,
+        "delta_normal_alarm": 0.005,
+        "delta_legit_variation_alarm": 0.28
+      },
+      {
+        "seed": 2024,
+        "delta_roc_auc": 0.3084,
+        "delta_f1": 0.079,
+        "delta_precision": 0.0362,
+        "delta_recall": 0.2,
+        "delta_fpr": 0.0329,
+        "delta_contextual_alarm": 0.46,
+        "delta_normal_alarm": 0.0025,
+        "delta_legit_variation_alarm": 0.1467
+      }
+    ]
+  },
+  "individual_runs_exp00": [
+    {
+      "seed": 42,
+      "threshold": 2.358,
+      "roc_auc": 0.6721,
+      "precision": 0.4376,
+      "recall": 0.83,
+      "f1_score": 0.5731,
+      "fpr": 0.4571,
+      "scenario_alarm_rates": {
+        "normal_known": 0.1125,
+        "contextual_anomaly": 0.54,
+        "incoherent_noise": 1.0,
+        "point_anomaly": 0.95,
+        "novelty_regime": 1.0,
+        "legit_variation": 0.8333
+      }
+    },
+    {
+      "seed": 7,
+      "threshold": 2.5062,
+      "roc_auc": 0.6808,
+      "precision": 0.4711,
+      "recall": 0.76,
+      "f1_score": 0.5816,
+      "fpr": 0.3657,
+      "scenario_alarm_rates": {
+        "normal_known": 0.035,
+        "point_anomaly": 0.73,
+        "novelty_regime": 1.0,
+        "contextual_anomaly": 0.57,
+        "legit_variation": 0.6133,
+        "incoherent_noise": 0.98
+      }
+    },
+    {
+      "seed": 101,
+      "threshold": 2.442,
+      "roc_auc": 0.6692,
+      "precision": 0.4601,
+      "recall": 0.8067,
+      "f1_score": 0.586,
+      "fpr": 0.4057,
+      "scenario_alarm_rates": {
+        "incoherent_noise": 1.0,
+        "novelty_regime": 1.0,
+        "normal_known": 0.045,
+        "legit_variation": 0.7733,
+        "point_anomaly": 0.96,
+        "contextual_anomaly": 0.46
+      }
+    },
+    {
+      "seed": 555,
+      "threshold": 2.5068,
+      "roc_auc": 0.6773,
+      "precision": 0.4899,
+      "recall": 0.81,
+      "f1_score": 0.6106,
+      "fpr": 0.3614,
+      "scenario_alarm_rates": {
+        "legit_variation": 0.5667,
+        "point_anomaly": 0.84,
+        "novelty_regime": 1.0,
+        "normal_known": 0.045,
+        "contextual_anomaly": 0.62,
+        "incoherent_noise": 0.97
+      }
+    },
+    {
+      "seed": 2024,
+      "threshold": 2.4598,
+      "roc_auc": 0.6738,
+      "precision": 0.458,
+      "recall": 0.8,
+      "f1_score": 0.5825,
+      "fpr": 0.4057,
+      "scenario_alarm_rates": {
+        "normal_known": 0.035,
+        "novelty_regime": 1.0,
+        "contextual_anomaly": 0.54,
+        "incoherent_noise": 0.98,
+        "point_anomaly": 0.88,
+        "legit_variation": 0.8
+      }
+    }
+  ],
+  "individual_runs_exp01": [
+    {
+      "seed": 42,
+      "threshold": 4.5018,
+      "roc_auc": 0.9841,
+      "precision": 0.4702,
+      "recall": 1.0,
+      "f1_score": 0.6397,
+      "fpr": 0.4829,
+      "scenario_alarm_rates": {
+        "normal_known": 0.0975,
+        "contextual_anomaly": 1.0,
+        "incoherent_noise": 1.0,
+        "point_anomaly": 1.0,
+        "novelty_regime": 1.0,
+        "legit_variation": 0.9933
+      }
+    },
+    {
+      "seed": 7,
+      "threshold": 4.9415,
+      "roc_auc": 0.986,
+      "precision": 0.4992,
+      "recall": 1.0,
+      "f1_score": 0.6659,
+      "fpr": 0.43,
+      "scenario_alarm_rates": {
+        "normal_known": 0.04,
+        "point_anomaly": 1.0,
+        "novelty_regime": 1.0,
+        "contextual_anomaly": 1.0,
+        "legit_variation": 0.9,
+        "incoherent_noise": 1.0
+      }
+    },
+    {
+      "seed": 101,
+      "threshold": 4.7952,
+      "roc_auc": 0.9854,
+      "precision": 0.5017,
+      "recall": 1.0,
+      "f1_score": 0.6682,
+      "fpr": 0.4257,
+      "scenario_alarm_rates": {
+        "incoherent_noise": 1.0,
+        "novelty_regime": 1.0,
+        "normal_known": 0.0325,
+        "legit_variation": 0.9,
+        "point_anomaly": 1.0,
+        "contextual_anomaly": 1.0
+      }
+    },
+    {
+      "seed": 555,
+      "threshold": 5.0805,
+      "roc_auc": 0.9845,
+      "precision": 0.5025,
+      "recall": 1.0,
+      "f1_score": 0.6689,
+      "fpr": 0.4243,
+      "scenario_alarm_rates": {
+        "legit_variation": 0.8467,
+        "point_anomaly": 1.0,
+        "novelty_regime": 1.0,
+        "normal_known": 0.05,
+        "contextual_anomaly": 1.0,
+        "incoherent_noise": 1.0
+      }
+    },
+    {
+      "seed": 2024,
+      "threshold": 4.8712,
+      "roc_auc": 0.9822,
+      "precision": 0.4942,
+      "recall": 1.0,
+      "f1_score": 0.6615,
+      "fpr": 0.4386,
+      "scenario_alarm_rates": {
+        "normal_known": 0.0375,
+        "novelty_regime": 1.0,
+        "contextual_anomaly": 1.0,
+        "incoherent_noise": 1.0,
+        "point_anomaly": 1.0,
+        "legit_variation": 0.9467
+      }
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "experiment_id": "EXP-00-BASELINE0",
+  "timestamp_utc": "2026-10-19T16:52:34.259598+00:00",
+  "configuration": {
+    "seed": 42,
+    "n_fit": 1000,
+    "n_calib": 300,
+    "n_eval": 1000,
+    "calibration_quantile": 0.95,
+    "smoothing_alpha": 1.0,
+    "n_bins": 20,
+    "calibrated_threshold": 2.358
+  },
+  "global_metrics": {
+    "total_samples": 1000,
+    "positives_true": 300,
+    "negatives_true": 700,
+    "true_positives": 249,
+    "false_positives": 320,
+    "true_negatives": 380,
+    "false_negatives": 51,
+    "precision": 0.4376,
+    "recall": 0.83,
+    "f1_score": 0.5731,
+    "false_positive_rate": 0.4571,
+    "roc_auc": 0.6721
+  },
+  "scenario_breakdown": {
+    "normal_known": {
+      "total_samples": 400,
+      "ground_truth_is_anomaly": false,
+      "alarm_count": 45,
+      "alarm_rate": 0.1125,
+      "mean_score": 1.9986,
+      "p50_score": 1.9622,
+      "p90_score": 2.406
+    },
+    "contextual_anomaly": {
+      "total_samples": 100,
+      "ground_truth_is_anomaly": true,
+      "alarm_count": 54,
+      "alarm_rate": 0.54,
+      "mean_score": 2.5973,
+      "p50_score": 2.4588,
+      "p90_score": 3.4288
+    },
+    "incoherent_noise": {
+      "total_samples": 100,
+      "ground_truth_is_anomaly": true,
+      "alarm_count": 100,
+      "alarm_rate": 1.0,
+      "mean_score": 4.5026,
+      "p50_score": 4.4933,
+      "p90_score": 5.662
+    },
+    "point_anomaly": {
+      "total_samples": 100,
+      "ground_truth_is_anomaly": true,
+      "alarm_count": 95,
+      "alarm_rate": 0.95,
+      "mean_score": 2.7156,
+      "p50_score": 2.6938,
+      "p90_score": 3.0177
+    },
+    "novelty_regime": {
+      "total_samples": 150,
+      "ground_truth_is_anomaly": false,
+      "alarm_count": 150,
+      "alarm_rate": 1.0,
+      "mean_score": 5.6902,
+      "p50_score": 5.7319,
+      "p90_score": 6.0144
+    },
+    "legit_variation": {
+      "total_samples": 150,
+      "ground_truth_is_anomaly": false,
+      "alarm_count": 125,
+      "alarm_rate": 0.8333,
+      "mean_score": 2.7478,
+      "p50_score": 2.7049,
+      "p90_score": 3.356
+    }
+  },
+  "latency_profile_us": {
+    "mean_us": 3.36,
+    "p50_us": 3.3,
+    "p90_us": 3.5,
+    "p99_us": 3.8,
+    "min_us": 2.7,
+    "max_us": 22.4
+  },
+  "memory_footprint": {
+    "total_estimated_bytes": 4024,
+    "numeric_estimators_bytes": 2272,
+    "categorical_estimators_bytes": 1408,
+    "human_readable": "3.93 KB",
+    "methodology": "sys.getsizeof recursivo sobre estructuras internas de estimadores y listas de bines"
+  },
+  "representative_cases": {
+    "true_positives": [
+      {
+        "obs_id": 2118,
+        "scenario": "contextual_anomaly",
+        "features": {
+          "operating_mode": "boost",
+          "location_zone": "zone_A",
+          "temperature": 14.44,
+          "pressure": 1025.09,
+          "vibration": 0.7416,
+          "power_consumption": 250.82
+        },
+        "anomaly_score": 3.3842,
+        "predicted": true,
+        "ground_truth": true,
+        "metadata": {
+          "anomaly_type": "boost_with_eco_temp",
+          "note": "Values plausible univariately, conflicting multi-variate"
+        }
+      },
+      {
+        "obs_id": 2263,
+        "scenario": "incoherent_noise",
+        "features": {
+          "operating_mode": "unknown_rnd",
+          "location_zone": "zone_rnd",
+          "temperature": 18.77,
+          "pressure": 1069.15,
+          "vibration": 1.1584,
+          "power_consumption": 312.92
+        },
+        "anomaly_score": 6.2108,
+        "predicted": true,
+        "ground_truth": true,
+        "metadata": {
+          "note": "Uniform unstructured noise"
+        }
+      },
+      {
+        "obs_id": 2031,
+        "scenario": "point_anomaly",
+        "features": {
+          "operating_mode": "nominal",
+          "location_zone": "zone_A",
+          "temperature": 105.56,
+          "pressure": 1007.09,
+          "vibration": 0.3894,
+          "power_consumption": 131.62
+        },
+        "anomaly_score": 2.61,
+        "predicted": true,
+        "ground_truth": true,
+        "metadata": {
+          "corrupted_field": "temperature",
+          "type": "univariate_extreme"
+        }
+      }
+    ],
+    "false_positives": [
+      {
+        "obs_id": 1868,
+        "scenario": "novelty_regime",
+        "features": {
+          "operating_mode": "turbo_clean",
+          "location_zone": "zone_special",
+          "temperature": 40.63,
+          "pressure": 1020.51,
+          "vibration": 0.5086,
+          "power_consumption": 200.3
+        },
+        "anomaly_score": 5.6288,
+        "predicted": true,
+        "ground_truth": false,
+        "metadata": {
+          "note": "Persistent coherent novel structure"
+        }
+      },
+      {
+        "obs_id": 1892,
+        "scenario": "novelty_regime",
+        "features": {
+          "operating_mode": "turbo_clean",
+          "location_zone": "zone_special",
+          "temperature": 38.94,
+          "pressure": 1027.58,
+          "vibration": 0.4392,
+          "power_consumption": 202.06
+        },
+        "anomaly_score": 5.5717,
+        "predicted": true,
+        "ground_truth": false,
+        "metadata": {
+          "note": "Persistent coherent novel structure"
+        }
+      },
+      {
+        "obs_id": 1912,
+        "scenario": "novelty_regime",
+        "features": {
+          "operating_mode": "turbo_clean",
+          "location_zone": "zone_special",
+          "temperature": 35.23,
+          "pressure": 1030.96,
+          "vibration": 0.4787,
+          "power_consumption": 197.51
+        },
+        "anomaly_score": 5.2218,
+        "predicted": true,
+        "ground_truth": false,
+        "metadata": {
+          "note": "Persistent coherent novel structure"
+        }
+      }
+    ],
+    "false_negatives": [
+      {
+        "obs_id": 2171,
+        "scenario": "contextual_anomaly",
+        "features": {
+          "operating_mode": "eco",
+          "location_zone": "zone_C",
+          "temperature": 21.96,
+          "pressure": 1026.91,
+          "vibration": 0.1519,
+          "power_consumption": 279.09
+        },
+        "anomaly_score": 2.2097,
+        "predicted": false,
+        "ground_truth": true,
+        "metadata": {
+          "anomaly_type": "eco_with_boost_power",
+          "note": "Values plausible univariately, conflicting multi-variate"
+        }
+      },
+      {
+        "obs_id": 2172,
+        "scenario": "contextual_anomaly",
+        "features": {
+          "operating_mode": "eco",
+          "location_zone": "zone_C",
+          "temperature": 17.94,
+          "pressure": 1022.49,
+          "vibration": 0.167,
+          "power_consumption": 279.4
+        },
+        "anomaly_score": 2.1283,
+        "predicted": false,
+        "ground_truth": true,
+        "metadata": {
+          "anomaly_type": "eco_with_boost_power",
+          "note": "Values plausible univariately, conflicting multi-variate"
+        }
+      },
+      {
+        "obs_id": 2159,
+        "scenario": "contextual_anomaly",
+        "features": {
+          "operating_mode": "eco",
+          "location_zone": "zone_A",
+          "temperature": 20.07,
+          "pressure": 1013.98,
+          "vibration": 0.1336,
+          "power_consumption": 274.36
+        },
+        "anomaly_score": 1.9492,
+        "predicted": false,
+        "ground_truth": true,
+        "metadata": {
+          "anomaly_type": "eco_with_boost_power",
+          "note": "Values plausible univariately, conflicting multi-variate"
+        }
+      }
+    ]
+  },
+  "limitations_observed": [
+    "Incapacidad estructural para detectar anomalías contextuales: no modela relaciones cruzadas entre variables.",
+    "Confusión entre novedad persistente coherente y anomalía: el nuevo régimen genera alto surprisal univariado y dispara falsas alarmas.",
+    "Suposición de independencia condicional ingenua (Naive): la agregación por media aditiva oculta violaciones de covarianza compleja."
+  ]
+}
