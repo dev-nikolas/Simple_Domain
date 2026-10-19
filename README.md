@@ -1,199 +1,128 @@
-# PRESENT_SIMPLE
+# PRESENT_SAMPLE
 
 **Dominio Simple — Adaptive Pattern System**
 
-PRESENT_SIMPLE es un proyecto experimental de ingeniería e investigación que explora un modelo de **aprendizaje estructural adaptativo** basado en topología dinámica, formación de categorías, codificación predictiva y memoria relacional explicable.
-
-Su objetivo es construir un sistema compacto, interpretable y libre de dependencias masivas, capaz de aprender regularidades a partir de datos heterogéneos, adaptarse incrementalmente y discernir con rigor entre **novedades legítimas** y **anomalías reales**.
-
----
-
-## 1. Fundamentación Teórica y Arquitecturas de Referencia
-
-PRESENT_SIMPLE no parte de una red neuronal profunda convencional (black-box), no utiliza Transformers ni depende de Modelos de Lenguaje (LLMs). En su lugar, converge ideas clave de la neurocomputación y la ciencia cognitiva que resuelven problemas concretos de adaptación, plasticidad y estructura:
-
-### A. Growing Neural Gas (GNG) — *Crecimiento Topológico*
-- **Aporte conceptual:** La red incorpora nodos y conexiones de manera continua e incremental según la distribución y densidad de las observaciones.
-- **Por qué nos interesa:** Evita prefijar el número de categorías o la topología de la memoria desde el inicio. La memoria crece y se reconfigura orgánicamente a medida que el sistema descubre regularidades.
-
-### B. Adaptive Resonance Theory (ART) — *Formación y Vigilancia de Categorías*
-- **Aporte conceptual:** Resuelve el dilema estabilidad-plasticidad mediante un mecanismo de vigilancia que decide si un patrón entrante resuena con una categoría existente (actualizándola) o si exige la creación de una nueva categoría prototípica.
-- **Por qué nos interesa:** Impide dos fallos extremos: no crea un nodo para cada dato individual (sobreajuste trivial) ni colapsa observaciones dispares en una sola categoría (olvido catastrófico).
-
-### C. Predictive Coding — *Expectativas y Señal de Sorpresa*
-- **Aporte conceptual:** El sistema genera activamente expectativas sobre lo que debería observar a continuación. La diferencia entre lo predicho y lo observado constituye el *error de predicción*, que actúa como señal motora para ajustar representaciones internas.
-- **Por qué nos interesa:** Permite detectar regularidades temporales/estructurales y proporciona una métrica cuantitativa de sorpresa para identificar desviaciones y anomalías contextuales.
-
-### D. Memoria Asociativa y Modelos de Hopfield — *Recuperación de Patrones*
-- **Aporte conceptual:** Reconstrucción de estados conocidos a partir de estímulos parciales, ruidosos o incompletos mediante mínimos de energía / convergencia de estados.
-- **Por qué nos interesa:** Facilita el reconocimiento asociativo: asociar una observación con patrones conocidos aunque falten atributos o varíen valores secundarios.
-
-### E. IA Neuro-Simbólica — *Interpretabilidad y Relaciones Explícitas*
-- **Aporte conceptual:** Fusión de representaciones estadísticas aprendidas con grafos de conocimiento, entidades explícitas y reglas de inferencia.
-- **Por qué nos interesa:** La memoria no es una colección de tensores opacos. Conserva qué representa cada nodo, qué relaciones guarda con otros y qué evidencia respalda cada conclusión.
+> **Estado del documento:** Documento de investigación provisional (Fase 0: Formulación de problemas, hipótesis y protocolo experimental).  
+> **Versión:** `0.1.0-research`  
+> **Aviso de diseño:** Ninguna arquitectura cognitiva, combinación híbrida ni formulación matemática se asume validada ni definitiva a priori.
 
 ---
 
-## 2. ¿Por qué NO una arquitectura Mixture of Experts (MoE)?
+## 1. Visión y Propósito de la Investigación
 
-La decisión de descartar MoE como núcleo fundacional responde a un análisis de pertinencia técnica:
+PRESENT_SAMPLE es un proyecto experimental de ingeniería e investigación que explora el desarrollo de un sistema compacto y transparente de aprendizaje estructural adaptativo.
 
-- **Problema que resuelve MoE:** Repartir la capacidad de computación en modelos neuronales profundos masivos activando únicamente subredes especializadas mediante mecanismos de enrutamiento (*gating networks*).
-- **Problema de PRESENT_SIMPLE:** Construir representaciones relacionales transparentes a partir de datos estructurados heterogéneos, aprendiendo de forma incremental y explicable.
-- Que una entrada sea un archivo Excel y otra un JSON no requiere dos redes neuronales que compitan por procesar los datos; requiere adaptadores de ingesta e interpretación semántica precisos que generen observaciones compatibles con un núcleo de aprendizaje común.
-- MoE introduce complejidad de balanceo de carga, entrenamiento concurrente y opacidad que contradice los principios de minimalismo e interpretabilidad del proyecto.
+El objetivo central es investigar si es posible construir un sistema capaz de:
+1. Observar datos heterogéneos (comenzando por estructuras tabulares y secuencias básicas).
+2. Construir representaciones relacionales explícitas en memoria.
+3. Descubrir regularidades y patrones recurrentes sin supervisión masiva.
+4. Actualizar su memoria incrementalmente conforme llegan nuevos datos sin incurrir en olvido catastrófico.
+5. Discernir rigurosamente entre variaciones legítimas, novedades estables y anomalías reales.
+6. Ofrecer explicaciones auditables basadas en la evidencia utilizada.
 
----
-
-## 3. Arquitectura Propuesta: Núcleo de Aprendizaje Adaptativo
-
-La arquitectura sintetiza una base híbrida:
-$$\text{Aprendizaje Topológico (GNG)} + \text{Vigilancia de Categorías (ART)} + \text{Codificación Predictiva} + \text{Memoria Relacional Explicable}$$
-
-```text
-                                  ┌───────────────────────────┐
-                                  │      01 · PERCEPCIÓN      │
-                                  │  (Adaptadores por formato │
-                                  │   y tipado de observación)│
-                                  └─────────────┬─────────────┘
-                                                │ Observación tipada
-                                                ▼
-┌───────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 02 · NÚCLEO COGNITIVO                                     │
-│                                                                                           │
-│      ┌───────────────────────┐  ┌───────────────────────┐  ┌─────────────────────────┐   │
-│      │ Formación Categorías  │  │ Crecimiento Topología │  │  Predicción y Sorpresa  │   │
-│      │   (Inspiración ART)   │  │   (Inspiración GNG)   │  │ (Inspiración Pred. Cod.)│   │
-│      │ Vigilancia & Prototipos│ │ Nodos & Enlaces Dinám.│  │ Expectativa vs Realidad │   │
-│      └───────────┬───────────┘  └───────────┬───────────┘  └────────────┬────────────┘   │
-│                  │                          │                           │                 │
-│                  └──────────────────┐       │       ┌───────────────────┘                 │
-│                                     ▼       ▼       ▼                                     │
-│                             ┌───────────────────────────────┐                             │
-│                             │   03 · MEMORIA RELACIONAL     │                             │
-│                             │          (Grafo Activo)       │                             │
-│                             │ Prototipos · Coocurrencias    │                             │
-│                             │ Pesos · Historial · Topología │                             │
-│                             └───────────────┬───────────────┘                             │
-└─────────────────────────────────────────────┼─────────────────────────────────────────────┘
-                                              │
-                                              ▼
-┌───────────────────────────────────────────────────────────────────────────────────────────┐
-│                               04 · ANÁLISIS Y EXPLICACIÓN                                 │
-│                                                                                           │
-│   Triple Evaluación ante estímulo nuevo:                                                  │
-│   1. Semejanza (¿Encaja con algún prototipo existente?)                                    │
-│   2. Relaciones (¿Coherente con los enlaces estructurales aprendidos?)                    │
-│   3. Predicción (¿Genera sorpresa o contradice la expectativa contextual?)                 │
-│                                                                                           │
-│   Veredicto explicable:  [Patrón Conocido]  |  [Novedad Legítima]  |  [Anomalía Candidata] │
-│   + Evidencia trazable y grado de confianza.                                              │
-└─────────────────────────────────────────────┬─────────────────────────────────────────────┘
-                                              │
-                                              ▼
-                                ┌───────────────────────────┐
-                                │     05 · VISUALIZACIÓN    │
-                                │ (UI Python/Tkinter Grafo) │
-                                └───────────────────────────┘
-```
-
-### El Grafo como Componente Activo de Aprendizaje
-En arquitecturas convencionales, el grafo suele ser una base de datos pasiva donde se almacena información. En PRESENT_SIMPLE, **el grafo es el propio motor de cómputo y aprendizaje**:
-- Sus nodos representan prototipos o estados adaptativos con umbrales locales.
-- Sus aristas representan asociaciones estadísticas, transiciones temporales y restricciones de coocurrencia moduladas por plasticidad.
-- El aprendizaje actualiza pesos, poda conexiones redundantes y expande la red ante evidencia sólida.
+El proyecto se fundamenta en un principio rector estricto: **diseñar primero la referencia más simple posible que exhiba una capacidad observable, y justificar cualquier incremento de complejidad mediante evidencia experimental reproducible.**
 
 ---
 
-## 4. Dinámica de Aprendizaje: Novedad vs. Anomalía
+## 2. Los Problemas que el Sistema Debe Resolver
 
-Cuando el sistema recibe una observación, no emite juicios binarios precipitados. Ejecuta una **evaluación en tres dimensiones**:
+El diseño no parte de seleccionar algoritmos por su popularidad, sino de caracterizar cuatro problemas operacionales concretos:
 
-1. **Semejanza métrica/categórica:** ¿Qué tan cerca está de un prototipo existente dentro del radio de vigilancia?
-2. **Topología relacional:** ¿Aparece en un contexto de coocurrencia coherente con los vecinos observados en el grafo?
-3. **Error de predicción:** ¿El estado anterior del sistema anticipaba esta observación o rompe la secuencia esperada?
-
-### Gestión de la Plasticidad
-- **Patrón conocido:** Refuerza los prototipos y las aristas de conexión existentes.
-- **Novedad legítima:** Una observación que no coincide con prototipos previos pero que, al repetirse o presentarse en un contexto estructurado, fomenta la creación de un nuevo nodo y conexiones estables.
-- **Anomalía candidata:** Una observación que exhibe alta rareza intrínseca, viola las relaciones topológicas aprendidas o genera un pico inusual de error predictivo, manteniéndose aislada sin confirmación estadística.
-
----
-
-## 5. El Problema de la Entrada: Percepción por Modalidades Progresivas
-
-«Cualquier dato» no puede significar «una única bolsa indiferenciada». Los formatos de archivo son contenedores; comprender su contenido requiere representaciones semánticas bien calibradas.
-
-La percepción se estructura en fases de madurez progresiva:
-
-| Nivel | Entradas | Capacidades Iniciales | Representación |
-| :---: | :--- | :--- | :--- |
-| **I** | **CSV, JSON, Excel** | Valores tipados, categorías, asociaciones campo-valor, frecuencia y desviaciones puntuales. | Observaciones tabulares y jerárquicas tipadas con procedencia explícita. |
-| **II** | **TXT y Secuencias** | N-gramas, fragmentos recurrentes, transiciones sintácticas y patrones secuenciales. | Tokens, secuencias discretas y ventanas deslizantes de transición. |
-| **III** | **Series Temporales y Flujos** | Dinámica temporal, deriva de concepto (*concept drift*), predicción de tendencias y cambios de régimen. | Ventanas continuas de estados, diferencias de primer orden y expectativas dinámicas. |
-| **IV** | **Formatos Complejos (Imágenes, Audio)** | Mecanismos de percepción espacial/espectral específicos (fase futura). | Descriptores de características antes de integrarse al grafo de memoria común. |
-
-*Estrategia:* Todos los niveles convergen en el mismo núcleo cognitivo y memoria relacional, manteniendo especializados únicamente los módulos de percepción.
+1. **El dilema estabilidad-plasticidad en flujo continuo:**  
+   ¿Cómo incorporar información sobre patrones no vistos previamente sin degradar ni sobreescribir las representaciones consolidadas con anterioridad?
+2. **El problema de la dimensionalidad y topología no predeterminada:**  
+   ¿Cómo permitir que la estructura interna de la memoria crezca o se contraiga según la riqueza intrínseca de los datos, sin fijar de antemano el número de nodos, categorías o componentes?
+3. **La discriminación entre Novedad y Anomalía:**  
+   ¿Cómo diferenciar una observación legítima pero infrecuente (que debería integrarse a la memoria si persiste) de un dato espurio, ruidoso o corrupto (que debe ser señalado como anomalía y no contaminar la memoria)?
+4. **La explicabilidad de la evidencia:**  
+   ¿Cómo garantizar que cada conclusión, expectativa o alerta emitida por el sistema pueda rastrearse hasta las observaciones, nodos y conexiones específicas que la originaron?
 
 ---
 
-## 6. Marco de Validación Experimental y Ablación
+## 3. Líneas de Investigación Bajo Estudio
 
-Para garantizar que cada elemento de la arquitectura aporte valor medible sin inflar la complejidad innecesariamente, el desarrollo se regirá por **pruebas de ablación sistemáticas**:
+En lugar de imponer una arquitectura cerrada, el proyecto evalúa cinco familias conceptuales como fuentes de hipótesis:
 
-1. **Prueba de aprendizaje de regularidades:** ¿Con qué precisión y velocidad converge el grafo ante patrones sintéticos controlados?
-2. **Prueba del dilema estabilidad-plasticidad:** ¿Puede el sistema incorporar una nueva regularidad sin degradar o borrar los patrones aprendidos previamente (*olvido catastrófico*)?
-3. **Prueba de discriminación Novedad vs. Anomalía:** ¿Distingue una mutación legítima de proceso frente a una inyección de ruido o dato corrupto?
-4. **Pruebas de ablación por mecanismo:**
-   - ¿Qué aporta el crecimiento de GNG frente a un grafo estático de $K$ nodos fijos?
-   - ¿Qué aporta el parámetro de vigilancia ART frente a un clustering estándar (k-means)?
-   - ¿Qué aporta la codificación predictiva frente a un conteo puro de coocurrencias?
-5. **Eficiencia y recursos:** Medición estricta de tiempo de CPU por observación, huella de memoria RAM del grafo y velocidad de serialización en disco.
-
----
-
-## 7. Decisiones Técnicas y Filosofía de Implementación
-
-| Componente | Decisión | Fundamento |
+| Línea de Investigación | Problema que Podría Resolver | Estado en el Proyecto |
 | :--- | :--- | :--- |
-| **Lenguaje** | Python | Agilidad de prototipado, legibilidad, trazabilidad matemática. |
-| **Interfaz Gráfica** | Tkinter | Integrada en Python estándar, ligera, sin frameworks pesados ni dependencias web. |
-| **Manejo de Datos** | Estándar (`json`, `csv`) + `openpyxl` | Mínima huella de dependencias externas. |
-| **Grafo y Algoritmos** | Implementación propia | Transparencia absoluta en la mecánica de pesos, podas y distancias. |
-| **Cálculo** | CPU determinista | Ejecutable en cualquier máquina estándar, sin requerir aceleración GPU dedicada. |
-| **C++** | Evaluación posterior | Sólo se considerará migrar partes del motor si los perfiles de rendimiento (*profiling*) demuestran un cuello de botella real. |
-| **Teoría Matemática** | Grafos y Espectros | Modelos como grafos de Ramanujan se consideran líneas teóricas de investigación espectral; **no se forzarán a priori** a menos que aporten ventajas demostrables en la difusión relacional. |
+| **Growing Neural Gas (GNG)** | Crecimiento topológico y adaptación continua de enlaces sin fijar tamaño a priori. | Hipótesis bajo estudio |
+| **Adaptive Resonance Theory (ART)** | Regulación de vigilancia para crear categorías nuevas vs. actualizar existentes. | Hipótesis bajo estudio |
+| **Predictive Coding** | Generación de expectativas y uso del error de predicción como señal de ajuste y sorpresa. | Hipótesis bajo estudio |
+| **Memoria Asociativa (Hopfield)** | Reconstrucción de patrones conocidos a partir de datos ruidosos o incompletos. | Hipótesis bajo estudio |
+| **IA Neuro-Simbólica** | Conservación de la semántica explícita, procedencia y relaciones auditables en grafos. | Hipótesis bajo estudio |
+
+> [!IMPORTANT]
+> **No asunción de aditividad:** No se asume que los cinco mecanismos deban integrarse conjuntamente, ni que sus beneficios teóricos se sumen linealmente. Cada mecanismo introduce costes computacionales, parámetros y posibles interferencias que deben medirse de forma aislada.
 
 ---
 
-## 8. Estructura del Proyecto
+## 4. Estrategia de Percepción: Modalidades Progresivas
+
+Para evitar la falacia de tratar "cualquier dato" como una masa homogénea indiferenciada, la entrada se estudiará en etapas secuenciales:
+
+- **Nivel I (Foco Inicial):** Datos estructurados (CSV, JSON, tablas).  
+  *Objetivo:* Probar relaciones de coocurrencia, asociaciones campo-valor y frecuencias relativas.
+- **Nivel II:** Secuencias discretas y texto plano básico.  
+  *Objetivo:* Probar transiciones de estado y ventanas temporales de orden corto.
+- **Nivel III:** Flujos continuos y series temporales.  
+  *Objetivo:* Probar expectativas predictivas continuas y detección de deriva (*concept drift*).
+- **Nivel IV:** Señales complejas y multimodales (fuera del alcance inmediato).
+
+---
+
+## 5. Metodología Experimental y Protocolo de Ablación
+
+Ningún módulo se incorporará al núcleo del sistema sin superar el protocolo de validación:
+
+### A. Referencia Mínima de Comparación (Baseline 0)
+Antes de evaluar mecanismos adaptativos complejos, se construirá un modelo de referencia elemental (conteo de frecuencias empíricas, clustering clásico o grafos de coocurrencia estáticos). Cualquier mecanismo propuesto deberá superar objetivamente a este baseline en tareas definidas.
+
+### B. Pruebas con Datos Sintéticos Controlados
+Se utilizarán conjuntos de datos sintéticos con propiedades rigurosamente parametrizadas:
+1. **Patrones base conocidos:** Estructuras estables y periódicas generadas artificialmente.
+2. **Variaciones legítimas:** Fluctuaciones estadísticas admisibles dentro del dominio.
+3. **Ruido incoherente:** Perturbaciones aleatorias sin correlación estructural.
+4. **Novedades controladas:** Introducción deliberada de nuevos patrones sostenidos en el tiempo.
+5. **Anomalías inyectadas:** Discrepancias puntuales y violaciones de relaciones de contexto.
+
+### C. Criterios de Evaluación Cuantitativos
+1. **Calidad de reconocimiento de patrones:** Exactitud en la identificación de regularidades conocidas.
+2. **Discriminación Novedad vs. Anomalía:** Tasa de verdaderos positivos en anomalías sin clasificar erróneamente novedades estables.
+3. **Resistencia al olvido catastrófico:** Retención de patrones antiguos tras procesar nuevas distribuciones de datos.
+4. **Eficiencia en recursos:** Huella de memoria en RAM (crecimiento de nodos/aristas) y tiempo de procesamiento por observación en CPU.
+5. **Trazabilidad y Explicabilidad:** Capacidad para aislar la subestructura de memoria que motivó cada salida del sistema.
+
+### D. Estrategia de Ablación
+Cada mecanismo (vigilancia, crecimiento de aristas, señal de predicción) será desactivado y contrastado individualmente para medir su impacto neto en el rendimiento global.
+
+---
+
+## 6. Decisiones Arquitectónicas Aplazadas
+
+Para mantener la integridad científica del proyecto, las siguientes decisiones quedan deliberadamente postergadas hasta contar con resultados experimentales:
+
+- **Fórmulas matemáticas definitivas:** Las funciones de actualización y distancia se definirán operativamente durante los experimentos con Baseline 0.
+- **Topologías predeterminadas:** No se impondrán restricciones espectrales o topológicas fijas (como grafos de Ramanujan) sin justificación empírica previa.
+- **Persistencia en disco:** La serialización y el formato de almacenamiento se definirán cuando la estructura de memoria mínima demuestre estabilidad.
+- **Interfaz gráfica de usuario:** La visualización interactiva se desarrollará una vez que las salidas del sistema y los datos a inspeccionar estén consolidados experimentalmente.
+
+---
+
+## 7. Estructura de Documentación del Repositorio
 
 ```text
-PRESENT_SIMPLE/
-├── README.md                 # Carta magna, arquitectura y fundamentos
-├── pyproject.toml            # Definición del paquete y dependencias de test
-├── docs/                     # Especificaciones formales y notas de investigación
-│   ├── theory/               # GNG, ART, Predictive Coding, Grafos
-│   └── experiments/          # Protocolos experimentales y benchmarks
-├── src/
-│   └── present_simple/
-│       ├── perception/       # Nivel I: CSV, JSON, TXT, Excel
-│       ├── core/
-│       │   ├── categories.py # Formación adaptativa (ART)
-│       │   ├── topology.py   # Crecimiento relacional (GNG)
-│       │   ├── predictive.py # Codificación predictiva y error
-│       │   └── memory.py     # Grafo relacional unificado
-│       ├── analysis/         # Explicabilidad, novedad y anomalías
-│       ├── storage/          # Persistencia JSON estructurada
-│       └── ui/               # Interfaz visual interactiva
-├── tests/                    # Pruebas unitarias y de integración
-└── experiments/              # Datasets sintéticos y scripts de validación
+PRESENT_SAMPLE/
+├── README.md                                    # Marco general y objetivos del proyecto
+├── pyproject.toml                               # Entorno de pruebas mínimas
+├── docs/
+│   ├── theory/
+│   │   └── cognitive_core_synthesis.md          # Análisis detallado de líneas, hipótesis y protocolo
+│   └── experiments/                             # Registros de pruebas y resultados empíricos
+└── tests/                                       # Pruebas automatizadas de reproducibilidad
 ```
 
 ---
 
-## 9. Estado del Proyecto
+## 8. Principio Rector de Desarrollo
 
-- **Fase actual:** Investigación arquitectónica y formulación matemática de los tres mecanismos de aprendizaje.
-- **Versión:** `0.1.0` (Fase de diseño formal).
-- **Consenso de diseño:** No apresurar código en `src/` hasta formalizar la interacción matemática entre vigilancia (ART), topología (GNG) y error predictivo en las observaciones de Nivel I.
+> *"Desarrollar primero el mecanismo más sencillo que permita comprobar una capacidad de aprendizaje observable. Cada nueva complejidad deberá justificar su incorporación mediante resultados comparables y reproducibles."*
