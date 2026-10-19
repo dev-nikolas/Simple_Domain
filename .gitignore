@@ -47,7 +47,8 @@ htmlcov/
 
 # Project specific
 experiments/logs/
-*.tmp
+# Local persistent data
+data/
 
 #vaino del frontend
 node_modules/

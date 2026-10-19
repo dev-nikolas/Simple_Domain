@@ -1,0 +1,164 @@
+[
+  {
+    "id": "ana_d7d756c6",
+    "filename": "telemetry_progression.csv",
+    "format": "csv",
+    "status": "completed",
+    "created_at": "2026-10-19T20:06:46.913321+00:00",
+    "summary": {
+      "dataset_name": "telemetry_progression.csv",
+      "format_type": "csv",
+      "total_rows": 5,
+      "total_columns": 2,
+      "numeric_series_count": 2,
+      "pattern_distribution": {
+        "arithmetic_progression": 2
+      },
+      "has_warnings": false
+    },
+    "result": {
+      "engine_version": "0.1.0",
+      "analysis_type": "short_numeric_patterns",
+      "dataset_name": "telemetry_progression.csv",
+      "total_series_analyzed": 2,
+      "patterns": [
+        {
+          "series_name": "step",
+          "pattern_type": "arithmetic_progression",
+          "description": "Progresión aritmética ascendente con paso constante de +1.",
+          "parameters": {
+            "step": 1.0,
+            "first_value": 1.0,
+            "last_value": 5.0
+          },
+          "evidence": {
+            "constant_difference": 1.0,
+            "verified_transitions": 4
+          },
+          "statistics": {
+            "count": 5,
+            "min_value": 1.0,
+            "max_value": 5.0,
+            "mean": 3.0,
+            "std_dev": 1.414214,
+            "consecutive_diffs": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "warnings": []
+        },
+        {
+          "series_name": "signal",
+          "pattern_type": "arithmetic_progression",
+          "description": "Progresión aritmética ascendente con paso constante de +2.",
+          "parameters": {
+            "step": 2.0,
+            "first_value": 10.0,
+            "last_value": 18.0
+          },
+          "evidence": {
+            "constant_difference": 2.0,
+            "verified_transitions": 4
+          },
+          "statistics": {
+            "count": 5,
+            "min_value": 10.0,
+            "max_value": 18.0,
+            "mean": 14.0,
+            "std_dev": 2.828427,
+            "consecutive_diffs": [
+              2.0,
+              2.0,
+              2.0,
+              2.0
+            ]
+          },
+          "warnings": []
+        }
+      ],
+      "summary": {
+        "dataset_name": "telemetry_progression.csv",
+        "format_type": "csv",
+        "total_rows": 5,
+        "total_columns": 2,
+        "numeric_series_count": 2,
+        "pattern_distribution": {
+          "arithmetic_progression": 2
+        },
+        "has_warnings": false
+      },
+      "global_warnings": []
+    },
+    "warnings": []
+  },
+  {
+    "id": "ana_9cadd84c",
+    "filename": "constant_pulse.json",
+    "format": "json",
+    "status": "completed",
+    "created_at": "2026-10-19T20:06:46.925586+00:00",
+    "summary": {
+      "dataset_name": "constant_pulse.json",
+      "format_type": "json",
+      "total_rows": 6,
+      "total_columns": 1,
+      "numeric_series_count": 1,
+      "pattern_distribution": {
+        "constant": 1
+      },
+      "has_warnings": false
+    },
+    "result": {
+      "engine_version": "0.1.0",
+      "analysis_type": "short_numeric_patterns",
+      "dataset_name": "constant_pulse.json",
+      "total_series_analyzed": 1,
+      "patterns": [
+        {
+          "series_name": "sequence",
+          "pattern_type": "constant",
+          "description": "Secuencia de valores constantes igual a 7.0.",
+          "parameters": {
+            "constant_value": 7.0,
+            "tolerance": 1e-09
+          },
+          "evidence": {
+            "all_identical": true,
+            "value_count": 6
+          },
+          "statistics": {
+            "count": 6,
+            "min_value": 7.0,
+            "max_value": 7.0,
+            "mean": 7.0,
+            "std_dev": 0.0,
+            "consecutive_diffs": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "warnings": []
+        }
+      ],
+      "summary": {
+        "dataset_name": "constant_pulse.json",
+        "format_type": "json",
+        "total_rows": 6,
+        "total_columns": 1,
+        "numeric_series_count": 1,
+        "pattern_distribution": {
+          "constant": 1
+        },
+        "has_warnings": false
+      },
+      "global_warnings": []
+    },
+    "warnings": []
+  }
+]

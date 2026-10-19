@@ -1,10 +1,6 @@
 """
-Simple Domain — Aplicación FastAPI del Servicio HTTP Local v0.1
-
-Endpoints:
-- GET /health: Diagnóstico de servicio y preparación del modelo.
-- GET /v1/info: Metadatos no sensibles de versión, capacidades y estado del detector.
-- POST /v1/score: Inferencia de anomalías con validación y desglose de puntuaciones.
+Simple Domain — Aplicación FastAPI del Servicio HTTP Local v1.0
+Endpoints: GET /health, GET /v1/info, POST /v1/score, /v1/{research, data-sources, patterns, settings}.
 """
 
 from __future__ import annotations
@@ -17,6 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 import simple_domain
 from simple_domain.pipeline import SimpleDomainPipeline
+from simple_domain.service.modular_setup import setup_modular_services
 from simple_domain.service.schemas import (
     ErrorResponse,
     HealthResponse,
@@ -26,6 +23,7 @@ from simple_domain.service.schemas import (
 )
 
 MAX_PAYLOAD_SIZE_BYTES = 64 * 1024  # 64 KB
+MAX_ANALYSIS_PAYLOAD_BYTES = 4 * 1024 * 1024  # 4 MB
 LOCAL_CORS_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
@@ -35,21 +33,22 @@ LOCAL_CORS_ORIGINS = [
 
 
 class PayloadSizeLimitMiddleware(BaseHTTPMiddleware):
-    """Rechaza peticiones cuyo tamaño de cuerpo exceda el límite establecido."""
+    """Rechaza peticiones cuyo tamaño exceda el límite establecido por ruta."""
 
     async def dispatch(self, request: Request, call_next):
-        content_length = request.headers.get("content-length")
-        if content_length:
+        cl = request.headers.get("content-length")
+        if cl:
             try:
-                if int(content_length) > MAX_PAYLOAD_SIZE_BYTES:
+                is_up = request.url.path.startswith("/v1/analysis") or request.url.path.startswith("/v1/archive")
+                lim = MAX_ANALYSIS_PAYLOAD_BYTES if is_up else MAX_PAYLOAD_SIZE_BYTES
+                if int(cl) > lim:
                     code = getattr(status, "HTTP_413_CONTENT_TOO_LARGE", 413)
-                    return JSONResponse(
-                        status_code=code,
-                        content={"detail": "Payload demasiado grande (máximo 64 KB)", "error_code": "PAYLOAD_TOO_LARGE"},
-                    )
+                    msg = "Archivo excede límite de 4 MB" if is_up else "Payload excede 64 KB"
+                    return JSONResponse(status_code=code, content={"detail": msg, "error_code": "PAYLOAD_TOO_LARGE"})
             except ValueError:
                 pass
         return await call_next(request)
+
 
 
 def get_model_status(pipeline: Optional[SimpleDomainPipeline]) -> str:
@@ -63,11 +62,14 @@ def get_model_status(pipeline: Optional[SimpleDomainPipeline]) -> str:
     return "ready"
 
 
-def create_app(pipeline: Optional[SimpleDomainPipeline] = None) -> FastAPI:
-    """Factoría para crear e inicializar la aplicación FastAPI."""
+def create_app(
+    pipeline: Optional[SimpleDomainPipeline] = None,
+    storage_dir: Optional[str] = None,
+) -> FastAPI:
+    """Factoría para crear e inicializar la aplicación FastAPI con módulos."""
     app = FastAPI(
         title="Simple Domain Local HTTP Service",
-        description="Capa de servicio HTTP local v0.1 para inferencia y diagnóstico.",
+        description="Capa de servicio HTTP local v1.0 modular con persistencia JSON.",
         version=simple_domain.__version__,
         docs_url="/docs",
         redoc_url=None,
@@ -78,9 +80,11 @@ def create_app(pipeline: Optional[SimpleDomainPipeline] = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=LOCAL_CORS_ORIGINS,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
+
+    setup_modular_services(app, storage_dir=storage_dir)
 
     @app.get("/health", response_model=HealthResponse, summary="Diagnóstico de salud", tags=["Health"])
     def health_check() -> HealthResponse:
@@ -103,7 +107,13 @@ def create_app(pipeline: Optional[SimpleDomainPipeline] = None) -> FastAPI:
             "relational_compatibility",
             "quantile_calibration",
             "score_breakdown",
+            "modular_research",
+            "modular_data_sources",
+            "modular_patterns",
+            "modular_settings",
+            "brain_analysis",
         ]
+
         model_config: Optional[Dict[str, Any]] = None
         if current is not None:
             cfg = current.get_config()

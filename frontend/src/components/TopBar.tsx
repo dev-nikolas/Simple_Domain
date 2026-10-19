@@ -4,19 +4,21 @@
  */
 
 import React from 'react';
-import { Menu, Activity } from 'lucide-react';
+import { Menu, Activity, Plus } from 'lucide-react';
 import { UI_VERSION } from '../config/env';
 import { TelemetryState } from '../types/api';
 
 interface TopBarProps {
   onToggleMobileSidebar: () => void;
   onOpenDiagnostics: () => void;
+  onNewConversation?: () => void;
   telemetry: TelemetryState;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
   onToggleMobileSidebar,
   onOpenDiagnostics,
+  onNewConversation,
   telemetry,
 }) => {
   const { connectionStatus, health, isLoading } = telemetry;
@@ -58,7 +60,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <header className="w-full bg-transparent px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between text-xs font-mono pointer-events-none relative z-20 border-none">
       {/* Botón flotante para móvil (el resto queda fuera en escritorio) */}
-      <div className="pointer-events-auto">
+      <div className="pointer-events-auto flex items-center space-x-1.5">
         <button
           onClick={onToggleMobileSidebar}
           className="md:hidden p-1.5 bg-cyber-surface/90 border border-cyber-border hover:border-cyber-yellow/40 cut-corner-sm text-cyber-muted hover:text-cyber-yellow backdrop-blur-md shadow-lg transition-colors cursor-pointer"
@@ -67,6 +69,16 @@ export const TopBar: React.FC<TopBarProps> = ({
         >
           <Menu className="h-4 w-4" />
         </button>
+        {onNewConversation && (
+          <button
+            onClick={onNewConversation}
+            className="md:hidden p-1.5 bg-cyber-surface/90 border border-cyber-yellow/40 hover:border-cyber-yellow cut-corner-sm text-cyber-yellow backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+            title="Nuevo Chat (+)"
+            aria-label="Crear nuevo chat"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Botones levitantes: aviso de online, telemetría y versión */}

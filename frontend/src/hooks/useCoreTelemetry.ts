@@ -1,12 +1,14 @@
 /**
  * Simple Domain — Hook useCoreTelemetry
- * Gestiona el ciclo de vida de la telemetría en vivo con sondeo moderado.
+ * Gestiona el ciclo de vida de la telemetría con sondeo eficiente y descarte de redundancia.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { POLL_INTERVAL_MS } from '../config/env';
 import { ApiError, fetchHealth, fetchInfo } from '../services/simpleDomainApi';
-import { ConnectionStatus, TelemetryState } from '../types/api';
+import { ConnectionStatus, InfoResponse, TelemetryState } from '../types/api';
+
+
 
 const INITIAL_STATE: TelemetryState = {
   connectionStatus: 'CONNECTING',
@@ -25,7 +27,7 @@ export function useCoreTelemetry(): TelemetryState & { refresh: () => Promise<vo
   const stateRef = useRef<TelemetryState>(state);
   stateRef.current = state;
 
-  const performPoll = useCallback(async () => {
+  const performPoll = useCallback(async (forceInfo = false) => {
     if (abortCtrlRef.current) {
       abortCtrlRef.current.abort();
     }
@@ -34,9 +36,14 @@ export function useCoreTelemetry(): TelemetryState & { refresh: () => Promise<vo
 
     setState((prev) => ({ ...prev, isLoading: true }));
 
+    const needInfo = forceInfo || !stateRef.current.info || stateRef.current.connectionStatus !== 'ONLINE';
+    const infoPromise: Promise<InfoResponse> = needInfo
+      ? fetchInfo(ctrl.signal)
+      : Promise.resolve(stateRef.current.info as InfoResponse);
+
     const [healthRes, infoRes] = await Promise.allSettled([
       fetchHealth(ctrl.signal),
-      fetchInfo(ctrl.signal),
+      infoPromise,
     ]);
 
     if (ctrl.signal.aborted) return;
@@ -60,12 +67,12 @@ export function useCoreTelemetry(): TelemetryState & { refresh: () => Promise<vo
     }
 
     let status: ConnectionStatus = 'ONLINE';
-    if (healthRes.status === 'rejected' && infoRes.status === 'rejected') {
+    if (healthRes.status === 'rejected' && (!nextInfo || infoRes.status === 'rejected')) {
       const isUnreachable =
         (healthRes.reason instanceof ApiError && !healthRes.reason.statusCode) ||
-        (infoRes.reason instanceof ApiError && !infoRes.reason.statusCode);
+        (infoRes.status === 'rejected' && infoRes.reason instanceof ApiError && !infoRes.reason.statusCode);
       status = isUnreachable ? 'OFFLINE' : 'ERROR';
-    } else if (healthRes.status === 'rejected' || infoRes.status === 'rejected') {
+    } else if (healthRes.status === 'rejected') {
       status = 'ERROR';
     }
 
@@ -85,17 +92,17 @@ export function useCoreTelemetry(): TelemetryState & { refresh: () => Promise<vo
   }, []);
 
   useEffect(() => {
-    performPoll();
+    performPoll(true);
 
     const intervalId = window.setInterval(() => {
       if (document.visibilityState === 'visible') {
-        performPoll();
+        performPoll(false);
       }
     }, POLL_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        performPoll();
+        performPoll(false);
       }
     };
 
@@ -110,5 +117,5 @@ export function useCoreTelemetry(): TelemetryState & { refresh: () => Promise<vo
     };
   }, [performPoll]);
 
-  return { ...state, refresh: performPoll };
+  return { ...state, refresh: () => performPoll(true) };
 }

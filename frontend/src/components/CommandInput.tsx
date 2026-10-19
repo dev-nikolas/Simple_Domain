@@ -5,6 +5,8 @@
 
 import React, { useState, useRef } from 'react';
 import { Terminal, CornerDownLeft, XCircle, Clock } from 'lucide-react';
+import { AppRoute } from '../hooks/useRouter';
+import { OperationsMenu } from './OperationsMenu';
 
 interface CommandLog {
   id: string;
@@ -14,7 +16,19 @@ interface CommandLog {
   response: string;
 }
 
-export const CommandInput: React.FC = () => {
+interface CommandInputProps {
+  onNavigate?: (route: AppRoute) => void;
+  onSubmitCommand?: (text: string) => void;
+  onFileSelected?: (file: File) => void;
+  isProcessing?: boolean;
+}
+
+export const CommandInput: React.FC<CommandInputProps> = ({
+  onNavigate,
+  onSubmitCommand,
+  onFileSelected,
+  isProcessing = false,
+}) => {
   const [inputVal, setInputVal] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [history, setHistory] = useState<CommandLog[]>([]);
@@ -24,7 +38,14 @@ export const CommandInput: React.FC = () => {
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const trimmed = inputVal.trim();
-    if (!trimmed || isSubmitting) return;
+    if (!trimmed || isSubmitting || isProcessing) return;
+
+    if (onSubmitCommand) {
+      onSubmitCommand(trimmed);
+      setInputVal('');
+      if (inputRef.current) inputRef.current.focus();
+      return;
+    }
 
     setIsSubmitting(true);
     const timeStr = new Date().toLocaleTimeString('es-ES', { hour12: false });
@@ -33,7 +54,7 @@ export const CommandInput: React.FC = () => {
       command: trimmed,
       timestamp: timeStr,
       status: 'INFO',
-      response: `Instrucción registrada en buffer local: "${trimmed}". Nota: El motor conversacional y el aprendizaje adaptativo se integrarán en etapas posteriores (v1.1+).`,
+      response: `Instrucción registrada en buffer local: "${trimmed}".`,
     };
 
     setTimeout(() => {
@@ -91,15 +112,13 @@ export const CommandInput: React.FC = () => {
       {/* Barra de entrada terminal cyberpunk */}
       <form
         onSubmit={handleSubmit}
-        className="group relative flex items-center bg-cyber-surface/95 border border-cyber-border focus-within:border-cyber-yellow focus-within:shadow-cyber-yellow-sm transition-all duration-200 cut-corner-sm p-1 backdrop-blur-md"
+        className="group relative flex items-center bg-cyber-surface/95 border border-cyber-border focus-within:border-cyber-yellow focus-within:shadow-cyber-yellow-sm transition-all duration-200 p-1 backdrop-blur-md"
       >
         <div className="absolute -top-1 -left-1 w-2 h-2 bg-cyber-yellow/60 pointer-events-none group-focus-within:bg-cyber-yellow" />
 
-        {/* Indicador de entrada estilo terminal */}
-        <div className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 bg-cyber-card border border-cyber-border text-cyber-yellow font-mono text-xs select-none">
-          <Terminal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-cyber-yellow" />
-          <span className="font-bold hidden sm:inline">SYS_IN</span>
-          <span className="animate-pulse">&gt;</span>
+        {/* Botón "+" para desplegar menú de subida de archivos / operaciones */}
+        <div className="shrink-0 pl-0.5 pr-1">
+          <OperationsMenu onNavigate={onNavigate} onFileSelected={onFileSelected} isProcessing={isProcessing} />
         </div>
 
         {/* Campo de texto principal */}

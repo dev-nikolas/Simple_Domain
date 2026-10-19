@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-10-19T19:42:52.093606+00:00",
+  "preferences": {
+    "system_name": "Simple Domain",
+    "enable_relational_default": true,
+    "default_quantile": 0.95,
+    "telemetry_poll_interval_ms": 5000,
+    "auto_refresh_ui": true,
+    "audit_strict_mode": false,
+    "theme_contrast": "high"
+  }
+}
