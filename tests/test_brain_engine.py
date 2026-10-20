@@ -1,7 +1,7 @@
 import pytest
-from simple_domain.brain import analyze_dataset
-from simple_domain.brain.analyzers.short_numeric import analyze_series
-from simple_domain.brain.models import NormalizedDataset, NormalizedSeries
+from brain import analyze_dataset
+from brain.analyzers.short_numeric import analyze_series
+from brain.models import NormalizedDataset, NormalizedSeries
 
 
 def test_brain_constant_sequence():
@@ -92,3 +92,32 @@ def test_brain_analyze_dataset_full():
     assert result.total_series_analyzed == 2
     assert result.summary["pattern_distribution"]["arithmetic_progression"] == 1
     assert result.summary["pattern_distribution"]["constant"] == 1
+
+
+def test_direct_root_brain_import_and_execution():
+    import brain
+    from brain import analyze_dataset as root_analyze_dataset
+    from brain.models import (
+        NormalizedDataset as RootNormalizedDataset,
+        NormalizedSeries as RootNormalizedSeries,
+    )
+    from brain.analyzers.short_numeric import analyze_series as root_analyze_series
+
+    assert brain.BRAIN_ENGINE_VERSION == "0.1.0"
+    s = RootNormalizedSeries("test_direct", [3.0, 6.0, 9.0], 3, 0, False)
+    match = root_analyze_series(s)
+    assert match.pattern_type == "arithmetic_progression"
+    assert match.parameters["step"] == 3.0
+
+    ds = RootNormalizedDataset(
+        dataset_name="direct.csv",
+        format_type="csv",
+        row_count=3,
+        column_names=["test_direct"],
+        column_types={"test_direct": "numeric"},
+        numeric_series=[s],
+    )
+    res = root_analyze_dataset(ds)
+    assert res.engine_version == "0.1.0"
+    assert res.total_series_analyzed == 1
+

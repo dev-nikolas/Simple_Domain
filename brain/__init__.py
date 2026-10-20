@@ -3,8 +3,8 @@ Simple Domain — Módulo Brain
 Motor independiente de análisis y detección de patrones numéricos.
 """
 
-from simple_domain.brain.engine import BRAIN_ENGINE_VERSION, analyze_dataset
-from simple_domain.brain.models import (
+from brain.engine import BRAIN_ENGINE_VERSION, analyze_dataset
+from brain.models import (
     BrainAnalysisResult,
     NormalizedDataset,
     NormalizedSeries,
