@@ -5,8 +5,8 @@ Orquesta la ejecución de analizadores sobre datasets normalizados.
 
 from __future__ import annotations
 from typing import List
-from brain.analyzers.short_numeric import analyze_series
-from brain.models import BrainAnalysisResult, NormalizedDataset, PatternMatch
+from simple_domain.brain.analyzers.short_numeric import analyze_series
+from simple_domain.brain.models import BrainAnalysisResult, NormalizedDataset, PatternMatch
 
 BRAIN_ENGINE_VERSION = "0.1.0"
 

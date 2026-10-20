@@ -6,7 +6,7 @@ Detecta secuencias constantes, progresiones aritméticas y variaciones irregular
 from __future__ import annotations
 import math
 from typing import List, Optional
-from brain.models import NormalizedSeries, PatternMatch, SeriesStatistics
+from simple_domain.brain.models import NormalizedSeries, PatternMatch, SeriesStatistics
 
 TOLERANCE = 1e-9
 MIN_SERIES_LENGTH = 3

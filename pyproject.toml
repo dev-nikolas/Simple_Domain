@@ -30,10 +30,9 @@ server = [
 
 
 [tool.setuptools.packages.find]
-where = [".", "backend/src"]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-pythonpath = [".", "backend/src"]
-
+pythonpath = ["src"]

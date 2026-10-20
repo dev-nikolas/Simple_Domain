@@ -8,7 +8,7 @@ import asyncio
 import dataclasses
 from pathlib import Path
 from typing import Any, Dict, Optional
-from brain import analyze_dataset
+from simple_domain.brain import analyze_dataset
 from simple_domain.jobs.events import EventBroker
 from simple_domain.repositories.archives import ArchiveRepository
 from simple_domain.repositories.conversations import ConversationRepository

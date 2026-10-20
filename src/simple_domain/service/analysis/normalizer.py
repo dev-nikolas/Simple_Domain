@@ -9,7 +9,7 @@ import io
 import json
 import math
 from typing import Any, Dict, List, Optional
-from brain.models import NormalizedDataset, NormalizedSeries
+from simple_domain.brain.models import NormalizedDataset, NormalizedSeries
 
 MAX_ALLOWED_ROWS = 50_000
 MAX_ALLOWED_COLS = 200

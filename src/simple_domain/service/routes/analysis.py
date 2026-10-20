@@ -9,7 +9,7 @@ import os
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile, status
 
-from brain import analyze_dataset
+from simple_domain.brain import analyze_dataset
 from simple_domain.service.analysis.normalizer import normalize_csv, normalize_json
 
 MAX_ANALYSIS_FILE_SIZE = 4 * 1024 * 1024  # 4 MB
