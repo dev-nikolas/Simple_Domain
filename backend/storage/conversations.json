@@ -1,0 +1,66 @@
+[
+  {
+    "id": "conv_caf52f2166",
+    "title": "Prueba de Integración RELIC",
+    "created_at": "2026-10-22T03:54:55.303262+00:00",
+    "updated_at": "2026-10-22T03:54:55.337905+00:00",
+    "messages": [
+      {
+        "id": "msg_c2bb209a",
+        "role": "user",
+        "content": "¿cuánto es 1 + 1?",
+        "created_at": "2026-10-22T03:54:55.323021+00:00",
+        "archive_id": null,
+        "job_id": null,
+        "metadata": {}
+      },
+      {
+        "id": "msg_230958bd",
+        "role": "assistant",
+        "content": "El resultado es 2.",
+        "created_at": "2026-10-22T03:54:55.337905+00:00",
+        "archive_id": null,
+        "job_id": null,
+        "metadata": {
+          "route": "deterministic_arithmetic",
+          "status": "VALID",
+          "latency_ms": 0.0703,
+          "rss_mb": 45.2109375
+        }
+      }
+    ],
+    "archive_ids": []
+  },
+  {
+    "id": "conv_f7ce9eb395",
+    "title": "Prueba de Integración RELIC",
+    "created_at": "2026-10-22T03:53:34.455276+00:00",
+    "updated_at": "2026-10-22T03:53:34.489563+00:00",
+    "messages": [
+      {
+        "id": "msg_f3ca5b61",
+        "role": "user",
+        "content": "¿cuánto es 1 + 1?",
+        "created_at": "2026-10-22T03:53:34.474676+00:00",
+        "archive_id": null,
+        "job_id": null,
+        "metadata": {}
+      },
+      {
+        "id": "msg_44b5d793",
+        "role": "assistant",
+        "content": "El resultado es 2.",
+        "created_at": "2026-10-22T03:53:34.489563+00:00",
+        "archive_id": null,
+        "job_id": null,
+        "metadata": {
+          "route": "deterministic_arithmetic",
+          "status": "VALID",
+          "latency_ms": 0.0579,
+          "rss_mb": 45.15234375
+        }
+      }
+    ],
+    "archive_ids": []
+  }
+]
