@@ -6,20 +6,47 @@ Menos de 180 líneas.
 
 from __future__ import annotations
 import asyncio
+from enum import Enum
+import re
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Header, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/v1/sandbox", tags=["Sandbox"])
+RUN_ID_REGEX = re.compile(r"^sb_[a-f0-9]{8}$")
+
+
+class SandboxLevelEnum(str, Enum):
+    all = "all"
+    l1 = "L1_direct_lookup"
+    l2 = "L2_inventory_operations"
+    l3 = "L3_epistemic_rejection"
+    l01 = "l01_direct_arithmetic"
+    l02 = "l02_inventory_units"
+    l03 = "l03_epistemic_rejection"
+
+
+class SandboxSystemEnum(str, Enum):
+    rules = "rules"
+    slot_filler = "slot_filler"
+    model = "model"
+
+
+class SandboxSplitEnum(str, Enum):
+    holdout_template = "holdout_template"
+    train = "train"
+    val = "val"
+    test = "test"
 
 
 class SandboxRunCreateRequest(BaseModel):
-    level: str = Field("L1_direct_lookup", description="Nivel curricular (L1, L2, etc. o 'all')")
+    level: SandboxLevelEnum = Field(SandboxLevelEnum.all, description="Nivel curricular o 'all'")
     seed: int = Field(42, description="Semilla aleatoria para reproducibilidad")
-    system: str = Field("rules", description="Sistema a evaluar: 'rules', 'slot_filler', 'model'")
+    system: SandboxSystemEnum = Field(SandboxSystemEnum.rules, description="Sistema a evaluar")
+    split: SandboxSplitEnum = Field(SandboxSplitEnum.holdout_template, description="Split del dataset")
     penalty_lambda: float = Field(5.0, description="Factor de penalización asimétrica lambda")
-    max_episodes: int = Field(30, ge=1, le=500, description="Cantidad máxima de episodios en la corrida")
+    max_episodes: int = Field(30, ge=1, le=5000, description="Cantidad máxima de episodios")
 
 
 def _get_services(request: Request):
@@ -35,33 +62,52 @@ def _get_services(request: Request):
 async def create_sandbox_run(req: SandboxRunCreateRequest, request: Request) -> Dict[str, Any]:
     repo, _, runner = _get_services(request)
 
+    # 1. Honestidad de sistemas: 503 si el sistema no está servido en este entorno
+    if req.system in [SandboxSystemEnum.model, SandboxSystemEnum.slot_filler]:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"El sistema '{req.system.value}' no está disponible en este entorno. Solo el sistema 'rules' está activo.",
+        )
+
+    # 2. Control de concurrencia (máximo 2 corridas activas simultáneas)
+    active = getattr(request.app.state, "active_sandbox_runs", set())
+    active = {rid for rid in active if (r := repo.get_run(rid)) and r.get("status") == "running"}
+    request.app.state.active_sandbox_runs = active
+    if len(active) >= 2:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Límite de concurrencia alcanzado: máximo 2 corridas simultáneas activas.",
+        )
+
     commit = runner.get_commit_hash()
     dataset_hash = runner.get_dataset_hash()
     weights_hash = runner.get_weights_hash()
 
     manifest = repo.create_run(
-        level=req.level,
+        level=req.level.value,
         seed=req.seed,
-        system=req.system,
+        system=req.system.value,
+        split=req.split.value,
         penalty_lambda=req.penalty_lambda,
         commit_hash=commit,
         dataset_hash=dataset_hash,
         weights_hash=weights_hash,
         total_episodes=req.max_episodes,
     )
+    active.add(manifest["id"])
 
-    # Lanzar la corrida de forma asíncrona en segundo plano
+    # Lanzar la corrida en background
     asyncio.create_task(
         runner.run(
             run_id=manifest["id"],
-            level=req.level,
+            level=req.level.value,
             seed=req.seed,
-            system=req.system,
+            system=req.system.value,
+            split=req.split.value,
             penalty_lambda=req.penalty_lambda,
             max_episodes=req.max_episodes,
         )
     )
-
     return manifest
 
 
@@ -77,6 +123,8 @@ def list_sandbox_runs(
 
 @router.get("/runs/{run_id}", summary="Consultar manifiesto y detalles de una corrida")
 def get_sandbox_run(run_id: str, request: Request) -> Dict[str, Any]:
+    if not RUN_ID_REGEX.match(run_id):
+        raise HTTPException(status_code=400, detail="Formato de run_id no válido.")
     repo, _, _ = _get_services(request)
     manifest = repo.get_run(run_id)
     if not manifest:
@@ -84,12 +132,14 @@ def get_sandbox_run(run_id: str, request: Request) -> Dict[str, Any]:
     return manifest
 
 
-@router.get("/runs/{run_id}/events", summary="Stream SSE de eventos de la corrida con soporte Last-Event-ID")
+@router.get("/runs/{run_id}/events", summary="Stream SSE de eventos con soporte Last-Event-ID")
 async def get_sandbox_run_events(
     run_id: str,
     request: Request,
     last_event_id: Optional[str] = Header(None, alias="Last-Event-ID"),
 ):
+    if not RUN_ID_REGEX.match(run_id):
+        raise HTTPException(status_code=400, detail="Formato de run_id no válido.")
     repo, broker, _ = _get_services(request)
     manifest = repo.get_run(run_id)
     if not manifest:
@@ -104,3 +154,4 @@ async def get_sandbox_run_events(
             "X-Accel-Buffering": "no",
         },
     )
+

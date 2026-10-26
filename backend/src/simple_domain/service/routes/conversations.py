@@ -68,7 +68,7 @@ def add_message(conversation_id: str, req: MessageCreate, request: Request) -> D
 
     # 2. Si el mensaje es de usuario, consultar a RELIC y registrar respuesta del asistente
     if (req.role or "user") == "user" and req.content.strip():
-        relic_res = relic_client.query(req.content)
+        relic_res = relic_client.query(req.content, allow_fallback=True)
         assistant_content = relic_res.get("text", "")
         repo.add_message(
             conv_id=conversation_id,
