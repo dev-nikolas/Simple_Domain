@@ -1,0 +1,1091 @@
+[
+  {
+    "id": "sb_08dd1498",
+    "level": "L1_direct_lookup",
+    "seed": 42,
+    "system": "rules",
+    "penalty_lambda": 5.0,
+    "commit": "63eaee9",
+    "dataset_hash": "0092c155a8c2cf92a45cf9a705eea7e25a5e8b99a091f1beb4cf28d670311d65",
+    "weights_hash": "328d5e70a41c6a1e3a26e01d7c04d6e144e8710b4589f2a40c4000e2cb5b29dc",
+    "total_episodes": 20,
+    "status": "completed",
+    "created_at": "2026-10-26T03:57:51.699997+00:00",
+    "completed_at": "2026-10-26T03:57:55.026962+00:00",
+    "metrics": {
+      "exact_match_count": 9,
+      "exact_match_rate": 0.45,
+      "wilson_95": [
+        0.2581981721705886,
+        0.6579142886780157
+      ],
+      "false_acceptance_count": 0,
+      "false_acceptance_rate": 0.0,
+      "correct_abstention_count": 0,
+      "unnecessary_abstention_count": 11,
+      "mean_reward": 0.33999999999999997
+    },
+    "episodes": [
+      {
+        "episode": 1,
+        "prompt": "calcula la suma de cuatro e diez",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0539,
+            "output": {
+              "normalized": "la suma de 4 e 10",
+              "raw": "calcula la suma de cuatro e diez"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0944,
+            "output": {
+              "intent_kind": "FreeLanguage(\"la suma de 4 e 10\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "FreeLanguage(\"la suma de 4 e 10\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0052,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1864,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "14",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 2,
+        "prompt": "resta veintidós y tres",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0702,
+            "output": {
+              "normalized": "22 - 3",
+              "raw": "resta veintidós y tres"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0338,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 22.0, steps: [(Subtract, 3.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 22.0, steps: [(Subtract, 3.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0335,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1792,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 22 - 3 = 19. El resultado es 19."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "19",
+        "text": "Entendí: 22 - 3 = 19. El resultado es 19."
+      },
+      {
+        "episode": 3,
+        "prompt": "12 disminuido en 3",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0565,
+            "output": {
+              "normalized": "12 disminuido en 3",
+              "raw": "12 disminuido en 3"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.1289,
+            "output": {
+              "intent_kind": "FreeLanguage(\"12 disminuido en 3\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0007,
+            "output": {
+              "rir_target": "FreeLanguage(\"12 disminuido en 3\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.007,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.233,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "9",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 4,
+        "prompt": "diferencia entre dos y tres",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0535,
+            "output": {
+              "normalized": "diferencia / 2 y 3",
+              "raw": "diferencia entre dos y tres"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.1003,
+            "output": {
+              "intent_kind": "FreeLanguage(\"diferencia / 2 y 3\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "FreeLanguage(\"diferencia / 2 y 3\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0054,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.195,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "-1",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 5,
+        "prompt": "14 por 13",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0438,
+            "output": {
+              "normalized": "14 * 13",
+              "raw": "14 por 13"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0267,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 14.0, steps: [(Multiply, 13.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 14.0, steps: [(Multiply, 13.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.014,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1146,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 14 * 13 = 182. El resultado es 182."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "182",
+        "text": "Entendí: 14 * 13 = 182. El resultado es 182."
+      },
+      {
+        "episode": 6,
+        "prompt": "24 mas catorce",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0755,
+            "output": {
+              "normalized": "24 + 14",
+              "raw": "24 mas catorce"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.035,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 24.0, steps: [(Add, 14.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 24.0, steps: [(Add, 14.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0333,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1774,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 24 + 14 = 38. El resultado es 38."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "38",
+        "text": "Entendí: 24 + 14 = 38. El resultado es 38."
+      },
+      {
+        "episode": 7,
+        "prompt": "dime el resultado de 5 - siete",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0738,
+            "output": {
+              "normalized": "dime el resultado de 5 - 7",
+              "raw": "dime el resultado de 5 - siete"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0328,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 5.0, steps: [(Subtract, 7.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 5.0, steps: [(Subtract, 7.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0152,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1576,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 5 - 7 = -2. El resultado es -2."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "-2",
+        "text": "Entendí: 5 - 7 = -2. El resultado es -2."
+      },
+      {
+        "episode": 8,
+        "prompt": "dividir trece entre 7",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.055,
+            "output": {
+              "normalized": "dividir 13 / 7",
+              "raw": "dividir trece entre 7"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.1059,
+            "output": {
+              "intent_kind": "FreeLanguage(\"dividir 13 / 7\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0007,
+            "output": {
+              "rir_target": "FreeLanguage(\"dividir 13 / 7\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0056,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.2048,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "1.86",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 9,
+        "prompt": "obtén el valor de veintiséis - 11",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0655,
+            "output": {
+              "normalized": "obtén el valor de 26 - 11",
+              "raw": "obtén el valor de veintiséis - 11"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0774,
+            "output": {
+              "intent_kind": "FreeLanguage(\"obtén el valor de 26 - 11\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "FreeLanguage(\"obtén el valor de 26 - 11\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0047,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1724,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "15",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 10,
+        "prompt": "diferencia entre 23 y 15",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.047,
+            "output": {
+              "normalized": "diferencia / 23 y 15",
+              "raw": "diferencia entre 23 y 15"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.1119,
+            "output": {
+              "intent_kind": "FreeLanguage(\"diferencia / 23 y 15\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "FreeLanguage(\"diferencia / 23 y 15\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0058,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1967,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "8",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 11,
+        "prompt": "obtén el valor de 27 + 14",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.058,
+            "output": {
+              "normalized": "obtén el valor de 27 + 14",
+              "raw": "obtén el valor de 27 + 14"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0862,
+            "output": {
+              "intent_kind": "FreeLanguage(\"obtén el valor de 27 + 14\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "FreeLanguage(\"obtén el valor de 27 + 14\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0046,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1842,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "41",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 12,
+        "prompt": "resta 19 y tres",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0559,
+            "output": {
+              "normalized": "19 - 3",
+              "raw": "resta 19 y tres"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0324,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 19.0, steps: [(Subtract, 3.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 19.0, steps: [(Subtract, 3.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0162,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1493,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 19 - 3 = 16. El resultado es 16."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "16",
+        "text": "Entendí: 19 - 3 = 16. El resultado es 16."
+      },
+      {
+        "episode": 13,
+        "prompt": "cuánto da 13 * 5",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0612,
+            "output": {
+              "normalized": "13 * 5",
+              "raw": "cuánto da 13 * 5"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0332,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 13.0, steps: [(Multiply, 5.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0003,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 13.0, steps: [(Multiply, 5.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0171,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1497,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 13 * 5 = 65. El resultado es 65."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "65",
+        "text": "Entendí: 13 * 5 = 65. El resultado es 65."
+      },
+      {
+        "episode": 14,
+        "prompt": "multiplica 4 por 15",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0429,
+            "output": {
+              "normalized": "4 * 15",
+              "raw": "multiplica 4 por 15"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0247,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 4.0, steps: [(Multiply, 15.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 4.0, steps: [(Multiply, 15.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0126,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1153,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 4 * 15 = 60. El resultado es 60."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "60",
+        "text": "Entendí: 4 * 15 = 60. El resultado es 60."
+      },
+      {
+        "episode": 15,
+        "prompt": "cuanto resulta ocho - 2",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.059,
+            "output": {
+              "normalized": "cuanto resulta 8 - 2",
+              "raw": "cuanto resulta ocho - 2"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.1196,
+            "output": {
+              "intent_kind": "FreeLanguage(\"cuanto resulta 8 - 2\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "FreeLanguage(\"cuanto resulta 8 - 2\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0067,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.2317,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "6",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 16,
+        "prompt": "23 disminuido en siete",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0557,
+            "output": {
+              "normalized": "23 disminuido en 7",
+              "raw": "23 disminuido en siete"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.123,
+            "output": {
+              "intent_kind": "FreeLanguage(\"23 disminuido en 7\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0008,
+            "output": {
+              "rir_target": "FreeLanguage(\"23 disminuido en 7\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0065,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.2346,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "16",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 17,
+        "prompt": "calcule 12 * cinco",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0474,
+            "output": {
+              "normalized": "calcule 12 * 5",
+              "raw": "calcule 12 * cinco"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0993,
+            "output": {
+              "intent_kind": "FreeLanguage(\"calcule 12 * 5\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0005,
+            "output": {
+              "rir_target": "FreeLanguage(\"calcule 12 * 5\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0049,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1761,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "60",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 18,
+        "prompt": "agregue 12 a 27",
+        "status": "UNSUPPORTED",
+        "is_em": false,
+        "reward": -0.2,
+        "trace": [
+          {
+            "latency_ms": 0.0593,
+            "output": {
+              "normalized": "agregue 12 a 27",
+              "raw": "agregue 12 a 27"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.099,
+            "output": {
+              "intent_kind": "FreeLanguage(\"agregue 12 a 27\")"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0006,
+            "output": {
+              "rir_target": "FreeLanguage(\"agregue 12 a 27\")"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0057,
+            "output": {
+              "semantic_validity": "UNSUPPORTED"
+            },
+            "stage": "validacion",
+            "status": "UNSUPPORTED"
+          },
+          {
+            "latency_ms": 0.1951,
+            "output": {
+              "route": "unsupported",
+              "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+            },
+            "stage": "ejecucion",
+            "status": "UNSUPPORTED"
+          }
+        ],
+        "gold": "39",
+        "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+      },
+      {
+        "episode": 19,
+        "prompt": "10 más 7",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0586,
+            "output": {
+              "normalized": "10 + 7",
+              "raw": "10 más 7"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.026,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 10.0, steps: [(Add, 7.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0004,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 10.0, steps: [(Add, 7.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.014,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.1277,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 10 + 7 = 17. El resultado es 17."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "17",
+        "text": "Entendí: 10 + 7 = 17. El resultado es 17."
+      },
+      {
+        "episode": 20,
+        "prompt": "21 más nueve",
+        "status": "VALID",
+        "is_em": true,
+        "reward": 1.0,
+        "trace": [
+          {
+            "latency_ms": 0.0515,
+            "output": {
+              "normalized": "21 + 9",
+              "raw": "21 más nueve"
+            },
+            "stage": "normalizacion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0333,
+            "output": {
+              "intent_kind": "Arithmetic(ArithmeticPlan { initial: 21.0, steps: [(Add, 9.0)], unit: None })"
+            },
+            "stage": "intencion",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0007,
+            "output": {
+              "rir_target": "Arithmetic(ArithmeticPlan { initial: 21.0, steps: [(Add, 9.0)], unit: None })"
+            },
+            "stage": "rir",
+            "status": "OK"
+          },
+          {
+            "latency_ms": 0.0174,
+            "output": {
+              "semantic_validity": "VALID"
+            },
+            "stage": "validacion",
+            "status": "VALID"
+          },
+          {
+            "latency_ms": 0.15,
+            "output": {
+              "route": "deterministic_arithmetic",
+              "text": "Entendí: 21 + 9 = 30. El resultado es 30."
+            },
+            "stage": "ejecucion",
+            "status": "VALID"
+          }
+        ],
+        "gold": "30",
+        "text": "Entendí: 21 + 9 = 30. El resultado es 30."
+      }
+    ]
+  }
+]

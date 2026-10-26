@@ -1,0 +1,2064 @@
+[
+  {
+    "id": "evt_4d9835a9",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_001",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:51.729941+00:00",
+    "data": {
+      "episode": 1,
+      "total": 20,
+      "prompt": "calcula la suma de cuatro e diez",
+      "expected_status": "VALID",
+      "oracle_answer": "14"
+    }
+  },
+  {
+    "id": "evt_d1284d31",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_001",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:51.764538+00:00",
+    "data": {
+      "episode": 1,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0539,
+          "output": {
+            "normalized": "la suma de 4 e 10",
+            "raw": "calcula la suma de cuatro e diez"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0944,
+          "output": {
+            "intent_kind": "FreeLanguage(\"la suma de 4 e 10\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "FreeLanguage(\"la suma de 4 e 10\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0052,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1864,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_0a27131e",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_001",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:51.783313+00:00",
+    "data": {
+      "episode": 1,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": -0.2,
+      "mean_reward": -0.2,
+      "wilson_95": [
+        0.0,
+        0.7934500192691468
+      ]
+    }
+  },
+  {
+    "id": "evt_5e59bf9f",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_001",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:51.803240+00:00",
+    "data": {
+      "episode": 1,
+      "em_rate": 0.0,
+      "mean_reward": -0.2
+    }
+  },
+  {
+    "id": "evt_85e85486",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_002",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:51.826021+00:00",
+    "data": {
+      "episode": 2,
+      "total": 20,
+      "prompt": "resta veintidós y tres",
+      "expected_status": "VALID",
+      "oracle_answer": "19"
+    }
+  },
+  {
+    "id": "evt_be78a0c6",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_002",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:51.903924+00:00",
+    "data": {
+      "episode": 2,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0702,
+          "output": {
+            "normalized": "22 - 3",
+            "raw": "resta veintidós y tres"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0338,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 22.0, steps: [(Subtract, 3.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 22.0, steps: [(Subtract, 3.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0335,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1792,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 22 - 3 = 19. El resultado es 19."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 22 - 3 = 19. El resultado es 19."
+    }
+  },
+  {
+    "id": "evt_8f6e7524",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_002",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:51.926739+00:00",
+    "data": {
+      "episode": 2,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 0.8,
+      "mean_reward": 0.4,
+      "wilson_95": [
+        0.09453148796027494,
+        0.905468512039725
+      ]
+    }
+  },
+  {
+    "id": "evt_9cd808bb",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_002",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:51.945738+00:00",
+    "data": {
+      "episode": 2,
+      "em_rate": 0.5,
+      "mean_reward": 0.4
+    }
+  },
+  {
+    "id": "evt_bbec6e61",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_003",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:51.966739+00:00",
+    "data": {
+      "episode": 3,
+      "total": 20,
+      "prompt": "12 disminuido en 3",
+      "expected_status": "VALID",
+      "oracle_answer": "9"
+    }
+  },
+  {
+    "id": "evt_eb6cec25",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_003",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.046387+00:00",
+    "data": {
+      "episode": 3,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0565,
+          "output": {
+            "normalized": "12 disminuido en 3",
+            "raw": "12 disminuido en 3"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.1289,
+          "output": {
+            "intent_kind": "FreeLanguage(\"12 disminuido en 3\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0007,
+          "output": {
+            "rir_target": "FreeLanguage(\"12 disminuido en 3\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.007,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.233,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_7d2beeb2",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_003",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.068550+00:00",
+    "data": {
+      "episode": 3,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 0.6000000000000001,
+      "mean_reward": 0.20000000000000004,
+      "wilson_95": [
+        0.06149212499615059,
+        0.792339885219745
+      ]
+    }
+  },
+  {
+    "id": "evt_a79b5517",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_003",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:52.124634+00:00",
+    "data": {
+      "episode": 3,
+      "em_rate": 0.3333333333333333,
+      "mean_reward": 0.20000000000000004
+    }
+  },
+  {
+    "id": "evt_a085508b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_004",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:52.205494+00:00",
+    "data": {
+      "episode": 4,
+      "total": 20,
+      "prompt": "diferencia entre dos y tres",
+      "expected_status": "VALID",
+      "oracle_answer": "-1"
+    }
+  },
+  {
+    "id": "evt_cd990e90",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_004",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.473280+00:00",
+    "data": {
+      "episode": 4,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0535,
+          "output": {
+            "normalized": "diferencia / 2 y 3",
+            "raw": "diferencia entre dos y tres"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.1003,
+          "output": {
+            "intent_kind": "FreeLanguage(\"diferencia / 2 y 3\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "FreeLanguage(\"diferencia / 2 y 3\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0054,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.195,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_a6f2f7fb",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_004",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.492569+00:00",
+    "data": {
+      "episode": 4,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 0.4000000000000001,
+      "mean_reward": 0.10000000000000002,
+      "wilson_95": [
+        0.04558739337028439,
+        0.6993575168227892
+      ]
+    }
+  },
+  {
+    "id": "evt_14d85583",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_004",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:52.513753+00:00",
+    "data": {
+      "episode": 4,
+      "em_rate": 0.25,
+      "mean_reward": 0.10000000000000002
+    }
+  },
+  {
+    "id": "evt_08e27e04",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_005",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:52.554632+00:00",
+    "data": {
+      "episode": 5,
+      "total": 20,
+      "prompt": "14 por 13",
+      "expected_status": "VALID",
+      "oracle_answer": "182"
+    }
+  },
+  {
+    "id": "evt_8c10c325",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_005",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.611046+00:00",
+    "data": {
+      "episode": 5,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0438,
+          "output": {
+            "normalized": "14 * 13",
+            "raw": "14 por 13"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0267,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 14.0, steps: [(Multiply, 13.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 14.0, steps: [(Multiply, 13.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.014,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1146,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 14 * 13 = 182. El resultado es 182."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 14 * 13 = 182. El resultado es 182."
+    }
+  },
+  {
+    "id": "evt_4a90c4aa",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_005",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.633188+00:00",
+    "data": {
+      "episode": 5,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 1.4000000000000001,
+      "mean_reward": 0.28,
+      "wilson_95": [
+        0.11762105558763347,
+        0.7692752375628972
+      ]
+    }
+  },
+  {
+    "id": "evt_cb58aec1",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_005",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:52.654467+00:00",
+    "data": {
+      "episode": 5,
+      "em_rate": 0.4,
+      "mean_reward": 0.28
+    }
+  },
+  {
+    "id": "evt_e20442ee",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_006",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:52.676554+00:00",
+    "data": {
+      "episode": 6,
+      "total": 20,
+      "prompt": "24 mas catorce",
+      "expected_status": "VALID",
+      "oracle_answer": "38"
+    }
+  },
+  {
+    "id": "evt_b9fbde92",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_006",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.709874+00:00",
+    "data": {
+      "episode": 6,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0755,
+          "output": {
+            "normalized": "24 + 14",
+            "raw": "24 mas catorce"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.035,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 24.0, steps: [(Add, 14.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 24.0, steps: [(Add, 14.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0333,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1774,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 24 + 14 = 38. El resultado es 38."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 24 + 14 = 38. El resultado es 38."
+    }
+  },
+  {
+    "id": "evt_4ac74ee3",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_006",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.734953+00:00",
+    "data": {
+      "episode": 6,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 2.4000000000000004,
+      "mean_reward": 0.4000000000000001,
+      "wilson_95": [
+        0.1876166936607192,
+        0.8123833063392808
+      ]
+    }
+  },
+  {
+    "id": "evt_356ca405",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_006",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:52.759754+00:00",
+    "data": {
+      "episode": 6,
+      "em_rate": 0.5,
+      "mean_reward": 0.4000000000000001
+    }
+  },
+  {
+    "id": "evt_8d4bda2f",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_007",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:52.784554+00:00",
+    "data": {
+      "episode": 7,
+      "total": 20,
+      "prompt": "dime el resultado de 5 - siete",
+      "expected_status": "VALID",
+      "oracle_answer": "-2"
+    }
+  },
+  {
+    "id": "evt_54cd7543",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_007",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.840223+00:00",
+    "data": {
+      "episode": 7,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0738,
+          "output": {
+            "normalized": "dime el resultado de 5 - 7",
+            "raw": "dime el resultado de 5 - siete"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0328,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 5.0, steps: [(Subtract, 7.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 5.0, steps: [(Subtract, 7.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0152,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1576,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 5 - 7 = -2. El resultado es -2."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 5 - 7 = -2. El resultado es -2."
+    }
+  },
+  {
+    "id": "evt_526f47e3",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_007",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.872430+00:00",
+    "data": {
+      "episode": 7,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 3.4000000000000004,
+      "mean_reward": 0.48571428571428577,
+      "wilson_95": [
+        0.2504588219068547,
+        0.8417798202558804
+      ]
+    }
+  },
+  {
+    "id": "evt_6e16d52c",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_007",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:52.898652+00:00",
+    "data": {
+      "episode": 7,
+      "em_rate": 0.5714285714285714,
+      "mean_reward": 0.48571428571428577
+    }
+  },
+  {
+    "id": "evt_d69da0b1",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_008",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:52.926650+00:00",
+    "data": {
+      "episode": 8,
+      "total": 20,
+      "prompt": "dividir trece entre 7",
+      "expected_status": "VALID",
+      "oracle_answer": "1.86"
+    }
+  },
+  {
+    "id": "evt_59b86889",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_008",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:52.967733+00:00",
+    "data": {
+      "episode": 8,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.055,
+          "output": {
+            "normalized": "dividir 13 / 7",
+            "raw": "dividir trece entre 7"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.1059,
+          "output": {
+            "intent_kind": "FreeLanguage(\"dividir 13 / 7\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0007,
+          "output": {
+            "rir_target": "FreeLanguage(\"dividir 13 / 7\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0056,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.2048,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_322040f0",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_008",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:52.995765+00:00",
+    "data": {
+      "episode": 8,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 3.2,
+      "mean_reward": 0.4,
+      "wilson_95": [
+        0.21521645335259226,
+        0.7847835466474078
+      ]
+    }
+  },
+  {
+    "id": "evt_0e60aba3",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_008",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.024999+00:00",
+    "data": {
+      "episode": 8,
+      "em_rate": 0.5,
+      "mean_reward": 0.4
+    }
+  },
+  {
+    "id": "evt_bb3be6f1",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_009",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.051813+00:00",
+    "data": {
+      "episode": 9,
+      "total": 20,
+      "prompt": "obtén el valor de veintiséis - 11",
+      "expected_status": "VALID",
+      "oracle_answer": "15"
+    }
+  },
+  {
+    "id": "evt_c4dfd3fc",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_009",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.095093+00:00",
+    "data": {
+      "episode": 9,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0655,
+          "output": {
+            "normalized": "obtén el valor de 26 - 11",
+            "raw": "obtén el valor de veintiséis - 11"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0774,
+          "output": {
+            "intent_kind": "FreeLanguage(\"obtén el valor de 26 - 11\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "FreeLanguage(\"obtén el valor de 26 - 11\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0047,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1724,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_905e681c",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_009",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.128391+00:00",
+    "data": {
+      "episode": 9,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 3.0,
+      "mean_reward": 0.3333333333333333,
+      "wilson_95": [
+        0.18877886314051356,
+        0.7333482697447213
+      ]
+    }
+  },
+  {
+    "id": "evt_8ce8fa2b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_009",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.155732+00:00",
+    "data": {
+      "episode": 9,
+      "em_rate": 0.4444444444444444,
+      "mean_reward": 0.3333333333333333
+    }
+  },
+  {
+    "id": "evt_a918c2c2",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_010",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.181959+00:00",
+    "data": {
+      "episode": 10,
+      "total": 20,
+      "prompt": "diferencia entre 23 y 15",
+      "expected_status": "VALID",
+      "oracle_answer": "8"
+    }
+  },
+  {
+    "id": "evt_9b0a16ea",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_010",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.231893+00:00",
+    "data": {
+      "episode": 10,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.047,
+          "output": {
+            "normalized": "diferencia / 23 y 15",
+            "raw": "diferencia entre 23 y 15"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.1119,
+          "output": {
+            "intent_kind": "FreeLanguage(\"diferencia / 23 y 15\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "FreeLanguage(\"diferencia / 23 y 15\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0058,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1967,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_41290bdd",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_010",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.267321+00:00",
+    "data": {
+      "episode": 10,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 2.8,
+      "mean_reward": 0.27999999999999997,
+      "wilson_95": [
+        0.16818063378760717,
+        0.687325763134297
+      ]
+    }
+  },
+  {
+    "id": "evt_3f36f8c2",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_010",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.296297+00:00",
+    "data": {
+      "episode": 10,
+      "em_rate": 0.4,
+      "mean_reward": 0.27999999999999997
+    }
+  },
+  {
+    "id": "evt_76c14df3",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_011",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.324027+00:00",
+    "data": {
+      "episode": 11,
+      "total": 20,
+      "prompt": "obtén el valor de 27 + 14",
+      "expected_status": "VALID",
+      "oracle_answer": "41"
+    }
+  },
+  {
+    "id": "evt_0cd1d3e2",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_011",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.361553+00:00",
+    "data": {
+      "episode": 11,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.058,
+          "output": {
+            "normalized": "obtén el valor de 27 + 14",
+            "raw": "obtén el valor de 27 + 14"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0862,
+          "output": {
+            "intent_kind": "FreeLanguage(\"obtén el valor de 27 + 14\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "FreeLanguage(\"obtén el valor de 27 + 14\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0046,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1842,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_c1d16a96",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_011",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.388978+00:00",
+    "data": {
+      "episode": 11,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 2.5999999999999996,
+      "mean_reward": 0.23636363636363633,
+      "wilson_95": [
+        0.15166498475525828,
+        0.6461983389627087
+      ]
+    }
+  },
+  {
+    "id": "evt_cd333abe",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_011",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.417123+00:00",
+    "data": {
+      "episode": 11,
+      "em_rate": 0.36363636363636365,
+      "mean_reward": 0.23636363636363633
+    }
+  },
+  {
+    "id": "evt_c51f6073",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_012",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.447122+00:00",
+    "data": {
+      "episode": 12,
+      "total": 20,
+      "prompt": "resta 19 y tres",
+      "expected_status": "VALID",
+      "oracle_answer": "16"
+    }
+  },
+  {
+    "id": "evt_2caf02bd",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_012",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.489947+00:00",
+    "data": {
+      "episode": 12,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0559,
+          "output": {
+            "normalized": "19 - 3",
+            "raw": "resta 19 y tres"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0324,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 19.0, steps: [(Subtract, 3.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 19.0, steps: [(Subtract, 3.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0162,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1493,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 19 - 3 = 16. El resultado es 16."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 19 - 3 = 16. El resultado es 16."
+    }
+  },
+  {
+    "id": "evt_da9da44b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_012",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.517915+00:00",
+    "data": {
+      "episode": 12,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 3.5999999999999996,
+      "mean_reward": 0.3,
+      "wilson_95": [
+        0.1932606291628659,
+        0.6804882474673897
+      ]
+    }
+  },
+  {
+    "id": "evt_0d7a124b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_012",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.550246+00:00",
+    "data": {
+      "episode": 12,
+      "em_rate": 0.4166666666666667,
+      "mean_reward": 0.3
+    }
+  },
+  {
+    "id": "evt_794d6c8d",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_013",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.584685+00:00",
+    "data": {
+      "episode": 13,
+      "total": 20,
+      "prompt": "cuánto da 13 * 5",
+      "expected_status": "VALID",
+      "oracle_answer": "65"
+    }
+  },
+  {
+    "id": "evt_ece43990",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_013",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.633259+00:00",
+    "data": {
+      "episode": 13,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0612,
+          "output": {
+            "normalized": "13 * 5",
+            "raw": "cuánto da 13 * 5"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0332,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 13.0, steps: [(Multiply, 5.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0003,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 13.0, steps: [(Multiply, 5.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0171,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1497,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 13 * 5 = 65. El resultado es 65."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 13 * 5 = 65. El resultado es 65."
+    }
+  },
+  {
+    "id": "evt_1ce4eb87",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_013",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.664473+00:00",
+    "data": {
+      "episode": 13,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 4.6,
+      "mean_reward": 0.3538461538461538,
+      "wilson_95": [
+        0.23206102494499872,
+        0.7085616409376382
+      ]
+    }
+  },
+  {
+    "id": "evt_866aa17d",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_013",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.695771+00:00",
+    "data": {
+      "episode": 13,
+      "em_rate": 0.46153846153846156,
+      "mean_reward": 0.3538461538461538
+    }
+  },
+  {
+    "id": "evt_13d4ee68",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_014",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.726985+00:00",
+    "data": {
+      "episode": 14,
+      "total": 20,
+      "prompt": "multiplica 4 por 15",
+      "expected_status": "VALID",
+      "oracle_answer": "60"
+    }
+  },
+  {
+    "id": "evt_355fdcc4",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_014",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.759241+00:00",
+    "data": {
+      "episode": 14,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0429,
+          "output": {
+            "normalized": "4 * 15",
+            "raw": "multiplica 4 por 15"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0247,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 4.0, steps: [(Multiply, 15.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 4.0, steps: [(Multiply, 15.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0126,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1153,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 4 * 15 = 60. El resultado es 60."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 4 * 15 = 60. El resultado es 60."
+    }
+  },
+  {
+    "id": "evt_a7464f00",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_014",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.788597+00:00",
+    "data": {
+      "episode": 14,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 5.6,
+      "mean_reward": 0.39999999999999997,
+      "wilson_95": [
+        0.2679923946342725,
+        0.7320076053657275
+      ]
+    }
+  },
+  {
+    "id": "evt_6a1709f2",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_014",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.827874+00:00",
+    "data": {
+      "episode": 14,
+      "em_rate": 0.5,
+      "mean_reward": 0.39999999999999997
+    }
+  },
+  {
+    "id": "evt_13981054",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_015",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:53.870326+00:00",
+    "data": {
+      "episode": 15,
+      "total": 20,
+      "prompt": "cuanto resulta ocho - 2",
+      "expected_status": "VALID",
+      "oracle_answer": "6"
+    }
+  },
+  {
+    "id": "evt_64c64ce1",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_015",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:53.911316+00:00",
+    "data": {
+      "episode": 15,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.059,
+          "output": {
+            "normalized": "cuanto resulta 8 - 2",
+            "raw": "cuanto resulta ocho - 2"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.1196,
+          "output": {
+            "intent_kind": "FreeLanguage(\"cuanto resulta 8 - 2\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "FreeLanguage(\"cuanto resulta 8 - 2\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0067,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.2317,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_b1e0ca4f",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_015",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:53.943145+00:00",
+    "data": {
+      "episode": 15,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 5.3999999999999995,
+      "mean_reward": 0.36,
+      "wilson_95": [
+        0.24809569674283508,
+        0.6988298126621408
+      ]
+    }
+  },
+  {
+    "id": "evt_a6b66664",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_015",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:53.976602+00:00",
+    "data": {
+      "episode": 15,
+      "em_rate": 0.4666666666666667,
+      "mean_reward": 0.36
+    }
+  },
+  {
+    "id": "evt_3fa59a1c",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_016",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:54.011787+00:00",
+    "data": {
+      "episode": 16,
+      "total": 20,
+      "prompt": "23 disminuido en siete",
+      "expected_status": "VALID",
+      "oracle_answer": "16"
+    }
+  },
+  {
+    "id": "evt_1104e6f4",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_016",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:54.052103+00:00",
+    "data": {
+      "episode": 16,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0557,
+          "output": {
+            "normalized": "23 disminuido en 7",
+            "raw": "23 disminuido en siete"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.123,
+          "output": {
+            "intent_kind": "FreeLanguage(\"23 disminuido en 7\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0008,
+          "output": {
+            "rir_target": "FreeLanguage(\"23 disminuido en 7\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0065,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.2346,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_00a92f31",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_016",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:54.092334+00:00",
+    "data": {
+      "episode": 16,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 5.199999999999999,
+      "mean_reward": 0.32499999999999996,
+      "wilson_95": [
+        0.2309868438676158,
+        0.6682140368506415
+      ]
+    }
+  },
+  {
+    "id": "evt_a3803458",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_016",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:54.133549+00:00",
+    "data": {
+      "episode": 16,
+      "em_rate": 0.4375,
+      "mean_reward": 0.32499999999999996
+    }
+  },
+  {
+    "id": "evt_ff31d4d5",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_017",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:54.183694+00:00",
+    "data": {
+      "episode": 17,
+      "total": 20,
+      "prompt": "calcule 12 * cinco",
+      "expected_status": "VALID",
+      "oracle_answer": "60"
+    }
+  },
+  {
+    "id": "evt_defb791b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_017",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:54.307893+00:00",
+    "data": {
+      "episode": 17,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0474,
+          "output": {
+            "normalized": "calcule 12 * 5",
+            "raw": "calcule 12 * cinco"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0993,
+          "output": {
+            "intent_kind": "FreeLanguage(\"calcule 12 * 5\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0005,
+          "output": {
+            "rir_target": "FreeLanguage(\"calcule 12 * 5\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0049,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1761,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_433d3591",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_017",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:54.353224+00:00",
+    "data": {
+      "episode": 17,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 4.999999999999999,
+      "mean_reward": 0.2941176470588235,
+      "wilson_95": [
+        0.21611086744741476,
+        0.63994516614964
+      ]
+    }
+  },
+  {
+    "id": "evt_073fe468",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_017",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:54.400590+00:00",
+    "data": {
+      "episode": 17,
+      "em_rate": 0.4117647058823529,
+      "mean_reward": 0.2941176470588235
+    }
+  },
+  {
+    "id": "evt_9062b095",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_018",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:54.433548+00:00",
+    "data": {
+      "episode": 18,
+      "total": 20,
+      "prompt": "agregue 12 a 27",
+      "expected_status": "VALID",
+      "oracle_answer": "39"
+    }
+  },
+  {
+    "id": "evt_87f1428e",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_018",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:54.501263+00:00",
+    "data": {
+      "episode": 18,
+      "status": "UNSUPPORTED",
+      "route": "unsupported",
+      "trace": [
+        {
+          "latency_ms": 0.0593,
+          "output": {
+            "normalized": "agregue 12 a 27",
+            "raw": "agregue 12 a 27"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.099,
+          "output": {
+            "intent_kind": "FreeLanguage(\"agregue 12 a 27\")"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0006,
+          "output": {
+            "rir_target": "FreeLanguage(\"agregue 12 a 27\")"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0057,
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "stage": "validacion",
+          "status": "UNSUPPORTED"
+        },
+        {
+          "latency_ms": 0.1951,
+          "output": {
+            "route": "unsupported",
+            "text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+          },
+          "stage": "ejecucion",
+          "status": "UNSUPPORTED"
+        }
+      ],
+      "output_text": "Consulta fuera del dominio estructurado soportado. RELIC no puede verificar esta afirmación todavía."
+    }
+  },
+  {
+    "id": "evt_3b3a8ba5",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_018",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:54.548788+00:00",
+    "data": {
+      "episode": 18,
+      "is_exact_match": false,
+      "is_false_acceptance": false,
+      "reward": -0.2,
+      "cumulative_reward": 4.799999999999999,
+      "mean_reward": 0.2666666666666666,
+      "wilson_95": [
+        0.203052747448232,
+        0.6138091712867453
+      ]
+    }
+  },
+  {
+    "id": "evt_9e6c79ba",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_018",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:54.597809+00:00",
+    "data": {
+      "episode": 18,
+      "em_rate": 0.3888888888888889,
+      "mean_reward": 0.2666666666666666
+    }
+  },
+  {
+    "id": "evt_f36be8a5",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_019",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:54.663839+00:00",
+    "data": {
+      "episode": 19,
+      "total": 20,
+      "prompt": "10 más 7",
+      "expected_status": "VALID",
+      "oracle_answer": "17"
+    }
+  },
+  {
+    "id": "evt_b88f9bad",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_019",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:54.742339+00:00",
+    "data": {
+      "episode": 19,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0586,
+          "output": {
+            "normalized": "10 + 7",
+            "raw": "10 más 7"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.026,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 10.0, steps: [(Add, 7.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0004,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 10.0, steps: [(Add, 7.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.014,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.1277,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 10 + 7 = 17. El resultado es 17."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 10 + 7 = 17. El resultado es 17."
+    }
+  },
+  {
+    "id": "evt_1007059c",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_019",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:54.786593+00:00",
+    "data": {
+      "episode": 19,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 5.799999999999999,
+      "mean_reward": 0.3052631578947368,
+      "wilson_95": [
+        0.23141921252376627,
+        0.6372405751471871
+      ]
+    }
+  },
+  {
+    "id": "evt_4e1259c8",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_019",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:54.817455+00:00",
+    "data": {
+      "episode": 19,
+      "em_rate": 0.42105263157894735,
+      "mean_reward": 0.3052631578947368
+    }
+  },
+  {
+    "id": "evt_bcbe17dc",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_020",
+    "type": "EPISODE_STARTED",
+    "timestamp": "2026-10-26T03:57:54.880562+00:00",
+    "data": {
+      "episode": 20,
+      "total": 20,
+      "prompt": "21 más nueve",
+      "expected_status": "VALID",
+      "oracle_answer": "30"
+    }
+  },
+  {
+    "id": "evt_471e123d",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_020",
+    "type": "RIR_PROPOSED",
+    "timestamp": "2026-10-26T03:57:54.924690+00:00",
+    "data": {
+      "episode": 20,
+      "status": "VALID",
+      "route": "deterministic_arithmetic",
+      "trace": [
+        {
+          "latency_ms": 0.0515,
+          "output": {
+            "normalized": "21 + 9",
+            "raw": "21 más nueve"
+          },
+          "stage": "normalizacion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0333,
+          "output": {
+            "intent_kind": "Arithmetic(ArithmeticPlan { initial: 21.0, steps: [(Add, 9.0)], unit: None })"
+          },
+          "stage": "intencion",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0007,
+          "output": {
+            "rir_target": "Arithmetic(ArithmeticPlan { initial: 21.0, steps: [(Add, 9.0)], unit: None })"
+          },
+          "stage": "rir",
+          "status": "OK"
+        },
+        {
+          "latency_ms": 0.0174,
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "stage": "validacion",
+          "status": "VALID"
+        },
+        {
+          "latency_ms": 0.15,
+          "output": {
+            "route": "deterministic_arithmetic",
+            "text": "Entendí: 21 + 9 = 30. El resultado es 30."
+          },
+          "stage": "ejecucion",
+          "status": "VALID"
+        }
+      ],
+      "output_text": "Entendí: 21 + 9 = 30. El resultado es 30."
+    }
+  },
+  {
+    "id": "evt_028cb88b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_020",
+    "type": "VERIFIER_EVALUATED",
+    "timestamp": "2026-10-26T03:57:54.958697+00:00",
+    "data": {
+      "episode": 20,
+      "is_exact_match": true,
+      "is_false_acceptance": false,
+      "reward": 1.0,
+      "cumulative_reward": 6.799999999999999,
+      "mean_reward": 0.33999999999999997,
+      "wilson_95": [
+        0.2581981721705886,
+        0.6579142886780157
+      ]
+    }
+  },
+  {
+    "id": "evt_07cb647b",
+    "archive_id": "sb_08dd1498",
+    "job_id": "sb_08dd1498_ep_020",
+    "type": "EPISODE_COMPLETED",
+    "timestamp": "2026-10-26T03:57:54.990747+00:00",
+    "data": {
+      "episode": 20,
+      "em_rate": 0.45,
+      "mean_reward": 0.33999999999999997
+    }
+  },
+  {
+    "id": "evt_bcacecb8",
+    "archive_id": "sb_08dd1498",
+    "job_id": "final",
+    "type": "sandbox.completed",
+    "timestamp": "2026-10-26T03:57:55.052714+00:00",
+    "data": {
+      "metrics": {
+        "exact_match_count": 9,
+        "exact_match_rate": 0.45,
+        "wilson_95": [
+          0.2581981721705886,
+          0.6579142886780157
+        ],
+        "false_acceptance_count": 0,
+        "false_acceptance_rate": 0.0,
+        "correct_abstention_count": 0,
+        "unnecessary_abstention_count": 11,
+        "mean_reward": 0.33999999999999997
+      }
+    }
+  }
+]
