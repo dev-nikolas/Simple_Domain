@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { User, Cpu, CheckCircle2, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Cpu, CheckCircle2, Loader2, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { ChatMessage } from '../types/conversations';
 import { API_BASE_URL } from '../config/env';
 import { AnalysisResultCard } from '../views/components/AnalysisResultCard';
@@ -20,6 +20,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, o
   const [jobStatus, setJobStatus] = useState<string | null>(null);
   const [detailedRecord, setDetailedRecord] = useState<AnalysisRecord | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   // Suscripción SSE si hay un archive_id y no se ha completado
   useEffect(() => {
@@ -86,6 +87,22 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, o
     }
   };
 
+  const handleCopy = async () => {
+    if (!message.content) return;
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback si no hay permisos de portapapeles
+    }
+  };
+
+  const route = typeof message.metadata?.route === 'string' ? message.metadata.route : undefined;
+  const statusVal = typeof message.metadata?.status === 'string' ? message.metadata.status : undefined;
+  const latencyMs = typeof message.metadata?.latency_ms === 'number' ? message.metadata.latency_ms : undefined;
+  const rssMb = typeof message.metadata?.rss_mb === 'number' ? message.metadata.rss_mb : undefined;
+
   return (
     <div className={`flex items-start space-x-3 font-mono text-xs ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
@@ -99,18 +116,68 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, o
           ? 'bg-cyber-yellow/10 border-cyber-yellow/40 text-white shadow-cyber-yellow-sm'
           : 'bg-cyber-surface/90 border-cyber-border text-cyber-text backdrop-blur-md'
       }`}>
-        {/* Header con rol y hora */}
+        {/* Header con rol, hora y botón de copiado */}
         <div className="flex items-center justify-between text-[10px] text-cyber-muted border-b border-cyber-border/40 pb-1 mb-1">
-          <span className="font-bold uppercase tracking-wider text-cyber-yellow">
-            {isUser ? 'OPERADOR' : 'SIMPLE DOMAIN // BRAIN'}
-          </span>
-          <span>{new Date(message.created_at).toLocaleTimeString()}</span>
+          <div className="flex items-center space-x-2">
+            <span className="font-bold uppercase tracking-wider text-cyber-yellow">
+              {isUser ? 'OPERADOR' : 'RELIC // SIMPLE DOMAIN'}
+            </span>
+            {!isUser && route && (
+              <span className={`px-1.5 py-0.5 text-[9px] font-bold cut-corner-sm border ${
+                route === 'deterministic_arithmetic' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' :
+                route === 'deterministic_graph' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' :
+                route === 'deterministic_relational' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' :
+                route === 'neural_model' ? 'bg-purple-500/20 text-purple-400 border-purple-500/40' :
+                route === 'degraded_mode' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' :
+                route === 'epistemic_rejection' ? 'bg-rose-500/20 text-rose-400 border-rose-500/40' :
+                'bg-blue-500/20 text-blue-400 border-blue-500/40'
+              }`}>
+                {
+                  route === 'deterministic_arithmetic' ? 'MOTOR EXACTO (ARITMÉTICA)' :
+                  route === 'deterministic_graph' ? 'MOTOR EXACTO (GRAFOS BFS)' :
+                  route === 'deterministic_relational' ? 'MOTOR EXACTO (ORDEN RELACIONAL)' :
+                  route === 'neural_model' ? 'MODELO NEURONAL (TRANSFORMER 10M)' :
+                  route === 'degraded_mode' ? 'MODO DEGRADADO (SIN PESOS)' :
+                  route === 'epistemic_rejection' ? 'RECHAZO EPISTÉMICO (INCOMPLETO)' :
+                  route.toUpperCase()
+                }
+              </span>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            <span>{new Date(message.created_at).toLocaleTimeString()}</span>
+            <button
+              onClick={handleCopy}
+              className="p-1 hover:text-cyber-yellow text-cyber-muted transition-colors rounded hover:bg-cyber-surface/60 cursor-pointer"
+              title={copied ? "¡Copiado al portapapeles!" : "Copiar texto"}
+              aria-label="Copiar texto del mensaje"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
 
-        {/* Contenido del mensaje */}
-        <div className="whitespace-pre-line leading-relaxed text-[11px]">
+        {/* Contenido del mensaje seleccionable y copiable */}
+        <div className="whitespace-pre-line leading-relaxed text-[11px] select-text cursor-text">
           {String(message.content || '')}
         </div>
+
+        {/* Footer técnico de telemetría y honestidad de cómputo */}
+        {!isUser && (latencyMs !== undefined || statusVal) && (
+          <div className="flex items-center justify-between text-[9px] text-cyber-muted/70 border-t border-cyber-border/30 pt-1 mt-1 font-mono">
+            <span>
+              ESTADO: <strong className={statusVal === 'VALID' ? 'text-emerald-400' : 'text-amber-400'}>{statusVal || 'N/A'}</strong>
+            </span>
+            <div className="space-x-3">
+              {latencyMs !== undefined && (
+                <span>LATENCIA: <strong className="text-cyber-text">{latencyMs.toFixed(1)} ms</strong></span>
+              )}
+              {rssMb !== undefined && (
+                <span>RAM: <strong className="text-cyber-text">{rssMb.toFixed(1)} MB</strong></span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Live SSE Status Indicator */}
         {jobStatus && jobStatus !== 'completed' && (

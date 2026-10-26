@@ -9,6 +9,13 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from pathlib import Path
+
+# Asegurar que backend/src esté en sys.path al ejecutarse directamente
+_src_dir = str(Path(__file__).resolve().parents[2])
+if _src_dir not in sys.path:
+    sys.path.insert(0, _src_dir)
+
 import uvicorn
 
 from simple_domain.pipeline import SimpleDomainPipeline

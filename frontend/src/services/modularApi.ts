@@ -19,6 +19,7 @@ import {
   ChatMessage,
   Conversation,
 } from '../types/conversations';
+import { SandboxRun, SandboxRunCreate } from '../types/sandbox';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
@@ -102,4 +103,10 @@ export const modularApi = {
   },
   getAnalyses: () => request<AnalysisRecord[]>('/v1/analysis'),
   getAnalysis: (id: string) => request<AnalysisRecord>(`/v1/analysis/${id}`),
+
+  // ==================== Sandbox Lab ====================
+  getSandboxRuns: () => request<SandboxRun[]>('/v1/sandbox/runs'),
+  getSandboxRun: (id: string) => request<SandboxRun>(`/v1/sandbox/runs/${id}`),
+  createSandboxRun: (data: SandboxRunCreate) =>
+    request<SandboxRun>('/v1/sandbox/runs', { method: 'POST', body: JSON.stringify(data) }),
 };

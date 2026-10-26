@@ -11,12 +11,13 @@ import uuid
 from typing import Any, AsyncIterator, Dict, List, Optional
 from simple_domain.repositories.archives import ArchiveRepository
 
-TERMINAL_EVENTS = {"archive.completed", "archive.failed"}
+TERMINAL_EVENTS = {"archive.completed", "archive.failed", "sandbox.completed", "sandbox.failed", "EPISODE_COMPLETED_FINAL"}
 
 
 class EventBroker:
-    def __init__(self, archive_repo: ArchiveRepository):
+    def __init__(self, archive_repo: ArchiveRepository, sandbox_repo: Optional[Any] = None):
         self.archive_repo = archive_repo
+        self.sandbox_repo = sandbox_repo
         self._subscribers: Dict[str, List[asyncio.Queue]] = {}
         self._lock = asyncio.Lock()
 
@@ -34,8 +35,11 @@ class EventBroker:
             "data": data or {},
         }
 
-        # Persistencia en storage/archives/{archive_id}/events.json
-        self.archive_repo.append_event(archive_id, payload)
+        # Persistencia en repositorio correspondiente
+        if archive_id.startswith("sb_") and self.sandbox_repo:
+            self.sandbox_repo.append_event(archive_id, payload)
+        else:
+            self.archive_repo.append_event(archive_id, payload)
 
         # Entrega en memoria a suscriptores SSE activos
         async with self._lock:
@@ -49,7 +53,10 @@ class EventBroker:
         self, archive_id: str, last_event_id: Optional[str] = None
     ) -> AsyncIterator[str]:
         # 1. Recuperar eventos históricos de storage
-        history = self.archive_repo.get_events(archive_id)
+        if archive_id.startswith("sb_") and self.sandbox_repo:
+            history = self.sandbox_repo.get_events(archive_id)
+        else:
+            history = self.archive_repo.get_events(archive_id)
         start_idx = 0
         if last_event_id:
             for idx, item in enumerate(history):

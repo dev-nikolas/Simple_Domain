@@ -70,7 +70,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const hasMessages = Boolean(activeConversation?.messages && activeConversation.messages.length > 0);
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-cyber-bg relative font-mono select-none">
+    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-cyber-bg relative font-mono">
       <main
         ref={chatScrollRef}
         className="flex-1 flex flex-col relative z-10 w-full overflow-y-auto"
