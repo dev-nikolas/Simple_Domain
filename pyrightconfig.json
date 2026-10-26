@@ -1,0 +1,10 @@
+{
+  "include": [
+    "backend/src",
+    "tests"
+  ],
+  "extraPaths": [
+    "backend/src"
+  ],
+  "typeCheckingMode": "basic"
+}

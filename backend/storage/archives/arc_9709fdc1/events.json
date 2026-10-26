@@ -1,0 +1,38 @@
+[
+  {
+    "id": "evt_22f8d539",
+    "archive_id": "arc_9709fdc1",
+    "job_id": "job_3409e607",
+    "type": "archive.queued",
+    "timestamp": "2026-10-26T15:52:35.311607+00:00",
+    "data": {
+      "filename": "dataset_metadata.json"
+    }
+  },
+  {
+    "id": "evt_79d3f175",
+    "archive_id": "arc_9709fdc1",
+    "job_id": "job_3409e607",
+    "type": "archive.validating",
+    "timestamp": "2026-10-26T15:52:35.331394+00:00",
+    "data": {}
+  },
+  {
+    "id": "evt_83c63cba",
+    "archive_id": "arc_9709fdc1",
+    "job_id": "job_3409e607",
+    "type": "archive.normalizing",
+    "timestamp": "2026-10-26T15:52:35.401536+00:00",
+    "data": {}
+  },
+  {
+    "id": "evt_b802577a",
+    "archive_id": "arc_9709fdc1",
+    "job_id": "job_3409e607",
+    "type": "archive.failed",
+    "timestamp": "2026-10-26T15:52:35.428523+00:00",
+    "data": {
+      "error": "Estructura JSON no admitida. Se espera array de objetos o lista de números."
+    }
+  }
+]

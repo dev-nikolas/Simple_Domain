@@ -38,3 +38,54 @@ def reset_settings(request: Request):
     repo = request.app.state.settings_repo
     repo.reset_to_defaults()
     return repo.get_all()
+
+
+@router.get("/mode")
+def get_system_mode(request: Request):
+    repo = request.app.state.settings_repo
+    prefs = repo.get_preferences()
+    return {"mode": prefs.get("active_mode", "chat")}
+
+
+@router.post("/mode")
+def set_system_mode(request: Request, payload: dict):
+    m = payload.get("mode", "chat")
+    if m not in ("chat", "sandbox"):
+        raise HTTPException(status_code=400, detail="El modo debe ser 'chat' o 'sandbox'.")
+    repo = request.app.state.settings_repo
+    updated = repo.update_preferences({"active_mode": m})
+    return {"status": "success", "mode": updated.get("active_mode", m)}
+
+
+@router.post("/wipe-all")
+def wipe_all_data(request: Request):
+    """Purga total de datos: conversaciones, corridas de sandbox, investigaciones y preferencias."""
+    cleared = {}
+
+    conv_repo = getattr(request.app.state, "conversation_repo", None)
+    if conv_repo:
+        count = conv_repo.delete_all()
+        cleared["conversations"] = count
+
+    exp_repo = getattr(request.app.state, "experiment_repo", None)
+    if exp_repo:
+        exp_repo.store.write([])
+        cleared["experiments"] = True
+
+    sb_repo = getattr(request.app.state, "sandbox_repo", None)
+    if sb_repo:
+        sb_repo.index_store.write([])
+        cleared["sandbox_runs"] = True
+
+    ana_repo = getattr(request.app.state, "analysis_repo", None)
+    if ana_repo:
+        ana_repo.store.write([])
+        cleared["analyses"] = True
+
+    set_repo = getattr(request.app.state, "settings_repo", None)
+    if set_repo:
+        set_repo.reset_to_defaults()
+        cleared["settings"] = "reset_to_defaults"
+
+    return {"status": "success", "cleared": cleared}
+

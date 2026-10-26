@@ -82,6 +82,29 @@ def add_message(conversation_id: str, req: MessageCreate, request: Request) -> D
             },
         )
 
+        # 3. Registrar conclusión deducida por RELIC en el catálogo dinámico de patrones
+        pat_repo = getattr(request.app.state, "pattern_repo", None)
+        if pat_repo and relic_res.get("status") in {"VALID", "INCOMPLETE"}:
+            route = relic_res.get("route") or "relic_inference"
+            route_label = route.replace("_", " ").upper()
+            try:
+                pat_repo.create({
+                    "name": f"Deducción RELIC // {route_label}",
+                    "description": f"Conclusión inferida para: \"{req.content[:60]}\" -> {assistant_content[:120]}",
+                    "pattern_type": "relational_bivariate" if "relational" in route else "custom",
+                    "status": "active",
+                    "origin": "engine",
+                    "metadata": {
+                        "source": "relic_engine",
+                        "conversation_id": conversation_id,
+                        "route": route,
+                        "status": relic_res.get("status"),
+                        "latency_ms": relic_res.get("latency_ms"),
+                    },
+                })
+            except Exception:
+                pass
+
     return user_msg
 
 
@@ -92,3 +115,12 @@ def list_messages(conversation_id: str, request: Request) -> List[Dict[str, Any]
     if not conv:
         raise HTTPException(status_code=404, detail=f"Conversación '{conversation_id}' no encontrada.")
     return conv.get("messages", [])
+
+
+@router.delete("/{conversation_id}", status_code=status.HTTP_200_OK)
+def delete_conversation(conversation_id: str, request: Request) -> Dict[str, Any]:
+    repo = _get_repo(request)
+    if not repo.delete(conversation_id):
+        raise HTTPException(status_code=404, detail=f"Conversación '{conversation_id}' no encontrada.")
+    return {"status": "deleted", "id": conversation_id}
+

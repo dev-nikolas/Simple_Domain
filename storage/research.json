@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "exp_relic_eval_01",
+    "title": "Evaluación de Robustez del Pipeline RIR frente a Ambigüedad",
+    "description": "Estudio de tasa de acierto y rechazo epistémico honesto bajo variaciones sintácticas complejas.",
+    "hypothesis": "El pipeline de 5 etapas elimina alucinaciones al canalizar consultas estructuradas al motor exacto.",
+    "status": "running",
+    "notes": "Holdout estricto sin contaminación por consultas del chat libre.",
+    "created_at": "2026-10-26T16:34:02.909450+00:00",
+    "updated_at": "2026-10-26T16:34:02.909450+00:00",
+    "metadata": {
+      "target_accuracy": 1.0,
+      "domain": "relational_arithmetic"
+    }
+  },
+  {
+    "id": "exp_relic_latency_02",
+    "title": "Benchmark de Latencia: Motor Determinista vs Transformer 10M",
+    "description": "Comparación de tiempos de respuesta y huella de memoria RAM entre ejecución directa y pesos neuronales.",
+    "hypothesis": "El motor determinista entrega resultados en < 0.1 ms con < 50 MB RAM, superando en 100x al modelo neuronal.",
+    "status": "completed",
+    "notes": "Resultados medidos en Windows x86_64 con RELIC server.",
+    "created_at": "2026-10-26T16:34:02.909450+00:00",
+    "updated_at": "2026-10-26T16:34:02.909450+00:00",
+    "metadata": {
+      "speedup": "100x",
+      "verified": true
+    }
+  }
+]

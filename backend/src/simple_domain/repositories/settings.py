@@ -18,6 +18,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
   "auto_refresh_ui": True,
   "audit_strict_mode": False,
   "theme_contrast": "high",
+  "active_mode": "chat",
 }
 
 
@@ -93,6 +94,10 @@ class SettingsRepository:
             elif k == "theme_contrast":
                 if v not in ("normal", "high"):
                     raise ValueError("theme_contrast debe ser 'normal' o 'high'.")
+                prefs[k] = v
+            elif k == "active_mode":
+                if v not in ("chat", "sandbox"):
+                    raise ValueError("active_mode debe ser 'chat' o 'sandbox'.")
                 prefs[k] = v
 
         data["preferences"] = prefs

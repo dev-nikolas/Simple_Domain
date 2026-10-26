@@ -1,0 +1,46 @@
+[
+  {
+    "id": "ds_benchmark_s1",
+    "name": "Benchmark S1 — Topología Bivariada Canónica",
+    "format": "csv",
+    "description": "Dataset canónico con 6 atributos (2 categóricos, 4 numéricos) y 7 dependencias relacionales.",
+    "location": "internal://benchmark/s1",
+    "status": "available",
+    "created_at": "2026-10-26T16:34:02.909450+00:00",
+    "updated_at": "2026-10-26T16:34:02.909450+00:00",
+    "metadata": {
+      "attributes": 6,
+      "pairs": 7,
+      "domain": "industrial_turbines"
+    }
+  },
+  {
+    "id": "ds_relic_curriculum",
+    "name": "Currículo Formal RELIC — Aritmética y Grafos",
+    "format": "jsonl",
+    "description": "Batería de validación curricular estructurada con 5 etapas de inferencia y verificación formal.",
+    "location": "RELIC/data/curriculum_dataset_v2_20k.jsonl",
+    "status": "available",
+    "created_at": "2026-10-26T16:34:02.909450+00:00",
+    "updated_at": "2026-10-26T16:34:02.909450+00:00",
+    "metadata": {
+      "episodes": 120,
+      "stages": 5,
+      "benchmark_suite": "frozen"
+    }
+  },
+  {
+    "id": "ds_industrial_telemetry",
+    "name": "Telemetría de Sensores Industriales (Holdout)",
+    "format": "csv",
+    "description": "Registros de monitoreo de vibración, temperatura y potencia bajo diferentes modos operativos.",
+    "location": "internal://telemetry/sensors",
+    "status": "available",
+    "created_at": "2026-10-26T16:34:02.909450+00:00",
+    "updated_at": "2026-10-26T16:34:02.909450+00:00",
+    "metadata": {
+      "frequency_hz": 100,
+      "sensor_count": 16
+    }
+  }
+]

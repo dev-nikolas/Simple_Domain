@@ -42,6 +42,8 @@ export const SettingsView: React.FC = () => {
       setSuccessMsg(null);
       const res = await modularApi.updateSettings(prefs);
       setPrefs(res.preferences);
+      localStorage.setItem('simple_domain_mode', (res.preferences.active_mode as string) || 'chat');
+      window.dispatchEvent(new Event('system-mode-changed'));
       setSuccessMsg('Preferencias guardadas exitosamente.');
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: unknown) {
@@ -63,6 +65,30 @@ export const SettingsView: React.FC = () => {
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al restablecer');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleWipeAll = async () => {
+    const confirm1 = window.confirm('ATENCIÓN: ¿Deseas purgar y borrar TODA la información del sistema (conversaciones, corridas de sandbox e investigaciones)?');
+    if (!confirm1) return;
+    const confirm2 = window.prompt('Para confirmar la eliminación total, escribe "BORRAR TODO":');
+    if (confirm2 !== 'BORRAR TODO') {
+      alert('Operación cancelada. El texto ingresado no coincide.');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccessMsg(null);
+      await modularApi.wipeAllData();
+      await loadSettings();
+      setSuccessMsg('Toda la información del sistema ha sido eliminada con éxito.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al purgar los datos');
     } finally {
       setSaving(false);
     }
@@ -107,13 +133,34 @@ export const SettingsView: React.FC = () => {
         {loading || !prefs ? (
           <div className="text-center py-12 text-cyber-muted text-xs">Cargando preferencias...</div>
         ) : (
-          <SettingsForm
-            prefs={prefs}
-            onChange={setPrefs}
-            onSubmit={handleSave}
-            onReset={handleReset}
-            saving={saving}
-          />
+          <div className="space-y-6">
+            <SettingsForm
+              prefs={prefs}
+              onChange={setPrefs}
+              onSubmit={handleSave}
+              onReset={handleReset}
+              saving={saving}
+            />
+
+            {/* Zona de Peligro: Purga Total de Información */}
+            <div className="p-4 border border-rose-500/40 bg-rose-950/20 cut-corner-sm space-y-3">
+              <div className="flex items-center space-x-2 text-rose-400 font-bold text-xs">
+                <AlertCircle className="w-4 h-4" />
+                <span>ZONA DE PELIGRO // PURGA TOTAL DEL SISTEMA</span>
+              </div>
+              <p className="text-[11px] text-cyber-muted">
+                Elimina permanentemente todas las conversaciones del chat, historial de corridas del sandbox, investigaciones registradas y restablece los parámetros a su estado original.
+              </p>
+              <button
+                type="button"
+                onClick={handleWipeAll}
+                disabled={saving}
+                className="px-4 py-2 border border-rose-500 bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-black font-bold text-xs cut-corner-xs transition-all disabled:opacity-50 cursor-pointer"
+              >
+                BORRAR TODA LA INFORMACIÓN DEL SISTEMA
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

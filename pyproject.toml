@@ -37,3 +37,11 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["backend/src"]
 
+[tool.pyright]
+include = ["backend/src", "tests"]
+extraPaths = ["backend/src"]
+
+[tool.ruff]
+src = ["backend/src"]
+
+

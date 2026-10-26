@@ -1,0 +1,1082 @@
+{
+  "id": "sb_1586e0f6",
+  "level": "all",
+  "seed": 42,
+  "system": "rules",
+  "split": "holdout_template",
+  "penalty_lambda": 5.0,
+  "commit": "acb1780",
+  "dataset_hash": "29a39791eb3003067d35151a39d4c511ca286bd77ecb2d0186e6f0aa77c69570",
+  "weights_hash": "none",
+  "total_episodes": 30,
+  "status": "completed",
+  "created_at": "2026-10-26T15:56:47.555393+00:00",
+  "completed_at": "2026-10-26T15:56:48.239774+00:00",
+  "metrics": {
+    "exact_match_count": 1,
+    "exact_match_rate": 0.03333333333333333,
+    "wilson_95": [
+      0.005908607241118427,
+      0.1667035111842512
+    ],
+    "false_acceptance_count": 0,
+    "false_acceptance_rate": 0.0,
+    "syntax_rejection_count": 0,
+    "syntax_rejection_rate": 0.0,
+    "correct_abstention_count": 7,
+    "unnecessary_abstention_count": 22,
+    "mean_reward": 0.0033333333333333253
+  },
+  "episodes": [
+    {
+      "episode": 1,
+      "prompt": "si parto 23 en siete pedazos iguales",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "si parto 23 en siete pedazos iguales",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "3.29",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 2,
+      "prompt": "móchele 10 a seis",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "móchele 10 a seis",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-4",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 3,
+      "prompt": "se me embolataron catorce pesetas de las 7 del cajón",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "se me embolataron catorce pesetas de las 7 del cajón",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-7 pesetas",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 4,
+      "prompt": "raspé 9 gatos de las cinco del fondo",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "raspé 9 gatos de las cinco del fondo",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-4 gatos",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 5,
+      "prompt": "conseguí 12 cuadernos para meterle a las 8",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "conseguí 12 cuadernos para meterle a las 8",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "20 cuadernos",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 6,
+      "prompt": "sáquele 6 a veintisiete",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "sáquele 6 a veintisiete",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "21",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 7,
+      "prompt": "al valor 3 aplícale descuento de 12",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "al valor 3 aplícale descuento de 12",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-9",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 8,
+      "prompt": "tenía ocho árboles y me gasté una millonada",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "tenía ocho árboles y me gasté una millonada",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Falta cantidad inicial",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 9,
+      "prompt": "repartir 19 entre nueve porciones",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "repartir 19 entre nueve porciones",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "2.11",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 10,
+      "prompt": "me dieron plata pero no me acuerdo cuánta y gasté 3",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "me dieron plata pero no me acuerdo cuánta y gasté 3",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Falta cantidad inicial",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 11,
+      "prompt": "cuánto le falta a 14 para alcanzar 20",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "cuánto le falta a 14 para alcanzar 20",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "6",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 12,
+      "prompt": "repartir veintitrés entre dos porciones",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "repartir veintitrés entre dos porciones",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "11.50",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 13,
+      "prompt": "cuánto le falta a 7 para alcanzar 30",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "cuánto le falta a 7 para alcanzar 30",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "23",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 14,
+      "prompt": "a los 24 libros del depósito les cayó plaga y dañó 13",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "a los 24 libros del depósito les cayó plaga y dañó 13",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "11 libros",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 15,
+      "prompt": "de los 4 perros que tenía, presté 1",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "de los 4 perros que tenía, presté 1",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "3 perros",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 16,
+      "prompt": "a cuántos grados centígrados hierve el agua",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "a cuántos grados centígrados hierve el agua",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Fuera de dominio formal",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 17,
+      "prompt": "métele once a los veintiséis",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "métele once a los veintiséis",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "37",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 18,
+      "prompt": "embolaté 15 relojes de un total de 27",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "embolaté 15 relojes de un total de 27",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "12 relojes",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 19,
+      "prompt": "la luna llena está hecha de queso",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "la luna llena está hecha de queso",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Fuera de dominio formal",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 20,
+      "prompt": "a cuántos grados centígrados hierve el agua",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "a cuántos grados centígrados hierve el agua",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Fuera de dominio formal",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 21,
+      "prompt": "tenía veinticinco pesetas pero me tumbaron 4",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "tenía veinticinco pesetas pero me tumbaron 4",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "21 pesetas",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 22,
+      "prompt": "la luna llena está hecha de queso",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "la luna llena está hecha de queso",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Fuera de dominio formal",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 23,
+      "prompt": "repartí 8 entre los vecinos de las 4 manzanas",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "repartí 8 entre los vecinos de las 4 manzanas",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-4 manzanas",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 24,
+      "prompt": "póngale 2 a veintiséis",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "póngale 2 a veintiséis",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "28",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 25,
+      "prompt": "si parto diecisiete en 7 pedazos iguales",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "si parto diecisiete en 7 pedazos iguales",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "2.43",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 26,
+      "prompt": "quién inventó la máquina de vapor en Inglaterra",
+      "status": "INCOMPLETE",
+      "is_em": true,
+      "reward": 0.5,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "quién inventó la máquina de vapor en Inglaterra",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "INCOMPLETE",
+          "output": "Rechazo epistémico por entrada no canónica.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "INCOMPLETE",
+          "output": {
+            "semantic_validity": "INCOMPLETE"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "Rechazo epistémico: Fuera de dominio formal",
+      "text": "Rechazo epistémico por entrada no canónica.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 27,
+      "prompt": "a los once libros del depósito les cayó plaga y dañó 11",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "a los once libros del depósito les cayó plaga y dañó 11",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "0 libros",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 28,
+      "prompt": "raspé seis monedas de las cuatro del fondo",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "raspé seis monedas de las cuatro del fondo",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "-2 monedas",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 29,
+      "prompt": "resultado de sumar 16 e 11",
+      "status": "VALID",
+      "is_em": true,
+      "reward": 1.0,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "resultado de sumar 16 e 11",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "VALID",
+          "output": "Resultado calculado: 27",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "VALID",
+          "output": {
+            "semantic_validity": "VALID"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "27",
+      "text": "Resultado calculado: 27",
+      "responding_system": "rules"
+    },
+    {
+      "episode": 30,
+      "prompt": "conseguí 14 cajas para meterle a las diecinueve",
+      "status": "UNSUPPORTED",
+      "is_em": false,
+      "reward": -0.2,
+      "trace": [
+        {
+          "stage": "normalizacion",
+          "latency_ms": 0.05,
+          "status": "OK",
+          "output": "conseguí 14 cajas para meterle a las diecinueve",
+          "is_illustrative": false
+        },
+        {
+          "stage": "reglas",
+          "latency_ms": 0.1,
+          "status": "UNSUPPORTED",
+          "output": "Consulta fuera del dominio soportado por reglas.",
+          "is_illustrative": false
+        },
+        {
+          "stage": "validacion",
+          "latency_ms": 0.05,
+          "status": "UNSUPPORTED",
+          "output": {
+            "semantic_validity": "UNSUPPORTED"
+          },
+          "is_illustrative": false
+        }
+      ],
+      "gold": "33 cajas",
+      "text": "Consulta fuera del dominio soportado por reglas.",
+      "responding_system": "rules"
+    }
+  ]
+}

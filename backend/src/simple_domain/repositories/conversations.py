@@ -101,3 +101,19 @@ class ConversationRepository:
                     return True
                 return False
         return False
+
+    def delete(self, conv_id: str) -> bool:
+        convs = self.store.read()
+        initial_len = len(convs)
+        convs = [c for c in convs if c.get("id") != conv_id]
+        if len(convs) < initial_len:
+            self.store.write(convs)
+            return True
+        return False
+
+    def delete_all(self) -> int:
+        convs = self.store.read()
+        count = len(convs)
+        self.store.write([])
+        return count
+

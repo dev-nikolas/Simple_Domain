@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "archive_id": "arc_9709fdc1",
+    "job_id": "job_3409e607",
+    "filename": "dataset_metadata.json",
+    "format": "json",
+    "size_bytes": 2396,
+    "status": "failed",
+    "conversation_id": "conv_4720be2771",
+    "created_at": "2026-10-26T15:52:35.278096+00:00",
+    "updated_at": "2026-10-26T15:52:35.416197+00:00",
+    "error": "Estructura JSON no admitida. Se espera array de objetos o lista de números.",
+    "summary": null,
+    "warnings": []
+  }
+]

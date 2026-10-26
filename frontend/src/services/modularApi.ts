@@ -55,6 +55,8 @@ export const modularApi = {
 
   // ==================== Data Sources ====================
   getDataSources: () => request<DataSource[]>('/v1/data-sources'),
+  getDataSource: (id: string) => request<DataSource>(`/v1/data-sources/${id}`),
+  getDataSourceContent: (id: string) => request<any>(`/v1/data-sources/${id}/content`),
   createDataSource: (data: DataSourceCreate) =>
     request<DataSource>('/v1/data-sources', { method: 'POST', body: JSON.stringify(data) }),
   deleteDataSource: (id: string) =>
@@ -71,7 +73,11 @@ export const modularApi = {
   getSettings: () => request<SettingsResponse>('/v1/settings'),
   updateSettings: (preferences: Record<string, unknown>) =>
     request<SettingsResponse>('/v1/settings', { method: 'PATCH', body: JSON.stringify({ preferences }) }),
+  getSystemMode: () => request<{ mode: 'chat' | 'sandbox' }>('/v1/settings/mode'),
+  setSystemMode: (mode: 'chat' | 'sandbox') =>
+    request<{ status: string; mode: string }>('/v1/settings/mode', { method: 'POST', body: JSON.stringify({ mode }) }),
   resetSettings: () => request<SettingsResponse>('/v1/settings/reset', { method: 'POST' }),
+  wipeAllData: () => request<{ status: string; cleared: Record<string, unknown> }>('/v1/settings/wipe-all', { method: 'POST' }),
 
   // ==================== Archive & Async Jobs ====================
   submitArchive: (file: File, conversation_id?: string) => {
@@ -89,6 +95,7 @@ export const modularApi = {
   createConversation: (title?: string) =>
     request<Conversation>('/v1/conversations', { method: 'POST', body: JSON.stringify({ title }) }),
   getConversation: (id: string) => request<Conversation>(`/v1/conversations/${id}`),
+  deleteConversation: (id: string) => request<void>(`/v1/conversations/${id}`, { method: 'DELETE' }),
   sendMessage: (convId: string, content: string, role = 'user') =>
     request<ChatMessage>(`/v1/conversations/${convId}/messages`, {
       method: 'POST',
@@ -109,4 +116,6 @@ export const modularApi = {
   getSandboxRun: (id: string) => request<SandboxRun>(`/v1/sandbox/runs/${id}`),
   createSandboxRun: (data: SandboxRunCreate) =>
     request<SandboxRun>('/v1/sandbox/runs', { method: 'POST', body: JSON.stringify(data) }),
+  traceSandboxQuery: (query: string) =>
+    request<any>('/v1/sandbox/trace-query', { method: 'POST', body: JSON.stringify({ query }) }),
 };

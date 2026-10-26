@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Plus, MessageSquare, Clock } from 'lucide-react';
+import { Plus, MessageSquare, Clock, Trash2 } from 'lucide-react';
 import { Conversation } from '../types/conversations';
 
 interface SidebarSessionsProps {
@@ -11,6 +11,7 @@ interface SidebarSessionsProps {
   activeId: string | null;
   onSelect: (conv: Conversation) => void;
   onNew: () => void;
+  onDelete?: (convId: string, title: string) => void;
 }
 
 export const SidebarSessions: React.FC<SidebarSessionsProps> = ({
@@ -18,6 +19,7 @@ export const SidebarSessions: React.FC<SidebarSessionsProps> = ({
   activeId,
   onSelect,
   onNew,
+  onDelete,
 }) => {
   return (
     <div className="flex-1 min-h-0 flex flex-col pt-3 border-t border-cyber-border font-mono text-xs">
@@ -45,16 +47,34 @@ export const SidebarSessions: React.FC<SidebarSessionsProps> = ({
           conversations.map((c) => {
             const isActive = c.id === activeId;
             return (
-              <button
+              <div
                 key={c.id}
                 onClick={() => onSelect(c)}
-                className={`w-full text-left p-2 transition-all cut-corner-sm border ${
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelect(c); }}
+                className={`w-full text-left p-2 transition-all cut-corner-sm border cursor-pointer group relative ${
                   isActive
                     ? 'bg-cyber-yellow/15 border-cyber-yellow/70 text-white shadow-cyber-yellow-sm font-bold'
                     : 'bg-cyber-card/40 border-cyber-border/60 text-cyber-muted hover:text-white hover:border-cyber-border hover:bg-cyber-card'
                 }`}
               >
-                <div className="text-[11px] truncate">{c.title}</div>
+                <div className="flex items-center justify-between gap-1">
+                  <div className="text-[11px] truncate flex-1">{c.title}</div>
+                  {onDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(c.id, c.title);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-cyber-muted hover:text-rose-400 hover:bg-rose-950/40 rounded transition-all shrink-0 cursor-pointer"
+                      title="Eliminar sesión"
+                      aria-label={`Eliminar sesión ${c.title}`}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center justify-between text-[9px] text-cyber-muted/70 mt-1">
                   <span className="flex items-center space-x-1">
                     <Clock className="w-2.5 h-2.5" />
@@ -62,7 +82,7 @@ export const SidebarSessions: React.FC<SidebarSessionsProps> = ({
                   </span>
                   <span>{c.messages?.length || 0} msgs</span>
                 </div>
-              </button>
+              </div>
             );
           })
         )}

@@ -120,6 +120,7 @@ class SettingsUpdate(BaseModel):
     auto_refresh_ui: Optional[bool] = None
     audit_strict_mode: Optional[bool] = None
     theme_contrast: Optional[str] = None
+    active_mode: Optional[str] = None
 
 
 class SettingsResponse(BaseModel):

@@ -70,6 +70,17 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
               <option value="normal">Normal</option>
             </select>
           </div>
+          <div>
+            <label className="text-[10px] text-cyber-muted">MODO DEL SISTEMA</label>
+            <select
+              value={prefs.active_mode || 'chat'}
+              onChange={(e) => onChange({ ...prefs, active_mode: e.target.value as 'chat' | 'sandbox' })}
+              className="w-full bg-cyber-bg border border-cyber-border px-2.5 py-1.5 text-xs text-white focus:border-cyber-yellow outline-hidden"
+            >
+              <option value="chat">Modo Chat (Predeterminado)</option>
+              <option value="sandbox">Modo Sandbox (Avanzado 3D)</option>
+            </select>
+          </div>
         </div>
 
         <div className="pt-2 border-t border-cyber-border/40 grid grid-cols-1 md:grid-cols-3 gap-3">
