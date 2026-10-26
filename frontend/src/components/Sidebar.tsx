@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Home, Database, Network, FlaskConical, Settings, Activity, PanelLeft, X, Cpu, Plus } from 'lucide-react';
+import { Home, Database, Network, FlaskConical, Settings, Activity, PanelLeft, X, Cpu, Plus, Box, MessageSquare } from 'lucide-react';
 import { APP_NAME } from '../config/env';
 import { AppRoute } from '../hooks/useRouter';
 import { Conversation } from '../types/conversations';
@@ -12,23 +12,16 @@ import { SidebarSessions } from './SidebarSessions';
 interface SidebarProps {
   currentRoute: AppRoute;
   onNavigate: (route: AppRoute) => void;
-  isMobileOpen: boolean;
-  onCloseMobile: () => void;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-  onOpenDiagnostics: () => void;
-  isBackendOnline: boolean;
-  conversations?: Conversation[];
-  activeConversationId?: string | null;
-  onSelectConversation?: (conv: Conversation) => void;
-  onNewConversation?: () => void;
+  isMobileOpen: boolean; onCloseMobile: () => void; isCollapsed: boolean; onToggleCollapse: () => void;
+  onOpenDiagnostics: () => void; isBackendOnline: boolean; conversations?: Conversation[];
+  activeConversationId?: string | null; onSelectConversation?: (c: Conversation) => void;
+  onNewConversation?: () => void; onDeleteConversation?: (id: string, t: string) => void;
+  isSandboxMode?: boolean; onToggleSandboxMode?: () => void;
 }
 
 const NAV_ITEMS: { id: AppRoute; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: '/', label: 'Home', icon: Home },
-  { id: '/research', label: 'Research', icon: FlaskConical },
-  { id: '/data-sources', label: 'Data Sources', icon: Database },
-  { id: '/patterns', label: 'Patterns', icon: Network },
+  { id: '/', label: 'Home', icon: Home }, { id: '/research', label: 'Research', icon: FlaskConical },
+  { id: '/data-sources', label: 'Data Sources', icon: Database }, { id: '/patterns', label: 'Patterns', icon: Network },
   { id: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -45,7 +38,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeConversationId = null,
   onSelectConversation,
   onNewConversation,
+  onDeleteConversation,
+  isSandboxMode = false,
+  onToggleSandboxMode,
 }) => {
+  const sandboxActive = Boolean(isSandboxMode);
   useEffect(() => {
     if (!isMobileOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCloseMobile();
@@ -104,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <nav className="space-y-1 shrink-0" aria-label="Navegación principal">
             {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-              const active = currentRoute === id;
+              const active = currentRoute === id || (id === '/' && currentRoute.startsWith('/c/'));
               return (
                 <button
                   key={id}
@@ -130,24 +127,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
               activeId={activeConversationId}
               onSelect={(c) => { onSelectConversation?.(c); if (isMobileDrawer) onCloseMobile(); }}
               onNew={() => { onNewConversation?.(); if (isMobileDrawer) onCloseMobile(); }}
+              onDelete={onDeleteConversation}
             />
           )}
         </div>
 
-        <div className="pt-3 border-t border-cyber-border space-y-2 shrink-0">
-          <button
-            onClick={onOpenDiagnostics}
-            className={`w-full flex items-center ${isCol ? 'justify-center px-2' : 'space-x-2 px-3'} py-2 bg-cyber-card hover:bg-cyber-yellow/10 border border-cyber-yellow/40 text-cyber-yellow cut-corner-sm transition-all text-[11px] font-bold cursor-pointer`}
-            title="Abrir Telemetría"
-          >
-            <Activity className="h-4 w-4 shrink-0 text-cyber-yellow" />
+        <div className="pt-3 border-t border-cyber-border space-y-1.5 shrink-0">
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => onToggleSandboxMode?.()}
+              className={`flex-1 flex items-center ${isCol ? 'justify-center px-2' : 'space-x-2 px-3'} py-2 cut-corner-sm transition-all text-[11px] font-bold cursor-pointer ${
+                sandboxActive
+                  ? 'bg-cyan-950/60 border border-cyan-400 text-cyan-300 shadow-md shadow-cyan-950/50'
+                  : 'bg-cyber-card border border-cyber-border hover:border-cyber-yellow text-cyber-yellow'
+              }`}
+              title={sandboxActive ? 'Modo actual: SANDBOX 3D (Click para cambiar a Modo Chat)' : 'Modo actual: CHAT (Click para cambiar a SANDBOX 3D)'}
+            >
+              {sandboxActive ? <Box className="h-4 w-4 shrink-0 text-cyan-400 animate-pulse" /> : <MessageSquare className="h-4 w-4 shrink-0 text-cyber-yellow" />}
+              {!isCol && (
+                <div className="flex-1 flex items-center justify-between">
+                  <span>{sandboxActive ? 'SANDBOX 3D' : 'MODE: CHAT'}</span>
+                  <span className={`w-2 h-2 rounded-full ${isBackendOnline ? 'bg-emerald-400' : 'bg-red-400'}`} title={isBackendOnline ? 'Online' : 'Offline'} />
+                </div>
+              )}
+            </button>
             {!isCol && (
-              <div className="flex-1 flex items-center justify-between">
-                <span>DIAGNOSTICS</span>
-                <span className={`w-2 h-2 rounded-full ${isBackendOnline ? 'bg-emerald-400' : 'bg-red-400'}`} />
-              </div>
+              <button onClick={onOpenDiagnostics} className="p-2 bg-cyber-card border border-cyber-border hover:border-cyber-yellow text-cyber-muted hover:text-cyber-yellow cut-corner-sm cursor-pointer" title="Telemetría">
+                <Activity className="h-3.5 w-3.5" />
+              </button>
             )}
-          </button>
+          </div>
         </div>
       </div>
     );

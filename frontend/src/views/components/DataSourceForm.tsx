@@ -47,6 +47,7 @@ export const DataSourceForm: React.FC<DataSourceFormProps> = ({ onSubmit, onCanc
             className="w-full bg-cyber-bg border border-cyber-border px-2.5 py-1.5 text-xs text-white focus:border-cyber-yellow outline-hidden"
           >
             <option value="csv">CSV (Comma-separated)</option>
+            <option value="jsonl">JSONL (JSON Lines - Currículo)</option>
             <option value="json">JSON (Structured records)</option>
             <option value="xlsx">XLSX (Excel Workbook)</option>
           </select>

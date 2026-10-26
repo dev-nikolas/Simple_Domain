@@ -1,20 +1,24 @@
 /**
- * Simple Domain — Vista Home (Espacio Conversacional, Ingesta y Telemetría)
+ * Simple Domain — Vista Home (Espacio Conversacional Minimalista con Animación de Fondo)
+ * Menos de 180 líneas.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { CoreVisualization } from '../components/CoreVisualization';
 import { CommandInput } from '../components/CommandInput';
 import { StatusBar } from '../components/StatusBar';
 import { ChatMessageBubble } from '../components/ChatMessageBubble';
 import { Conversation } from '../types/conversations';
 import { modularApi } from '../services/modularApi';
+import { Plus, Cpu } from 'lucide-react';
+import { APP_NAME } from '../config/env';
 
 interface HomeViewProps {
   isOnline: boolean;
   activeConversation: Conversation | null;
   onRefreshActive: () => Promise<void>;
   onNewSession: () => Promise<void>;
+  isSandboxMode?: boolean;
+  onToggleSandboxMode?: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -43,11 +47,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         await modularApi.submitArchive(file, targetId);
         await onRefreshActive();
       }
-    } catch {
-      // Error submit
-    } finally {
-      setIsProcessing(false);
-    }
+    } catch { /* submit err */ } finally { setIsProcessing(false); }
   };
 
   const handleCommandSubmit = async (text: string) => {
@@ -62,30 +62,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
         await modularApi.sendMessage(targetId, text, 'user');
         await onRefreshActive();
       }
-    } catch {
-      // Error message
-    }
+    } catch { /* msg err */ }
   };
 
   const hasMessages = Boolean(activeConversation?.messages && activeConversation.messages.length > 0);
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-cyber-bg relative font-mono">
-      <main
-        ref={chatScrollRef}
-        className="flex-1 flex flex-col relative z-10 w-full overflow-y-auto"
-      >
+    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-cyber-bg relative font-mono select-none">
+      {/* Animación liviana y minimalista de fondo */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 z-0">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
+        <div className="w-full h-full cyber-grid-bg opacity-40" />
+      </div>
+
+      <main ref={chatScrollRef} className="flex-1 flex flex-col relative z-10 w-full overflow-y-auto">
         {!hasMessages ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-4">
-            <CoreVisualization />
-            <div className="text-[11px] text-cyber-muted mt-2 text-center max-w-md">
-              Abre el menú lateral para ver tus sesiones o pulsa <span className="text-cyber-yellow font-bold">[ + ]</span> para adjuntar un dataset CSV o JSON.
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-lg mx-auto">
+            <div className="w-16 h-16 bg-cyber-card border border-cyber-yellow/40 flex items-center justify-center cut-corner-sm mb-4 shadow-lg shadow-cyber-yellow/10">
+              <Cpu className="w-8 h-8 text-cyber-yellow animate-pulse" />
             </div>
+            <h1 className="font-tech text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">{APP_NAME}</h1>
+            <p className="text-xs text-cyber-muted mt-2 leading-relaxed">
+              Asistente de Razonamiento Lógico Desacoplado · Consulta o adjunta un dataset para análisis formal.
+            </p>
             <button
               onClick={onNewSession}
-              className="mt-3 px-3 py-1 bg-cyber-yellow/10 border border-cyber-yellow/50 hover:border-cyber-yellow text-cyber-yellow text-[11px] font-bold cut-corner-sm cursor-pointer transition-all hover:bg-cyber-yellow/20"
+              className="mt-5 flex items-center space-x-1.5 px-4 py-2 bg-cyber-yellow/10 border border-cyber-yellow text-cyber-yellow text-xs font-bold cut-corner-sm hover:bg-cyber-yellow hover:text-black cursor-pointer transition-all"
             >
-              + NUEVO CHAT
+              <Plus className="w-4 h-4" /><span>INICIAR NUEVA SESIÓN</span>
             </button>
           </div>
         ) : (
@@ -98,10 +102,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <span>{activeConversation?.messages.length} mensajes</span>
                 <button
                   onClick={onNewSession}
-                  className="px-2 py-0.5 border border-cyber-yellow/40 hover:border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 cut-corner-sm transition-all cursor-pointer font-bold"
-                  title="Crear un nuevo chat"
+                  className="flex items-center space-x-1 px-2 py-0.5 border border-cyber-yellow/40 hover:border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 cut-corner-xs transition-all cursor-pointer font-bold"
+                  title="Nuevo chat"
                 >
-                  + NUEVO CHAT
+                  <Plus className="w-3 h-3" /><span>NUEVO CHAT</span>
                 </button>
               </div>
             </div>

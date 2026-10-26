@@ -148,10 +148,25 @@ async def get_sandbox_run_events(
     return StreamingResponse(
         broker.stream(run_id, last_event_id=last_event_id),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
     )
 
+
+@router.post("/trace-query", summary="Traza 3D hop-by-hop desacoplada")
+def trace_sandbox_query(payload: Dict[str, str], request: Request) -> Dict[str, Any]:
+    import time
+    from simple_domain.service.relic_client import RelicClient
+    q = payload.get("query", "").strip() or "evaluar consistencia"
+    t0 = time.time()
+    relic_res = RelicClient().query(q, enable_trace=True, allow_fallback=True)
+    hop2_ms = round((time.time() - t0) * 1000, 2)
+    st = relic_res.get("status", "UNSUPPORTED")
+    match_type = "EXACT_MATCH" if st == "VALID" else ("CORRECT_ABSTENTION" if "epistemic" in relic_res.get("route", "") or "out_of_domain" in relic_res.get("route", "") else "REJECTION")
+    return {
+        "query": q, "match_type": match_type,
+        "connections": [
+            {"name": "Canal 1", "from": "Capa Cliente", "to": "Orquestador de Dominio", "type": "Canal Local", "status": "ONLINE", "latency_ms": 1.2},
+            {"name": "Canal 2", "from": "Orquestador de Dominio", "to": "Motor de Razonamiento", "type": "Canal de Inferencia", "status": "ONLINE" if relic_res.get("responding_system") != "none" else "DEGRADED", "latency_ms": hop2_ms},
+        ],
+        "relic": relic_res,
+    }

@@ -5,7 +5,7 @@
 export interface TraceStage {
   stage: string;
   latency_ms: number;
-  output: string;
+  output: any;
 }
 
 export interface SandboxEpisode {

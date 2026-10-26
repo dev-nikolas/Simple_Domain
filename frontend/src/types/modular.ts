@@ -25,7 +25,7 @@ export interface ExperimentCreate {
   notes?: string;
 }
 
-export type DataSourceFormat = 'csv' | 'json' | 'xlsx';
+export type DataSourceFormat = 'csv' | 'json' | 'jsonl' | 'xlsx' | 'sandbox_run' | string;
 export type DataSourceStatus = 'registered' | 'available' | 'unavailable' | 'error';
 
 export interface DataSource {
@@ -87,6 +87,7 @@ export interface SystemPreferences {
   auto_refresh_ui: boolean;
   audit_strict_mode: boolean;
   theme_contrast: 'normal' | 'high';
+  active_mode?: 'chat' | 'sandbox';
   [key: string]: unknown;
 }
 
