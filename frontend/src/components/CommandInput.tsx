@@ -133,7 +133,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
           disabled={isSubmitting}
           placeholder="Introduce una instrucción para Simple Domain..."
           aria-label="Introduce una instrucción para Simple Domain"
-          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-4 py-2 font-mono text-xs sm:text-sm text-cyber-text placeholder:text-cyber-muted/60 focus:outline-none"
+          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-4 py-2 font-mono text-xs sm:text-sm text-cyber-text placeholder:text-cyber-muted/60 focus:outline-none select-text cursor-text"
         />
 
         {/* Botón de envío */}

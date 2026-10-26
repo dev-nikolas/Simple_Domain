@@ -105,7 +105,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-cyber-bg text-cyber-text flex overflow-hidden font-mono select-none">
+    <div className="h-screen w-full bg-cyber-bg text-cyber-text flex overflow-hidden font-mono">
       <Sidebar
         currentRoute={currentRoute}
         onNavigate={navigate}
