@@ -365,18 +365,26 @@ async function startServer() {
 
           let accumulatedTotal = '';
 
-          // Si el cliente solicita streaming directo sin herramientas complejas:
+          // Solo enviar definiciones de herramientas a llama-server si el cliente las solicita explícitamente.
+          // Evita inflar artificialmente el prompt prefill con esquemas JSON en chats de texto y código normal.
+          const enableTools = clientPayload.enable_tools === true || clientPayload.tools !== undefined;
+          const toolsToSend = enableTools ? (clientPayload.tools || allTools) : undefined;
+
+          const llamaPayload = {
+            messages,
+            temperature,
+            max_tokens: maxTokens,
+            stream: true,
+          };
+          if (toolsToSend && toolsToSend.length > 0) {
+            llamaPayload.tools = toolsToSend;
+          }
+
           // Transmitimos token por token directamente desde llama-server
           const llamaRes = await fetch(LLAMA_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages,
-              tools: allTools,
-              temperature,
-              max_tokens: maxTokens,
-              stream: true,
-            }),
+            body: JSON.stringify(llamaPayload),
           });
 
           if (!llamaRes.ok) {

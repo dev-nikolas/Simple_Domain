@@ -45,7 +45,7 @@ services:
         condition: service_completed_successfully
     command: >
       -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
-      -c 2048
+      -c 8192
       -t 2
       -np 1
       -ngl 0
@@ -60,9 +60,9 @@ services:
       resources:
         limits:
           cpus: "2.0"
-          memory: 3.5G
+          memory: 6.0G
         reservations:
-          memory: 2.2G
+          memory: 3.5G
 
   # ----------------------------------------------------------------------------
   # 3. Microkernel Determinista RELIC (Servidor Neuro-Simbólico en Rust)
