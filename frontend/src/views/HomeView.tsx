@@ -7,22 +7,29 @@ import React, { useEffect, useRef } from 'react';
 import { CommandInput } from '../components/CommandInput';
 import { ChatMessageBubble } from '../components/ChatMessageBubble';
 import { Conversation, ChatMessage } from '../types/conversations';
-import { useChat } from '../hooks/useChat';
+import { Message } from '../services/llmClient';
 import { Plus, Cpu, Square } from 'lucide-react';
 import { APP_NAME } from '../config/env';
 
 interface HomeViewProps {
   activeConversation: Conversation | null;
-  onRefreshActive: () => Promise<void>;
-  onNewSession: () => Promise<void>;
+  streamMessages: Message[];
+  isGenerating: boolean;
+  onSendMessage: (text: string) => void;
+  onStopGeneration: () => void;
+  onNewSession: () => void;
+  onRefreshActive?: () => Promise<void>;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
   activeConversation,
-  onRefreshActive,
+  streamMessages,
+  isGenerating,
+  onSendMessage,
+  onStopGeneration,
   onNewSession,
+  onRefreshActive,
 }) => {
-  const { messages: streamMessages, isGenerating, sendMessage, stopGeneration } = useChat();
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   }, [streamMessages, activeConversation?.messages]);
 
   const handleCommandSubmit = async (text: string) => {
-    sendMessage(text);
+    onSendMessage(text);
   };
 
   const handleFileSelected = async (_file: File) => {
@@ -64,7 +71,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <h1 className="font-tech text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">{APP_NAME}</h1>
             <p className="text-xs text-cyber-muted mt-2 leading-relaxed">
-              Dolphin 3B Local Core · Streaming SSE activo en http://127.0.0.1:8081 · Consulta en lenguaje natural o pide código.
+              Dolphin 3B Local Core · Streaming SSE activo · Historial persistente en navegador (localStorage).
             </p>
             <button
               onClick={onNewSession}
@@ -77,13 +84,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-cyber-border pb-2 text-[10px] text-cyber-muted">
               <span className="font-bold text-cyber-yellow uppercase tracking-wider truncate mr-2">
-                SESIÓN ACTIVA: DOLPHIN 3B (STREAMING SSE :8081)
+                SESIÓN ACTIVA: {activeConversation?.title || 'DOLPHIN 3B CORE'}
               </span>
               <div className="flex items-center space-x-3 shrink-0">
                 <span>{displayMessages.length} mensajes</span>
                 {isGenerating && (
                   <button
-                    onClick={stopGeneration}
+                    onClick={onStopGeneration}
                     className="flex items-center space-x-1 px-2 py-0.5 border border-red-500/60 hover:border-red-500 text-red-400 hover:bg-red-500/10 cut-corner-xs transition-all cursor-pointer font-bold animate-pulse"
                     title="Detener inferencia"
                   >
@@ -105,7 +112,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 key={msg.id}
                 message={msg}
                 isGenerating={isGenerating && idx === displayMessages.length - 1}
-                onJobCompleted={() => onRefreshActive()}
+                onJobCompleted={() => onRefreshActive && onRefreshActive()}
               />
             ))}
           </div>

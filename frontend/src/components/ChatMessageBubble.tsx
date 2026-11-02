@@ -1,6 +1,7 @@
 /**
  * Simple Domain — Burbuja de Mensaje del Chat
- * Renderizado profesional con Markdown, resaltado de sintaxis (VS Code Dark Plus) e indicador de Prefill/Pensando.
+ * Renderizado profesional con Markdown, resaltado de sintaxis (VS Code Dark Plus)
+ * y botón interactivo "Copiar código" en cada bloque de código.
  */
 
 import React, { useState } from 'react';
@@ -15,6 +16,73 @@ interface ChatMessageBubbleProps {
   onJobCompleted?: () => void;
   isGenerating?: boolean;
 }
+
+// Sub-componente para bloques de código con cabecera y botón de copia
+const CodeBlock: React.FC<{ language: string; codeString: string; props: any }> = ({
+  language,
+  codeString,
+  props,
+}) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(codeString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* fallback */ }
+  };
+
+  return (
+    <div style={{ margin: '10px 0', border: '1px solid #333', borderRadius: '6px', overflow: 'hidden' }}>
+      {/* Cabecera del bloque de código */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#2d2d2d', padding: '4px 10px', fontSize: '12px', color: '#888' }}>
+        <span>{language.toUpperCase()}</span>
+        <button 
+          onClick={handleCopy}
+          style={{ background: 'transparent', border: 'none', color: '#eab308', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600 }}
+          title="Copiar código al portapapeles"
+        >
+          {copied ? '✓ Copiado' : 'Copiar código'}
+        </button>
+      </div>
+      {/* Resaltado de sintaxis */}
+      <SyntaxHighlighter
+        style={vscDarkPlus as any}
+        language={language}
+        PreTag="div"
+        customStyle={{ margin: 0 }}
+        {...props}
+      >
+        {codeString}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
+
+// Componente para renderizar el contenido del mensaje
+export const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+  return (
+    <ReactMarkdown
+      components={{
+        code({ node, inline, className, children, ...props }: any) {
+          const match = /language-(\w+)/.exec(className || '');
+          const codeString = String(children).replace(/\n$/, '');
+          return !inline && match ? (
+            <CodeBlock language={match[1]} codeString={codeString} props={props} />
+          ) : (
+            // Código en línea (inline)
+            <code style={{ background: '#333', padding: '2px 4px', borderRadius: '4px', color: '#eab308' }} {...props}>
+              {children}
+            </code>
+          );
+        }
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+};
 
 export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, isGenerating }) => {
   const isUser = message.role === 'user';
@@ -50,13 +118,13 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, i
           </div>
           <div className="flex items-center space-x-2">
             <span>{new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            <button onClick={handleCopy} className="p-1 hover:text-cyber-yellow text-cyber-muted cursor-pointer" title="Copiar texto">
+            <button onClick={handleCopy} className="p-1 hover:text-cyber-yellow text-cyber-muted cursor-pointer" title="Copiar texto completo">
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
 
-        {/* SI ES EL USUARIO, texto simple. SI ES EL LLM, renderizamos Markdown */}
+        {/* SI ES EL USUARIO, texto simple. SI ES EL LLM, renderizamos Markdown con SyntaxHighlighter */}
         {isUser ? (
           <div className="whitespace-pre-line leading-relaxed text-[11px] select-text cursor-text">
             {message.content}
@@ -71,35 +139,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, i
               </div>
             )}
 
-            <ReactMarkdown
-              components={{
-                code({ node, inline, className, children, ...props }: any) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return !inline && match ? (
-                    <div className="my-2 rounded overflow-hidden border border-cyber-border/60">
-                      <div className="bg-black/60 px-3 py-1 text-[10px] text-cyber-yellow font-bold uppercase border-b border-cyber-border/40 flex justify-between items-center">
-                        <span>{match[1]}</span>
-                      </div>
-                      <SyntaxHighlighter
-                        style={vscDarkPlus as any}
-                        language={match[1]}
-                        PreTag="div"
-                        customStyle={{ margin: 0, padding: '12px', background: '#1e1e1e', fontSize: '11px' }}
-                        {...props}
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    </div>
-                  ) : (
-                    <code className="bg-white/10 text-cyber-yellow px-1.5 py-0.5 rounded text-[10px] font-mono border border-cyber-border/40" {...props}>
-                      {children}
-                    </code>
-                  );
-                }
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
+            <MessageContent content={message.content} />
           </div>
         )}
       </div>
