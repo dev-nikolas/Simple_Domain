@@ -120,6 +120,9 @@ services:
       - LLAMA_URL=http://llm_engine:8080/v1/chat/completions
       - RELIC_SERVER_URL=http://relic_engine:5000
       - RELIC_MCP_BIN=/usr/local/bin/relic_mcp
+      - SESSIONS_FILE=/app/data/sessions.json
+    volumes:
+      - gateway_data:/app/data
     ports:
       - "127.0.0.1:4000:4000"
     deploy:
@@ -155,4 +158,7 @@ volumes:
     driver: local
   relic_data:
     name: simple_domain_relic_data
+    driver: local
+  gateway_data:
+    name: simple_domain_gateway_data
     driver: local
