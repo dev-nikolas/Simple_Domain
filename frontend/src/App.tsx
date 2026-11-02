@@ -81,34 +81,34 @@ export const App: React.FC = () => {
 
   return (
     <div className="h-screen w-full bg-cyber-bg text-cyber-text flex overflow-hidden font-mono">
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      {/* Sidebar fijo a la izquierda */}
+      <Sidebar
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        conversations={conversations}
+        activeConversationId={activeSessionId}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
+        onDeleteConversation={handleDeleteConversation}
+      />
+
+      {/* Contenido principal a la derecha */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <TopBar
-          onToggleMobileSidebar={() => setIsMobileSidebarOpen(prev => !prev)}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
           onNewConversation={handleNewConversation}
         />
 
-        <div className="flex-1 flex min-w-0 overflow-hidden relative">
-          <Sidebar
-            isMobileOpen={isMobileSidebarOpen}
-            onCloseMobile={() => setIsMobileSidebarOpen(false)}
-            isCollapsed={isSidebarCollapsed}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            conversations={conversations}
-            activeConversationId={activeSessionId}
-            onSelectConversation={handleSelectConversation}
-            onNewConversation={handleNewConversation}
-            onDeleteConversation={handleDeleteConversation}
-          />
-
-          <HomeView
-            activeConversation={activeConversation}
-            streamMessages={messages}
-            isGenerating={isGenerating}
-            onSendMessage={sendMessage}
-            onStopGeneration={stopGeneration}
-            onNewSession={handleNewConversation}
-          />
-        </div>
+        <HomeView
+          activeConversation={activeConversation}
+          streamMessages={messages}
+          isGenerating={isGenerating}
+          onSendMessage={sendMessage}
+          onStopGeneration={stopGeneration}
+          onNewSession={handleNewConversation}
+        />
       </div>
     </div>
   );

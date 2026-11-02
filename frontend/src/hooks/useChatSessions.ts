@@ -9,115 +9,119 @@ export interface ChatSession {
 }
 
 const STORAGE_KEY = 'relic_chat_sessions';
-const DEFAULT_SYSTEM_PROMPT = 'Eres un experto dev. Responde directo, sin preámbulos y solo con el código necesario.';
+export const DEFAULT_SYSTEM_PROMPT = 'Eres un experto dev. Responde directo, sin preámbulos y solo con el código necesario.';
+
+function loadInitialSessions(): ChatSession[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Error leyendo sesiones de localStorage:', e);
+  }
+  return [
+    {
+      id: Date.now().toString(),
+      title: 'Nueva Conversación',
+      messages: [{ role: 'system', content: DEFAULT_SYSTEM_PROMPT }],
+      updatedAt: Date.now(),
+    },
+  ];
+}
 
 export function useChatSessions() {
-  const [sessions, setSessions] = useState<ChatSession[]>(() => {
+  const [sessions, setSessions] = useState<ChatSession[]>(loadInitialSessions);
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
+    const initial = loadInitialSessions();
+    return initial[0].id;
+  });
+
+  // Guardar en localStorage cada vez que sessions cambie
+  useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
+      if (sessions.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
       }
     } catch (e) {
-      console.warn('Error cargando sesiones desde localStorage:', e);
-    }
-    return [
-      {
-        id: Date.now().toString(),
-        title: 'Nueva Conversación',
-        messages: [{ role: 'system', content: DEFAULT_SYSTEM_PROMPT }],
-        updatedAt: Date.now()
-      }
-    ];
-  });
-
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed[0].id;
-        }
-      }
-    } catch { /* fallback */ }
-    return sessions.length > 0 ? sessions[0].id : null;
-  });
-
-  // Guardar en localStorage cada vez que cambian las sesiones
-  useEffect(() => {
-    if (sessions.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+      console.error('Error guardando en localStorage:', e);
     }
   }, [sessions]);
 
-  // Si no hay sesión activa y hay sesiones disponibles, seleccionar la primera
+  // Si activeSessionId no existe en sessions, seleccionar la primera
   useEffect(() => {
-    if (!activeSessionId && sessions.length > 0) {
+    if (!sessions.some(s => s.id === activeSessionId) && sessions.length > 0) {
       setActiveSessionId(sessions[0].id);
     }
   }, [activeSessionId, sessions]);
 
-  // 3. Crear nuevo chat
+  // Crear nuevo chat
   const createNewSession = useCallback(() => {
     const newSession: ChatSession = {
       id: Date.now().toString(),
       title: 'Nueva Conversación',
       messages: [{ role: 'system', content: DEFAULT_SYSTEM_PROMPT }],
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     setSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
   }, []);
 
-  // 4. Eliminar chat
+  // Eliminar chat
   const deleteSession = useCallback((id: string) => {
     setSessions(prev => {
       const remaining = prev.filter(s => s.id !== id);
       if (remaining.length === 0) {
-        const fallbackSession: ChatSession = {
+        const fallback: ChatSession = {
           id: Date.now().toString(),
           title: 'Nueva Conversación',
           messages: [{ role: 'system', content: DEFAULT_SYSTEM_PROMPT }],
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         };
-        setActiveSessionId(fallbackSession.id);
-        return [fallbackSession];
+        setActiveSessionId(fallback.id);
+        return [fallback];
       }
       return remaining;
     });
 
-    setActiveSessionId(currentId => {
-      if (currentId === id) {
+    setActiveSessionId(curr => {
+      if (curr === id) {
         const remaining = sessions.filter(s => s.id !== id);
-        return remaining.length > 0 ? remaining[0].id : null;
+        return remaining.length > 0 ? remaining[0].id : '';
       }
-      return currentId;
+      return curr;
     });
   }, [sessions]);
 
-  // 5. Actualizar mensajes de la sesión activa
-  const updateActiveSessionMessages = useCallback((newMessages: Message[]) => {
-    setSessions(prev => prev.map(session => {
-      if (session.id === activeSessionId) {
-        // Generar título automático basado en el primer mensaje del usuario
-        let title = session.title;
-        if (title === 'Nueva Conversación' && newMessages.length > 1) {
-          const firstUserMsg = newMessages.find(m => m.role === 'user');
-          if (firstUserMsg && firstUserMsg.content.trim()) {
-            title = firstUserMsg.content.trim().substring(0, 30) + '...';
+  // Actualizar mensajes de la sesión activa
+  const updateActiveSessionMessages = useCallback((updater: (prevMessages: Message[]) => Message[]) => {
+    setSessions(prev =>
+      prev.map(session => {
+        if (session.id === activeSessionId) {
+          const newMessages = updater(session.messages);
+          let title = session.title;
+          if (title === 'Nueva Conversación' && newMessages.length > 1) {
+            const firstUserMsg = newMessages.find(m => m.role === 'user');
+            if (firstUserMsg && firstUserMsg.content.trim()) {
+              title = firstUserMsg.content.trim().substring(0, 30) + '...';
+            }
           }
+          return {
+            ...session,
+            messages: newMessages,
+            title,
+            updatedAt: Date.now(),
+          };
         }
-        return { ...session, messages: newMessages, title, updatedAt: Date.now() };
-      }
-      return session;
-    }));
+        return session;
+      })
+    );
   }, [activeSessionId]);
 
-  const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0] || null;
+  const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
 
   return {
     sessions,
@@ -127,7 +131,6 @@ export function useChatSessions() {
     activeMessages: activeSession?.messages || [],
     createNewSession,
     deleteSession,
-    updateActiveSessionMessages
+    updateActiveSessionMessages,
   };
 }
-

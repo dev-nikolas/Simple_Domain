@@ -1,7 +1,6 @@
-// src/hooks/useChat.ts
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { streamChatCompletion, Message } from '../services/llmClient';
-import { useChatSessions } from './useChatSessions';
+import { useChatSessions, DEFAULT_SYSTEM_PROMPT } from './useChatSessions';
 
 export function useChat() {
   const {
@@ -18,77 +17,70 @@ export function useChat() {
   const [isGenerating, setIsGenerating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Mensajes locales activos para reflejar el streaming en vivo sin lag de renderizado
-  const [liveMessages, setLiveMessages] = useState<Message[]>(activeMessages);
+  const sendMessage = useCallback(
+    async (content: string) => {
+      const trimmed = content.trim();
+      if (!trimmed || isGenerating) return;
 
-  // Sincronizar mensajes en vivo cuando cambia la sesión activa o los mensajes de fondo
-  useEffect(() => {
-    if (!isGenerating) {
-      setLiveMessages(activeMessages);
-    }
-  }, [activeSessionId, activeMessages, isGenerating]);
+      const newUserMessage: Message = { role: 'user', content: trimmed };
+      const assistantPlaceholder: Message = { role: 'assistant', content: '' };
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isGenerating) return;
+      // Historial base de la sesión activa asegurando system prompt
+      const base = activeMessages.length > 0
+        ? activeMessages
+        : [{ role: 'system' as const, content: DEFAULT_SYSTEM_PROMPT }];
 
-    // 1. Mensajes previos de esta sesión (asegurando el system prompt si no estuviera)
-    const baseMessages = liveMessages.length > 0
-      ? liveMessages
-      : [{ role: 'system' as const, content: 'Eres un experto dev. Responde directo, sin preámbulos y solo con el código necesario.' }];
+      const fullMessagesForLlm = [...base, newUserMessage];
 
-    // 2. Preparar el nuevo mensaje de usuario y el placeholder del asistente
-    const newUserMessage: Message = { role: 'user', content };
-    const assistantPlaceholder: Message = { role: 'assistant', content: '' };
+      // Insertar de inmediato el mensaje de usuario y el placeholder del asistente en la sesión
+      updateActiveSessionMessages(() => [...fullMessagesForLlm, assistantPlaceholder]);
+      setIsGenerating(true);
 
-    const updatedWithUser = [...baseMessages, newUserMessage];
-    const updatedWithPlaceholder = [...updatedWithUser, assistantPlaceholder];
+      abortControllerRef.current = new AbortController();
+      let accumulatedResponse = '';
 
-    setLiveMessages(updatedWithPlaceholder);
-    updateActiveSessionMessages(updatedWithPlaceholder);
-    setIsGenerating(true);
-
-    abortControllerRef.current = new AbortController();
-    let accumulatedResponse = '';
-
-    try {
-      await streamChatCompletion({
-        // Pasamos el historial completo sin el placeholder vacío
-        messages: updatedWithUser,
-        signal: abortControllerRef.current.signal,
-        onUpdate: (token) => {
-          accumulatedResponse += token;
-
-          setLiveMessages(current => {
-            const next = [...current];
-            if (next.length > 0) {
-              next[next.length - 1] = {
-                ...next[next.length - 1],
+      try {
+        await streamChatCompletion({
+          messages: fullMessagesForLlm,
+          signal: abortControllerRef.current.signal,
+          onUpdate: (token) => {
+            accumulatedResponse += token;
+            // Actualizar en tiempo real el último mensaje
+            updateActiveSessionMessages((msgs) => {
+              const copy = [...msgs];
+              if (copy.length > 0) {
+                copy[copy.length - 1] = {
+                  role: 'assistant',
+                  content: accumulatedResponse,
+                };
+              }
+              return copy;
+            });
+          },
+        });
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Error en inferencia LLM:', error);
+          updateActiveSessionMessages((msgs) => {
+            const copy = [...msgs];
+            if (copy.length > 0) {
+              copy[copy.length - 1] = {
+                role: 'assistant',
                 content: accumulatedResponse
+                  ? accumulatedResponse + `\n\n[Error en streaming: ${error.message}]`
+                  : `[Error conectando al motor LLM: ${error.message}]`,
               };
             }
-            return next;
+            return copy;
           });
         }
-      });
-
-      // Al terminar con éxito, persistir la respuesta acumulada en la sesión
-      const finalMessages = [...updatedWithUser, { role: 'assistant' as const, content: accumulatedResponse }];
-      setLiveMessages(finalMessages);
-      updateActiveSessionMessages(finalMessages);
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
-        console.error('Error en inferencia:', error);
+      } finally {
+        setIsGenerating(false);
+        abortControllerRef.current = null;
       }
-      if (accumulatedResponse) {
-        const partialMessages = [...updatedWithUser, { role: 'assistant' as const, content: accumulatedResponse }];
-        setLiveMessages(partialMessages);
-        updateActiveSessionMessages(partialMessages);
-      }
-    } finally {
-      setIsGenerating(false);
-      abortControllerRef.current = null;
-    }
-  }, [liveMessages, isGenerating, updateActiveSessionMessages]);
+    },
+    [activeMessages, isGenerating, updateActiveSessionMessages]
+  );
 
   const stopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
@@ -102,8 +94,8 @@ export function useChat() {
     activeSessionId,
     setActiveSessionId,
     activeSession,
-    messages: liveMessages.filter(m => m.role !== 'system'), // Ocultar system prompt de la UI
-    rawMessages: liveMessages,
+    messages: (activeSession?.messages || []).filter((m) => m.role !== 'system'),
+    rawMessages: activeSession?.messages || [],
     isGenerating,
     sendMessage,
     stopGeneration,
@@ -111,4 +103,5 @@ export function useChat() {
     deleteSession,
   };
 }
+
 export { useChatSessions };
