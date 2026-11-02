@@ -20,10 +20,12 @@ pub fn vec_dot(a: &[f32], b: &[f32]) -> f32 {
     let mut sum2 = 0.0f32;
     let mut sum3 = 0.0f32;
 
-    let (chunks_a, rem_a) = a.as_chunks::<4>();
-    let (chunks_b, rem_b) = b.as_chunks::<4>();
+    let chunks_a = a.chunks_exact(4);
+    let rem_a = chunks_a.remainder();
+    let chunks_b = b.chunks_exact(4);
+    let rem_b = chunks_b.remainder();
 
-    for (ca, cb) in chunks_a.iter().zip(chunks_b.iter()) {
+    for (ca, cb) in chunks_a.zip(chunks_b) {
         sum0 += ca[0] * cb[0];
         sum1 += ca[1] * cb[1];
         sum2 += ca[2] * cb[2];
@@ -43,10 +45,10 @@ use crate::loader::half_to_f32;
 
 /// Producto interno entre f32 y tensor empaquetado F16 sin descompresion a heap.
 pub fn vec_dot_f16(a: &[f32], b_f16_bytes: &[u8]) -> f32 {
-    let (chunks, _) = b_f16_bytes.as_chunks::<2>();
+    let chunks = b_f16_bytes.chunks_exact(2);
     let mut sum = 0.0f32;
-    for (&x, chunk) in a.iter().zip(chunks.iter()) {
-        let val_f16 = u16::from_le_bytes(*chunk);
+    for (&x, chunk) in a.iter().zip(chunks) {
+        let val_f16 = u16::from_le_bytes(chunk.try_into().unwrap());
         sum += x * half_to_f32(val_f16);
     }
     sum

@@ -70,18 +70,18 @@ impl SafetensorsLoader {
 
         match entry.dtype.as_str() {
             "F32" => {
-                let (chunks, _) = raw_bytes.as_chunks::<4>();
+                let chunks = raw_bytes.chunks_exact(4);
                 let mut data = Vec::with_capacity(chunks.len());
                 for chunk in chunks {
-                    data.push(f32::from_le_bytes(*chunk));
+                    data.push(f32::from_le_bytes(chunk.try_into().unwrap()));
                 }
                 Ok(data)
             }
             "F16" => {
-                let (chunks, _) = raw_bytes.as_chunks::<2>();
+                let chunks = raw_bytes.chunks_exact(2);
                 let mut data = Vec::with_capacity(chunks.len());
                 for chunk in chunks {
-                    let bits = u16::from_le_bytes(*chunk);
+                    let bits = u16::from_le_bytes(chunk.try_into().unwrap());
                     data.push(half_to_f32(bits));
                 }
                 Ok(data)

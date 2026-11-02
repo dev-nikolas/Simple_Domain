@@ -91,10 +91,10 @@ impl<'a> RelicModelMmap<'a> {
         // 1. Embedding lookup directo de páginas F16
         let tid = (token_id as usize).min(v - 1);
         let row_bytes = &self.embed_tokens[tid * h * 2..(tid + 1) * h * 2];
-        let (chunks, _) = row_bytes.as_chunks::<2>();
+        let chunks = row_bytes.chunks_exact(2);
         let mut x = Vec::with_capacity(h);
         for chunk in chunks {
-            x.push(half_to_f32(u16::from_le_bytes(*chunk)));
+            x.push(half_to_f32(u16::from_le_bytes(chunk.try_into().unwrap())));
         }
 
         // 2. Capas del Transformer

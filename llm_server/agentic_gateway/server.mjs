@@ -185,9 +185,10 @@ async function startServer() {
     res.end(JSON.stringify({ error: 'Endpoint no encontrado' }));
   });
 
-  server.listen(PORT, '127.0.0.1', () => {
-    console.log(`[Agentic Gateway] En línea en http://127.0.0.1:${PORT}`);
-    console.log(`[Agentic Gateway] Enrutando inferencia hacia llama-server (:8081) y microkernel RELIC.`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  server.listen(PORT, HOST, () => {
+    console.log(`[Agentic Gateway] En línea en http://${HOST}:${PORT}`);
+    console.log(`[Agentic Gateway] Enrutando inferencia hacia llama-server y microkernel RELIC.`);
   });
 }
 
