@@ -43,6 +43,7 @@ services:
     depends_on:
       init_model:
         condition: service_completed_successfully
+    # NOTA RENDIMIENTO: -tb 4 con cpus 2.0 degrada prefill ~40% por thread thrashing. Cambiar -tb y cpus juntos.
     command: >
       -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
       -c 16384
@@ -53,7 +54,7 @@ services:
       --host 0.0.0.0
       --port 8080
       --flash-attn off
-      -tb 4
+      -tb 2
     volumes:
       - model_data:/models:ro
     ports:
@@ -61,7 +62,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "4.0"
+          cpus: "2.0"
           memory: 8.0G
         reservations:
           memory: 3.5G
