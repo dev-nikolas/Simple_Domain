@@ -1,10 +1,5 @@
 # Simple Domain
 
-> **About para el repositorio en GitHub:**  
-> *Entorno de chat y asistente de programación local agéntico y determinista, 100% privado y sin telemetría.*
-
----
-
 ## ¿Para qué sirve?
 
 **Simple Domain** es un asistente conversacional de código y razonamiento lógico que se ejecuta íntegramente en tu máquina local, sin enviar datos ni telemetría a servidores externos.

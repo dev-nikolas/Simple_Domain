@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /relic_build
 
-# Copiar workspace de RELIC
+# Copiar workspace de RELIC en la estructura exacta esperada por Cargo.toml
 COPY relic/Cargo.toml relic/Cargo.lock ./
-COPY relic/crates/ relic/crates/
-COPY relic/benchmarks/ relic/benchmarks/
+COPY relic/crates/ ./crates/
+COPY relic/benchmarks/ ./benchmarks/
 
 # Compilar binario relic_mcp en release
 RUN cargo build --release --package relic_mcp --bin relic_mcp
@@ -31,8 +31,9 @@ COPY --from=rust_builder /relic_build/target/release/relic_mcp /usr/local/bin/re
 RUN chmod +x /usr/local/bin/relic_mcp
 
 # Copiar código del gateway
-COPY llm_server/agentic_gateway/package*.json ./
-COPY llm_server/agentic_gateway/ .
+COPY llm_server/agentic_gateway/package.json ./
+COPY llm_server/agentic_gateway/server.mjs ./
+COPY llm_server/agentic_gateway/mcpClient.mjs ./
 
 ENV NODE_ENV=production
 ENV PORT=4000
@@ -42,4 +43,3 @@ ENV LLAMA_URL=http://llm_engine:8080/v1/chat/completions
 EXPOSE 4000
 
 CMD ["node", "server.mjs"]
-
