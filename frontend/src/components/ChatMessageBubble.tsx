@@ -1,7 +1,7 @@
 /**
  * Simple Domain — Burbuja de Mensaje del Chat
- * Renderizado profesional con Markdown, resaltado de sintaxis (VS Code Dark Plus)
- * y botón interactivo "Copiar código" en cada bloque de código.
+ * Renderizado profesional con Markdown, resaltado de sintaxis (VS Code Dark Plus),
+ * botón interactivo "Copiar código" y estados de carga fluidos (Pensando / Escribiendo).
  */
 
 import React, { useState } from 'react';
@@ -84,9 +84,14 @@ export const MessageContent: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
-export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, isGenerating }) => {
+export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, isGenerating = false }) => {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Estados visuales de carga
+  const hasContent = Boolean(message.content && message.content.trim() !== '');
+  const isThinking = isGenerating && !hasContent;
+  const isStreaming = isGenerating && hasContent;
 
   const handleCopy = async () => {
     if (!message.content) return;
@@ -100,27 +105,45 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, i
   return (
     <div className={`flex items-start space-x-3 font-mono text-xs ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="w-7 h-7 rounded bg-cyber-card border border-cyber-yellow/40 flex items-center justify-center text-cyber-yellow shrink-0">
-          <Cpu className="w-4 h-4" />
+        <div className={`w-7 h-7 rounded bg-cyber-card border flex items-center justify-center shrink-0 transition-colors ${
+          isGenerating ? 'border-cyber-yellow text-cyber-yellow shadow-sm shadow-cyber-yellow/20' : 'border-cyber-yellow/40 text-cyber-yellow'
+        }`}>
+          <Cpu className={`w-4 h-4 ${isThinking ? 'animate-spin' : isStreaming ? 'animate-pulse' : ''}`} />
         </div>
       )}
 
-      <div className={`max-w-2xl w-full space-y-2 cut-corner-sm p-3.5 border ${
+      <div className={`max-w-2xl w-full space-y-2 cut-corner-sm p-3.5 border transition-all ${
         isUser
           ? 'bg-cyber-yellow/10 border-cyber-yellow/40 text-white shadow-cyber-yellow-sm'
-          : 'bg-cyber-surface/90 border-cyber-border text-cyber-text backdrop-blur-md'
+          : isGenerating
+            ? 'bg-cyber-surface/95 border-cyber-yellow/60 text-cyber-text backdrop-blur-md shadow-sm shadow-cyber-yellow/10'
+            : 'bg-cyber-surface/90 border-cyber-border text-cyber-text backdrop-blur-md'
       }`}>
         <div className="flex items-center justify-between text-[10px] text-cyber-muted border-b border-cyber-border/40 pb-1 mb-1">
           <div className="flex items-center space-x-2">
-            <span className="font-bold uppercase tracking-wider text-cyber-yellow">
-              {isUser ? 'OPERADOR' : 'DOLPHIN 3B'}
-            </span>
+            {isUser ? (
+              <span className="font-bold uppercase tracking-wider text-cyber-yellow">OPERADOR</span>
+            ) : isThinking ? (
+              <span className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-cyber-yellow animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-cyber-yellow inline-block animate-ping" />
+                <span>DOLPHIN 3B · PENSANDO</span>
+              </span>
+            ) : isStreaming ? (
+              <span className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                <span>DOLPHIN 3B · ESCRIBIENDO</span>
+              </span>
+            ) : (
+              <span className="font-bold uppercase tracking-wider text-cyber-yellow">DOLPHIN 3B</span>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <span>{new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            <button onClick={handleCopy} className="p-1 hover:text-cyber-yellow text-cyber-muted cursor-pointer" title="Copiar texto completo">
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            </button>
+            {hasContent && (
+              <button onClick={handleCopy} className="p-1 hover:text-cyber-yellow text-cyber-muted cursor-pointer transition-colors" title="Copiar texto completo">
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            )}
           </div>
         </div>
 
@@ -131,15 +154,36 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message, i
           </div>
         ) : (
           <div className="space-y-1 text-[11px] leading-relaxed select-text cursor-text">
-            {/* Indicador de carga si está generando pero aún no hay letras (Prefill Lag) */}
-            {isGenerating && (!message.content || message.content.trim() === '') && (
-              <div className="flex items-center space-x-2 text-cyber-yellow animate-pulse py-1">
-                <span>⏳</span>
-                <span className="font-bold tracking-wider">Pensando...</span>
+            {/* 1. Indicador visual enriquecido durante el Prefill Lag */}
+            {isThinking && (
+              <div className="py-2.5 px-3 bg-cyber-card/60 border border-cyber-yellow/40 cut-corner-sm space-y-2">
+                <div className="flex items-center space-x-2 text-cyber-yellow text-[11px] font-bold">
+                  <Cpu className="w-3.5 h-3.5 animate-spin" />
+                  <span className="tracking-wider">PROCESANDO CONTEXTO EN CPU AVX2...</span>
+                </div>
+                <div className="flex items-center space-x-2 text-cyber-muted text-[10px]">
+                  <div className="flex space-x-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyber-yellow inline-block animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyber-yellow inline-block animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyber-yellow inline-block animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <span className="font-mono text-cyber-muted/80">Inicializando flujo de inferencia</span>
+                </div>
               </div>
             )}
 
-            <MessageContent content={message.content} />
+            {/* 2. Contenido Markdown y cursor terminal parpadeante en tiempo real */}
+            {hasContent && (
+              <div className="relative">
+                <MessageContent content={message.content} />
+                {isStreaming && (
+                  <span
+                    className="inline-block w-2 h-3.5 bg-cyber-yellow ml-0.5 animate-pulse align-middle"
+                    title="Escribiendo..."
+                  />
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

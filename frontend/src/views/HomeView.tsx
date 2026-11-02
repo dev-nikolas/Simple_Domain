@@ -31,18 +31,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
 }) => {
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [streamMessages, activeConversation?.messages]);
-
-  const handleCommandSubmit = async (text: string) => {
-    onSendMessage(text);
-  };
-
-  const handleFileSelected = async (_file: File) => {
-    // Modo modular
-  };
-
   // Mapeamos los mensajes de la sesión activa al formato visual de ChatMessage
   const displayMessages: ChatMessage[] = streamMessages.map((m, idx) => ({
     id: `msg-${idx}`,
@@ -51,6 +39,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
     content: m.content,
     created_at: new Date().toISOString(),
   }));
+
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTo({
+        top: chatScrollRef.current.scrollHeight,
+        behavior: isGenerating ? 'auto' : 'smooth',
+      });
+    }
+  }, [displayMessages, isGenerating]);
 
   const hasMessages = displayMessages.length > 0;
 
@@ -135,8 +132,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       <section className="w-full relative z-20 shrink-0 pb-3">
         <CommandInput
-          onSubmitCommand={handleCommandSubmit}
-          onFileSelected={handleFileSelected}
+          onSubmitCommand={onSendMessage}
           isProcessing={isGenerating}
         />
       </section>

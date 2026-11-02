@@ -40,15 +40,19 @@ export function useChatSessions() {
     return initial[0].id;
   });
 
-  // Guardar en localStorage cada vez que sessions cambie
+  // Guardar en localStorage de forma debounced para no saturar el hilo de renderizado durante streaming
   useEffect(() => {
-    try {
-      if (sessions.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    const timer = setTimeout(() => {
+      try {
+        if (sessions.length > 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+        }
+      } catch (e) {
+        console.error('Error guardando en localStorage:', e);
       }
-    } catch (e) {
-      console.error('Error guardando en localStorage:', e);
-    }
+    }, 400);
+
+    return () => clearTimeout(timer);
   }, [sessions]);
 
   // Si activeSessionId no existe en sessions, seleccionar la primera
