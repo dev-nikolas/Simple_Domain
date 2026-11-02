@@ -9,9 +9,169 @@ import { RelicMcpClient } from './mcpClient.mjs';
 const PORT = parseInt(process.env.PORT || '4000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const LLAMA_URL = process.env.LLAMA_URL || 'http://127.0.0.1:8081/v1/chat/completions';
+const LLAMA_BASE_URL = process.env.LLAMA_BASE_URL || (LLAMA_URL.includes('/v1/') ? LLAMA_URL.split('/v1/')[0] : 'http://127.0.0.1:8081');
 const SESSIONS_FILE = process.env.SESSIONS_FILE || path.resolve(process.cwd(), 'data', 'sessions.json');
+const SLOTS_CACHE_DIR = process.env.SLOTS_CACHE_DIR || path.resolve(process.cwd(), 'data', 'slots_cache');
+const MAX_SLOTS_CACHE_BYTES = parseInt(process.env.MAX_SLOTS_CACHE_BYTES || '5368709120', 10); // 5 GB
+const KV_SAVE_TOKEN_THRESHOLD = parseInt(process.env.KV_SAVE_TOKEN_THRESHOLD || '500', 10);
 
 const DEFAULT_SYSTEM_PROMPT = 'Eres un experto dev. Responde directo, sin preámbulos y solo con el código necesario.';
+
+// ==============================================================================
+// Gestor de Persistencia de KV Slots en Disco (--slot-save-path)
+// ==============================================================================
+class SlotPersistenceManager {
+  constructor({ llamaBaseUrl, cacheDir, maxBytes, tokenThreshold }) {
+    this.llamaBaseUrl = llamaBaseUrl.replace(/\/+$/, '');
+    this.cacheDir = cacheDir;
+    this.maxBytes = maxBytes;
+    this.tokenThreshold = tokenThreshold;
+    this.saveDebounceTimers = new Map();
+  }
+
+  async init() {
+    try {
+      await fs.mkdir(this.cacheDir, { recursive: true });
+    } catch {}
+  }
+
+  getSnapshotFilename(sessionId) {
+    const safeId = sessionId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    return `session_${safeId}.bin`;
+  }
+
+  getSnapshotPath(sessionId) {
+    return path.join(this.cacheDir, this.getSnapshotFilename(sessionId));
+  }
+
+  async hasSnapshot(sessionId) {
+    try {
+      await fs.access(this.getSnapshotPath(sessionId));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async deleteSnapshot(sessionId) {
+    try {
+      await fs.unlink(this.getSnapshotPath(sessionId));
+      console.log(`[SlotPersistence] Snapshot eliminado para sesión ${sessionId}`);
+    } catch {}
+  }
+
+  async enforceMaxCacheSize() {
+    try {
+      const files = await fs.readdir(this.cacheDir);
+      const fileStats = [];
+      let totalBytes = 0;
+
+      for (const file of files) {
+        if (!file.endsWith('.bin')) continue;
+        const filePath = path.join(this.cacheDir, file);
+        const st = await fs.stat(filePath);
+        totalBytes += st.size;
+        fileStats.push({ filePath, size: st.size, mtime: st.mtimeMs });
+      }
+
+      if (totalBytes > this.maxBytes) {
+        fileStats.sort((a, b) => a.mtime - b.mtime);
+        while (totalBytes > this.maxBytes && fileStats.length > 0) {
+          const oldest = fileStats.shift();
+          try {
+            await fs.unlink(oldest.filePath);
+            totalBytes -= oldest.size;
+            console.log(`[SlotPersistence] Limpieza LRU: eliminado snapshot ${path.basename(oldest.filePath)}`);
+          } catch {}
+        }
+      }
+    } catch (err) {
+      console.warn('[SlotPersistence] Error ejecutando enforceMaxCacheSize:', err.message);
+    }
+  }
+
+  async getSlots() {
+    try {
+      const res = await fetch(`${this.llamaBaseUrl}/slots`);
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  }
+
+  async restoreIfEvicted(sessionId) {
+    if (!sessionId) return false;
+    const exists = await this.hasSnapshot(sessionId);
+    if (!exists) return false;
+
+    try {
+      const slots = await this.getSlots();
+      const idleSlot = slots.find((s) => !s.is_processing);
+      if (!idleSlot) return false;
+
+      const filename = this.getSnapshotFilename(sessionId);
+      const restoreUrl = `${this.llamaBaseUrl}/slots/${idleSlot.id}?action=restore`;
+      const res = await fetch(restoreUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename }),
+      });
+
+      if (res.ok) {
+        console.log(`[SlotPersistence] Slot ${idleSlot.id} restaurado exitosamente desde disco para sesión ${sessionId}`);
+        return true;
+      } else {
+        const errText = await res.text();
+        console.warn(`[SlotPersistence] llama-server rechazó restore en slot ${idleSlot.id} (${res.status}): ${errText}`);
+      }
+    } catch (err) {
+      console.warn(`[SlotPersistence] Fallo restaurando slot para sesión ${sessionId} (fallback automático a recálculo):`, err.message);
+    }
+    return false;
+  }
+
+  scheduleSave(sessionId, approxTokens) {
+    if (!sessionId || approxTokens < this.tokenThreshold) return;
+
+    if (this.saveDebounceTimers.has(sessionId)) {
+      clearTimeout(this.saveDebounceTimers.get(sessionId));
+    }
+
+    const timer = setTimeout(async () => {
+      this.saveDebounceTimers.delete(sessionId);
+      try {
+        const slots = await this.getSlots();
+        const anyBusy = slots.some((s) => s.is_processing);
+        if (anyBusy) {
+          // Reintentar en 3 segundos si otro slot está generando
+          this.scheduleSave(sessionId, approxTokens);
+          return;
+        }
+
+        const targetSlot = slots.find((s) => s.n_prompt_tokens > 0) || slots[0];
+        if (!targetSlot) return;
+
+        const filename = this.getSnapshotFilename(sessionId);
+        const saveUrl = `${this.llamaBaseUrl}/slots/${targetSlot.id}?action=save`;
+        const res = await fetch(saveUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename }),
+        });
+
+        if (res.ok) {
+          console.log(`[SlotPersistence] Guardado snapshot en disco para sesión ${sessionId} (~${approxTokens} tok)`);
+          await this.enforceMaxCacheSize();
+        }
+      } catch (err) {
+        console.warn(`[SlotPersistence] Error guardando slot para sesión ${sessionId}:`, err.message);
+      }
+    }, 4000);
+
+    this.saveDebounceTimers.set(sessionId, timer);
+  }
+}
 
 // ==============================================================================
 // Almacén Persistente de Sesiones (JSON Atómico con Flush Debounced)
@@ -173,6 +333,12 @@ class SessionStore {
 
 const sessionStore = new SessionStore(SESSIONS_FILE);
 const mcpClient = new RelicMcpClient();
+const slotPersistence = new SlotPersistenceManager({
+  llamaBaseUrl: LLAMA_BASE_URL,
+  cacheDir: SLOTS_CACHE_DIR,
+  maxBytes: MAX_SLOTS_CACHE_BYTES,
+  tokenThreshold: KV_SAVE_TOKEN_THRESHOLD,
+});
 
 // Herramienta nativa para inspección de código local
 const LOCAL_TOOLS = [
@@ -224,6 +390,7 @@ function sendJson(res, statusCode, data) {
 // ==============================================================================
 async function startServer() {
   await sessionStore.init();
+  await slotPersistence.init();
   await mcpClient.start();
 
   const allTools = [...LOCAL_TOOLS, ...mcpClient.getOpenAiToolsSchema()];
@@ -303,6 +470,7 @@ async function startServer() {
       if (req.method === 'DELETE') {
         const deleted = sessionStore.delete(sessionId);
         if (!deleted) return sendJson(res, 404, { error: 'Sesión no encontrada' });
+        await slotPersistence.deleteSnapshot(sessionId);
         res.writeHead(204);
         res.end();
         return;
@@ -380,6 +548,11 @@ async function startServer() {
             llamaPayload.tools = toolsToSend;
           }
 
+          // Si la sesión fue desalojada y existe un snapshot en disco, restaurar en un slot libre
+          if (sessionId) {
+            await slotPersistence.restoreIfEvicted(sessionId);
+          }
+
           // Transmitimos token por token directamente desde llama-server
           const llamaRes = await fetch(LLAMA_URL, {
             method: 'POST',
@@ -440,7 +613,7 @@ async function startServer() {
           res.write('data: [DONE]\n\n');
           res.end();
 
-          // Si se proporcionó session_id, persistir automáticamente en el Gateway
+          // Si se proporcionó session_id, persistir automáticamente en el Gateway y en disco
           if (sessionId && accumulatedTotal) {
             const lastUserMsg = messages[messages.length - 1];
             if (lastUserMsg && lastUserMsg.role === 'user') {
@@ -450,6 +623,11 @@ async function startServer() {
               role: 'assistant',
               content: accumulatedTotal,
             });
+
+            // Programar guardado debounced del KV en disco si supera el umbral de tokens
+            const totalChars = messages.reduce((acc, m) => acc + (m.content?.length || 0), 0) + accumulatedTotal.length;
+            const approxTokens = Math.round(totalChars / 4);
+            slotPersistence.scheduleSave(sessionId, approxTokens);
           }
         } catch (err) {
           console.error('[Gateway] Error procesando completions:', err);

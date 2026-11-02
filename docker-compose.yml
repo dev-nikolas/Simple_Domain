@@ -55,8 +55,10 @@ services:
       --port 8080
       --flash-attn off
       -tb 2
+      --slot-save-path /slots_cache
     volumes:
       - model_data:/models:ro
+      - slots_data:/slots_cache
     ports:
       - "127.0.0.1:8081:8080"
     deploy:
@@ -124,8 +126,13 @@ services:
       - RELIC_SERVER_URL=http://relic_engine:5000
       - RELIC_MCP_BIN=/usr/local/bin/relic_mcp
       - SESSIONS_FILE=/app/data/sessions.json
+      - LLAMA_BASE_URL=http://llm_engine:8080
+      - SLOTS_CACHE_DIR=/slots_cache
+      - MAX_SLOTS_CACHE_BYTES=5368709120
+      - KV_SAVE_TOKEN_THRESHOLD=500
     volumes:
       - gateway_data:/app/data
+      - slots_data:/slots_cache
     ports:
       - "127.0.0.1:4000:4000"
     deploy:
@@ -164,4 +171,7 @@ volumes:
     driver: local
   gateway_data:
     name: simple_domain_gateway_data
+    driver: local
+  slots_data:
+    name: simple_domain_slots_data
     driver: local
