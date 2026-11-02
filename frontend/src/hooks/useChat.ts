@@ -4,7 +4,7 @@ import { streamChatCompletion, Message } from '../services/llmClient';
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'system', content: 'Eres un asistente de programación experto en Rust y TypeScript. Respondes de forma concisa.' }
+    { role: 'system', content: 'Eres un experto dev. Responde directo, sin preámbulos y solo con el código necesario.' }
   ]);
   const [isGenerating, setIsGenerating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);

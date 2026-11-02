@@ -45,7 +45,7 @@ services:
         condition: service_completed_successfully
     command: >
       -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
-      -c 4096
+      -c 2048
       -t 2
       -np 1
       -ngl 0

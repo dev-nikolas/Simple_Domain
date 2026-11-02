@@ -100,8 +100,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             </div>
 
-            {displayMessages.map((msg) => (
-              <ChatMessageBubble key={msg.id} message={msg} onJobCompleted={() => onRefreshActive()} />
+            {displayMessages.map((msg, idx) => (
+              <ChatMessageBubble
+                key={msg.id}
+                message={msg}
+                isGenerating={isGenerating && idx === displayMessages.length - 1}
+                onJobCompleted={() => onRefreshActive()}
+              />
             ))}
           </div>
         )}

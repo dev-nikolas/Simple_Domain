@@ -3,7 +3,7 @@ Write-Host "Inicializando Dolphin 3B en llama-server (Puerto: 8081, Prioridad: B
 
 $processOptions = @{
     FilePath = ".\llama-server.exe"
-    ArgumentList = "-m .\dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf -c 4096 -t 4 -ngl 0 --host 127.0.0.1 --port 8081 --flash-attn on"
+    ArgumentList = "-m .\dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf -c 2048 -t 2 -ngl 0 --host 127.0.0.1 --port 8081 --flash-attn off"
     PassThru = $true
     WindowStyle = "Normal"
 }
