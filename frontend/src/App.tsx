@@ -1,9 +1,10 @@
 /**
  * Simple Domain — App (Espacio Conversacional Esencial)
- * Interfaz enfocada únicamente en los chats con persistencia en localStorage.
+ * Interfaz enfocada en chats con persistencia en Gateway/localStorage,
+ * sincronización de URL /c/:id, búsqueda, renombrado y streaming en tiempo real.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { useRouter } from './hooks/useRouter';
@@ -22,28 +23,43 @@ export const App: React.FC = () => {
     activeSession,
     messages,
     isGenerating,
+    searchQuery,
+    setSearchQuery,
     sendMessage,
+    regenerateLastMessage,
     stopGeneration,
     createNewSession,
+    renameSession,
     deleteSession,
   } = useChat();
 
-  const { navigate } = useRouter();
+  const { conversationId, navigate } = useRouter();
 
-  // Convertimos las sesiones de localStorage a la interfaz visual Conversation
+  // Sincronizar URL /c/:id con la sesión activa al cargar o navegar directamente
+  useEffect(() => {
+    if (conversationId && conversationId !== activeSessionId) {
+      setActiveSessionId(conversationId);
+    }
+  }, [conversationId, activeSessionId, setActiveSessionId]);
+
+  // Actualizar la barra de direcciones cuando cambia la sesión activa
+  useEffect(() => {
+    if (activeSessionId) {
+      navigate(`/c/${activeSessionId}`, true);
+    } else {
+      navigate('/', true);
+    }
+  }, [activeSessionId, navigate]);
+
+  // Convertimos las sesiones de Gateway/localStorage a la interfaz visual Conversation
   const conversations: Conversation[] = sessions.map((s) => ({
     id: s.id,
     title: s.title,
     created_at: new Date(s.updatedAt).toISOString(),
     updated_at: new Date(s.updatedAt).toISOString(),
-    messages: s.messages.map((m, idx) => ({
-      id: `${s.id}-${idx}`,
-      conversation_id: s.id,
-      role: (m.role === 'tool' ? 'assistant' : m.role) as 'user' | 'assistant' | 'system',
-      content: m.content,
-      created_at: new Date(s.updatedAt).toISOString(),
-    })),
+    messages: [],
     archive_ids: [],
+    message_count: s.messageCount,
   }));
 
   const activeConversation: Conversation | null = activeSession
@@ -71,6 +87,7 @@ export const App: React.FC = () => {
 
   const handleNewConversation = () => {
     createNewSession();
+    navigate('/');
     setIsMobileSidebarOpen(false);
   };
 
@@ -92,6 +109,9 @@ export const App: React.FC = () => {
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
         onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={renameSession}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Contenido principal a la derecha */}
@@ -108,6 +128,7 @@ export const App: React.FC = () => {
           onSendMessage={sendMessage}
           onStopGeneration={stopGeneration}
           onNewSession={handleNewConversation}
+          onRegenerate={regenerateLastMessage}
         />
       </div>
     </div>

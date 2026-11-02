@@ -11,29 +11,48 @@ export interface Message {
 
 export interface ChatOptions {
   messages: Message[];
+  sessionId?: string;
   onUpdate: (token: string) => void;
   signal?: AbortSignal;
+  maxTokens?: number;
+  temperature?: number;
 }
 
-export async function streamChatCompletion({ messages, onUpdate, signal }: ChatOptions): Promise<void> {
+export async function streamChatCompletion({
+  messages,
+  sessionId,
+  onUpdate,
+  signal,
+  maxTokens = 2048,
+  temperature = 0.1,
+}: ChatOptions): Promise<void> {
   const url = `${API_BASE_URL}/v1/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages,
+      session_id: sessionId,
       stream: true,
-      temperature: 0.1, // Baja temperatura para código determinista
-      max_tokens: -1    // Ilimitado hasta encontrar [DONE] o token de parada
+      temperature,
+      max_tokens: maxTokens,
     }),
-    signal
+    signal,
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
+    let errorDetail = `${response.status} - ${response.statusText}`;
+    try {
+      const errJson = await response.json();
+      if (errJson.error) errorDetail = errJson.error;
+    } catch {
+      // Ignorar fallback
+    }
+    throw new Error(`Error en API Gateway: ${errorDetail}`);
   }
+
   if (!response.body) {
-    throw new Error("El cuerpo de la respuesta es nulo");
+    throw new Error('El cuerpo de la respuesta HTTP es nulo.');
   }
 
   const reader = response.body.getReader();
@@ -45,31 +64,38 @@ export async function streamChatCompletion({ messages, onUpdate, signal }: ChatO
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Decodificar el chunk de bytes a texto
+      // Decodificar bytes recibidos
       buffer += decoder.decode(value, { stream: true });
-      
-      // Separar por saltos de línea (Server-Sent Events)
+
+      // Dividir por líneas según la especificación SSE
       const lines = buffer.split('\n');
-      
-      // El último elemento podría ser un JSON incompleto (paquete TCP truncado)
-      // Lo guardamos en el buffer para la siguiente iteración
       buffer = lines.pop() || '';
 
       for (const line of lines) {
-        if (line.trim() === '') continue;
-        if (line.startsWith('data: ')) {
-          const dataPayload = line.slice(6).trim();
-          
-          if (dataPayload === '[DONE]') return; // Fin del stream
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        if (trimmed.startsWith('data: ')) {
+          const dataPayload = trimmed.slice(6).trim();
+
+          if (dataPayload === '[DONE]') {
+            return;
+          }
 
           try {
             const parsed = JSON.parse(dataPayload);
+            if (parsed.error) {
+              throw new Error(parsed.error);
+            }
             const contentDelta = parsed.choices?.[0]?.delta?.content;
             if (contentDelta) {
               onUpdate(contentDelta);
             }
-          } catch (e) {
-            console.warn("Fragmento JSON incompleto/malformado, saltando:", dataPayload);
+          } catch (e: any) {
+            if (e.message && !e.message.includes('JSON')) {
+              throw e;
+            }
+            // Ignorar paquetes JSON incompletos en tránsito
           }
         }
       }
@@ -78,4 +104,3 @@ export async function streamChatCompletion({ messages, onUpdate, signal }: ChatO
     reader.releaseLock();
   }
 }
-

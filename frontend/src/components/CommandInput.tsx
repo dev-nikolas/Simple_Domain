@@ -1,10 +1,11 @@
 /**
  * Simple Domain — Terminal de Entrada Inferior
- * Soporte de teclado, buffer local accesible y adaptación responsive completa.
+ * Soporte de textarea autoajustable, atajos de teclado (Enter enviar, Shift+Enter salto),
+ * control IME, menú de operaciones y estados de generación en tiempo real.
  */
 
-import React, { useState, useRef } from 'react';
-import { Terminal, CornerDownLeft, XCircle, Clock } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Terminal, CornerDownLeft, XCircle, Clock, Loader2 } from 'lucide-react';
 import { OperationsMenu } from './OperationsMenu';
 
 interface CommandLog {
@@ -30,7 +31,20 @@ export const CommandInput: React.FC<CommandInputProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [history, setHistory] = useState<CommandLog[]>([]);
   const [showLogModal, setShowLogModal] = useState<boolean>(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Reajustar altura dinámica del textarea
+  const adjustHeight = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const nextHeight = Math.min(Math.max(el.scrollHeight, 40), 200);
+    el.style.height = `${nextHeight}px`;
+  };
+
+  useEffect(() => {
+    adjustHeight();
+  }, [inputVal]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -40,7 +54,10 @@ export const CommandInput: React.FC<CommandInputProps> = ({
     if (onSubmitCommand) {
       onSubmitCommand(trimmed);
       setInputVal('');
-      if (inputRef.current) inputRef.current.focus();
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.focus();
+      }
       return;
     }
 
@@ -59,16 +76,24 @@ export const CommandInput: React.FC<CommandInputProps> = ({
       setInputVal('');
       setIsSubmitting(false);
       setShowLogModal(true);
-      if (inputRef.current) inputRef.current.focus();
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.focus();
+      }
     }, 200);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Si el usuario está usando IME (composición de caracteres/acentos), no enviar
+    if (e.nativeEvent.isComposing) return;
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
+
+  const canSubmit = inputVal.trim().length > 0 && !isSubmitting && !isProcessing;
 
   return (
     <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 relative z-30">
@@ -109,44 +134,70 @@ export const CommandInput: React.FC<CommandInputProps> = ({
       {/* Barra de entrada terminal cyberpunk */}
       <form
         onSubmit={handleSubmit}
-        className="group relative flex items-center bg-cyber-surface/95 border border-cyber-border focus-within:border-cyber-yellow focus-within:shadow-cyber-yellow-sm transition-all duration-200 p-1 backdrop-blur-md"
+        className="group relative flex items-end bg-cyber-surface/95 border border-cyber-border focus-within:border-cyber-yellow focus-within:shadow-cyber-yellow-sm transition-all duration-200 p-1.5 backdrop-blur-md cut-corner-sm"
       >
         <div className="absolute -top-1 -left-1 w-2 h-2 bg-cyber-yellow/60 pointer-events-none group-focus-within:bg-cyber-yellow" />
 
         {/* Botón "+" para adjuntar archivos */}
-        <div className="shrink-0 pl-0.5 pr-1">
+        <div className="shrink-0 pl-0.5 pr-1 pb-1">
           <OperationsMenu onFileSelected={onFileSelected} isProcessing={isProcessing} />
         </div>
 
-        {/* Campo de texto principal */}
+        {/* Textarea multilínea autoajustable */}
         <label htmlFor="command-input" className="sr-only">Instrucción para Simple Domain</label>
-        <input
+        <textarea
           id="command-input"
-          ref={inputRef}
-          type="text"
+          ref={textareaRef}
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isSubmitting}
-          placeholder="Introduce una instrucción para Simple Domain..."
+          rows={1}
+          placeholder="Escribe una instrucción (Enter para enviar, Shift+Enter para salto de línea)..."
           aria-label="Introduce una instrucción para Simple Domain"
-          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-4 py-2 font-mono text-xs sm:text-sm text-cyber-text placeholder:text-cyber-muted/60 focus:outline-none select-text cursor-text"
+          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-3 py-1.5 font-mono text-xs sm:text-sm text-cyber-text placeholder:text-cyber-muted/50 focus:outline-none resize-none leading-relaxed select-text cursor-text max-h-[200px] overflow-y-auto custom-scrollbar"
         />
 
         {/* Botón de envío */}
         <button
           type="submit"
-          disabled={!inputVal.trim() || isSubmitting}
-          aria-label="Enviar instrucción (Enter)"
-          className={`flex items-center space-x-1 sm:space-x-1.5 px-3 sm:px-4 py-2 font-mono text-xs font-bold transition-all cut-corner-sm shrink-0 ${
-            inputVal.trim() && !isSubmitting
+          disabled={!canSubmit}
+          aria-label={
+            isProcessing
+              ? 'Generando respuesta...'
+              : isSubmitting
+              ? 'Enviando...'
+              : 'Enviar instrucción (Enter)'
+          }
+          className={`flex items-center space-x-1 sm:space-x-1.5 px-3 sm:px-4 py-2 font-mono text-xs font-bold transition-all cut-corner-sm shrink-0 mb-0.5 ${
+            canSubmit
               ? 'bg-cyber-yellow text-black hover:bg-white hover:shadow-cyber-yellow cursor-pointer'
+              : isProcessing
+              ? 'bg-cyber-card/80 text-cyber-yellow border border-cyber-yellow/40 cursor-wait'
               : 'bg-cyber-card text-cyber-muted border border-cyber-border cursor-not-allowed opacity-50'
           }`}
-          title="Enviar instrucción (Enter)"
+          title={
+            isProcessing
+              ? 'Generando respuesta en streaming...'
+              : 'Enviar instrucción (Enter, Shift+Enter para nueva línea)'
+          }
         >
-          <span className="hidden xs:inline sm:inline">{isSubmitting ? 'ENVIANDO...' : 'ENVIAR'}</span>
-          <CornerDownLeft className="h-3.5 w-3.5" />
+          {isProcessing ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-cyber-yellow" />
+              <span className="hidden xs:inline sm:inline">GENERANDO</span>
+            </>
+          ) : isSubmitting ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span className="hidden xs:inline sm:inline">ENVIANDO...</span>
+            </>
+          ) : (
+            <>
+              <span className="hidden xs:inline sm:inline">ENVIAR</span>
+              <CornerDownLeft className="h-3.5 w-3.5" />
+            </>
+          )}
         </button>
       </form>
     </div>

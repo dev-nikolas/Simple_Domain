@@ -19,6 +19,7 @@ export interface Conversation {
   updated_at: string;
   messages: ChatMessage[];
   archive_ids: string[];
+  message_count?: number;
 }
 
 export interface ArchiveSubmitResponse {

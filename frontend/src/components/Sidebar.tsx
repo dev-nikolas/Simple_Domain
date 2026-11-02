@@ -1,6 +1,6 @@
 /**
  * Simple Domain — Sidebar / Offcanvas de Chats
- * Contiene únicamente lo esencial: gestión y selección de sesiones de chat y nuevo chat.
+ * Contiene únicamente lo esencial: gestión y selección de sesiones de chat, búsqueda, renombrado y nuevo chat.
  */
 
 import React, { useEffect } from 'react';
@@ -19,6 +19,9 @@ interface SidebarProps {
   onSelectConversation?: (c: Conversation) => void;
   onNewConversation?: () => void;
   onDeleteConversation?: (id: string, t: string) => void;
+  onRenameConversation?: (id: string, newTitle: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -31,6 +34,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  onRenameConversation,
+  searchQuery = '',
+  onSearchChange,
 }) => {
   useEffect(() => {
     if (!isMobileOpen) return;
@@ -72,7 +78,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="w-8 h-8 shrink-0 bg-cyber-card border border-cyber-yellow/40 flex items-center justify-center cut-corner-sm">
                     <Cpu className="h-4 w-4 text-cyber-yellow" />
                   </div>
-                  <span className="font-tech text-base tracking-wider text-white font-black truncate">{APP_NAME}</span>
+                  <span className="font-tech text-base tracking-wider text-white font-black truncate">
+                    {APP_NAME}
+                  </span>
                 </div>
                 <button
                   onClick={isMobileDrawer ? onCloseMobile : onToggleCollapse}
@@ -118,6 +126,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   if (isMobileDrawer) onCloseMobile();
                 }}
                 onDelete={onDeleteConversation}
+                onRename={onRenameConversation}
+                searchQuery={searchQuery}
+                onSearchChange={onSearchChange}
               />
             </div>
           )}
