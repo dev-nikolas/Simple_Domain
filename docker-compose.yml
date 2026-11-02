@@ -39,6 +39,7 @@ services:
     build:
       context: ./relic
       dockerfile: Dockerfile
+    pull_policy: build
     image: relic:v1.1.0-core
     container_name: sd_relic_engine
     restart: unless-stopped
@@ -75,6 +76,7 @@ services:
     build:
       context: .
       dockerfile: llm_server/agentic_gateway/Dockerfile
+    pull_policy: build
     image: simple-domain-gateway:latest
     container_name: sd_agentic_gateway
     restart: unless-stopped
@@ -101,6 +103,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    pull_policy: build
     image: simple-domain-frontend:latest
     container_name: sd_frontend
     restart: unless-stopped
