@@ -1,176 +1,171 @@
-# Simple Domain
-**Adaptive Pattern System & Data Audit Architecture**
+# Simple Domain — Local Cognitive & Neuro-Symbolic Chat
 
-> **Estado del proyecto:** Sistema experimental de aprendizaje estructural y auditoría de datos.  
-> **Versión del núcleo:** `0.1.0` | **Interfaz UI:** `v1.0.0` | **Licencia / Modo:** Local-Only (sin telemetría externa).  
-> **Aviso metodológico:** Las capacidades adaptativas se validan incrementalmente mediante protocolos de ablación reproducibles frente a referencias deterministas.
+[![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2-blue?logo=docker)](file:///c:/Users/Nicolas%20Pachon/Desktop/Seis%20Ojos/Simple_Domain/docker-compose.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-v22+-green?logo=node.js)](https://nodejs.org)
+[![Rust](https://img.shields.io/badge/Rust-1.85+-orange?logo=rust)](https://www.rust-lang.org)
+[![React](https://img.shields.io/badge/React-18.3-61dafb?logo=react)](https://react.dev)
+[![Model](https://img.shields.io/badge/LLM-Dolphin_3.0_Llama_3.2_(3B)_Q4_K_M-purple)](https://huggingface.co/bartowski/Dolphin3.0-Llama3.2-3B-GGUF)
+[![Protocol](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-black)](https://modelcontextprotocol.io)
 
----
+Entorno de asistencia técnica conversacional y programación agéntica **100% local, soberano y sin telemetría externa**. 
 
-## 1. Visión y Propósito del Sistema
-
-**Simple Domain** es un sistema compacto, auditable y determinista para la ingesta, perfilado, evaluación de calidad y descubrimiento adaptativo de patrones en datos estructurados.
-
-El sistema resuelve una necesidad operativa concreta: **auditar datos dejando evidencia explícita de qué se examinó, qué se encontró, con qué nivel de confianza y cuáles son sus limitaciones**, combinando validaciones deterministas de calidad con detectores relacionales de anomalías.
-
-### Principio Rector
-> *"Desarrollar primero el mecanismo más sencillo y verificable que resuelva el problema. La auditoría determinista debe funcionar plenamente incluso si el motor adaptativo está desactivado; cada incremento de complejidad algorítmica debe justificar su aporte mediante métricas y ablaciones reproducibles."*
+Combina un modelo de lenguaje autoregresivo compacto (**Dolphin 3.0 / Llama 3.2 3B**) con un microkernel neuro-simbólico determinista en Rust (**RELIC**) a través del estándar **Model Context Protocol (MCP)**, gobernado por una interfaz reactiva en **TypeScript/React** con streaming en tiempo real vía Server-Sent Events (SSE).
 
 ---
 
-## 2. Las Tres Áreas de Utilidad Real
+## 1. Arquitectura del Sistema
 
-Simple Domain unifica una base común (ingesta, perfilado, métricas, validación, detección de anomalías y reportes) adaptada a tres dominios de aplicación:
+```mermaid
+graph TD
+    subgraph Client ["Capa de Presentación"]
+        UI["React 18 + TypeScript (Vite / Nginx :5173)<br/>Streaming SSE · AbortController · Buffer TCP Anti-Jank"]
+    end
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   BASE COMÚN DE SIMPLE DOMAIN                          │
-│     Ingesta · Perfilado · Validación · Métricas · Detección · Reportes │
-└──────────────────┬───────────────────┬─────────────────────────────────┘
-                   │                   │
-         ┌─────────┴─────────┐         │         ┌───────────────────────┐
-         ▼                   ▼         │         ▼                       ▼
-┌──────────────────┐┌──────────────────┐┌────────────────────────────────┐
-│ DATA INTELLIGENCE││   RESEARCH LAB   ││   CYBERSECURITY DATA AUDIT     │
-│ CSV, Excel, JSON ││ Benchmarks S1..Sn││ Inventarios CVE, CISA KEV      │
-│ Calidad & Esquema││ Ablación & ROC   ││ Detección de discrepancias     │
-│ Patrones & Deriva││ Latencia & RAM   ││ Trazabilidad de vulnerabilidad │
-└──────────────────┘└──────────────────┘└────────────────────────────────┘
-```
+    subgraph Middleware ["Capa Orquestadora Agéntica"]
+        GW["Agentic Gateway (:4000)<br/>OpenAI Compatibility · Loop Agéntico · Intercepción de Tool Calls"]
+    end
 
-### A. Data Intelligence
-- **Perfilado estructural y calidad:** Ingesta y análisis de archivos CSV, Excel y JSON; inferencia de tipos de columnas, completitud y distribuciones.
-- **Descubrimiento de relaciones:** Identificación de dependencias bivariadas, compatibilidad campo-valor y coocurrencias.
-- **Detección contextual:** Detección de registros atípicos que cumplen rangos univariados pero violan relaciones multidimensionales legítimas.
-- **Informes auditables:** Generación de resúmenes estructurados para gobierno de datos y preparación de datasets.
+    subgraph Inference ["Motor Cognitivo"]
+        LLM["llama-server (:8081 / :8080 en Docker)<br/>Dolphin 3B Q4_K_M · AVX2 CPU Cómputo"]
+    end
 
-### B. Research Lab
-- **Evaluación empírica reproducible:** Comparación cuantitativa de detectores contra referencias elementales (Baseline 0, detectores univariados, relacionales).
-- **Protocolos de ablación:** Medición de ROC-AUC, precisión, recall, F1 y tasa de falsos positivos (FPR) bajo múltiples semillas deterministas (Benchmark S1).
-- **Métricas de ingeniería:** Medición de latencia de inferencia por observación, huella de memoria en RAM y eficiencia computacional en CPU, aprovechando aprendizajes metodológicos previos sin mezclar alcances.
+    subgraph Kernel ["Microkernel Simbólico y Herramientas"]
+        MCP["RELIC Microkernel (Rust)<br/>BlackwallGate · Invariantes SHA-256 · stdio JSON-RPC 2.0"]
+        REST["RELIC Engine (:5000)<br/>Inferencia Neuro-Simbólica · Memoria Episódica RIR"]
+    end
 
-### C. Cybersecurity Data Audit
-- **Auditoría de inventarios de seguridad:** Ingesta y validación de registros de vulnerabilidades conocidas (CVE) y catálogos de amenazas activas (CISA KEV).
-- **Validación de esquemas y completitud:** Identificación de campos críticos ausentes, enlaces rotos, referencias malformadas y registros duplicados.
-- **Cruce de fuentes autorizadas:** Cotejo de inventarios locales frente a especificaciones oficiales para señalar discrepancias y cambios de estado.
-- **Distinción analítica rigurosa:**
-  - Una anomalía estadística **no** demuestra que exista un ciberataque.
-  - Un registro CVE incompleto **no** implica que la vulnerabilidad sea inexistente o falsa.
-  - El sistema separa con total transparencia las validaciones deterministas de las alertas probabilísticas generadas por el detector.
-
----
-
-## 3. La Auditoría como Función Central
-
-Una auditoría en Simple Domain no se reduce a un clasificador que emite una puntuación opaca. El sistema genera informes estructurados a través de **ocho dimensiones de análisis**, inspiradas en precedentes de calidad de datos como *Great Expectations*:
-
-| Dimensión | Qué Examina | Tipo de Validación |
-| :--- | :--- | :--- |
-| **Integridad Estructural** | Nombres de columnas, tipos de datos, conformidad de esquema y campos obligatorios. | Determinista |
-| **Completitud** | Densidad de valores presentes, valores nulos, campos vacíos y registros truncados. | Determinista |
-| **Consistencia** | Coherencia lógica interna, reglas de dominio y combinaciones de valores prohibidas. | Determinista / Lógica |
-| **Unicidad** | Duplicidad de registros, identificadores únicos y claves primarias repetidas. | Determinista |
-| **Distribución** | Rangos admisibles, cuantiles, varianza, valores atípicos marginales y deriva estadística. | Estadística univariada |
-| **Relaciones** | Compatibilidad entre pares de atributos, coocurrencias condicionales e interdependencias. | Aprendizaje Relacional |
-| **Anomalías** | Registros que se apartan significativamente de los patrones consolidados en memoria. | Inferencia Adaptativa |
-| **Trazabilidad** | Origen del archivo, huella hash, versión del motor, esquema utilizado y timestamp. | Auditoría técnica |
-
----
-
-## 4. Arquitectura por Capas Desacoplada
-
-La arquitectura asegura que la auditoría determinista opere con total independencia del motor adaptativo:
-
-```text
-1. FUENTES DE DATOS
-   └── Archivos CSV · Libros Excel · JSON Estructurado · Exportaciones CVE / KEV
-
-2. INGESTA Y REPRESENTACIÓN COMÚN
-   └── Normalización de tipos · Inferencia de esquemas · Metadatos · Control de tamaño (64 KB)
-
-3. AUDITORÍA DETERMINISTA (Opera sin aprendizaje)
-   └── Validación de reglas · Completitud · Integridad de esquema · Trazabilidad de origen
-
-4. MOTOR ADAPTATIVO (Pipeline Relacional)
-   └── Scoring univariado (marginal surprisal) · Compatibilidad relacional · Calibración de cuantiles
-
-5. INFORMES Y MÉTRICAS
-   └── Desglose explicable (ScoreBreakdown) · Evidencia auditable · Limitaciones explícitas
+    UI -->|POST /v1/chat/completions (SSE Stream)| GW
+    GW -->|Forward Prompt + Tools Schema| LLM
+    LLM -->|Stream Tokens / Tool Calls| GW
+    GW -.->|Si es Tool Call: JSON-RPC 2.0 via stdio| MCP
+    MCP -.->|Respuesta Verificada| GW
+    GW -.->|Re-inyección al contexto| LLM
+    GW -->|SSE Stream unificado al usuario| UI
+    GW -.->|Consultas de Engramas| REST
 ```
 
 ---
 
-## 5. Implementación Actual y Estado del Proyecto
+## 2. Componentes del Stack
 
-### Backend Python (`src/simple_domain/`)
-- **Baseline 0 & Benchmark S1:** Generador sintético determinista con 6 canales (2 categóricos, 4 numéricos) y 5 escenarios de evaluación (normal, variaciones, ruido, novedades, anomalías).
-- **Detector Relacional (`RelationalDetector`):** Modelo bivariado que evalúa compatibilidad condicional entre variables, validado en el experimento EXP-01.
-- **Pipeline Principal (`SimpleDomainPipeline`):** Fusión univariada y relacional con calibración no paramétrica por cuantiles y emisión de `ScoreBreakdown`.
-- **Servicio HTTP Local (`simple_domain.service`):** API FastAPI + Uvicorn vinculada exclusivamente a `127.0.0.1:4000` con CORS local restringido y endpoints `/health`, `/v1/info` y `/v1/score`.
+### A. Frontend Web (`frontend/`)
+* **Tecnología:** React 18, TypeScript, TailwindCSS y Lucide Icons.
+* **Consumo de Inferencia:** Implementación nativa con `ReadableStream` y `TextDecoder` en `llmClient.ts` y hook desacoplado `useChat.ts`.
+* **Resiliencia de Red:** Buffer de fragmentación TCP para evitar que chunks partidos rompan el parser JSON durante el streaming SSE.
+* **Despliegue:** Servidor multi-stage con `nginx:alpine-slim` y enrutamiento SPA.
 
-### Frontend UI (`frontend/`)
-- **Interfaz Cyberpunk Industrial v1.0:** React 18, TypeScript y Tailwind CSS, diseñada para ejecución 100% local.
-- **Navegación Lateral (Sidebar):** Menú izquierdo colapsable (`w-60` / `w-16`), adaptable a móviles con drawer superpuesto y bloqueo de scroll.
-- **Diagnóstico y Telemetría Bajo Demanda:** Modal focalizado que consulta `/health` y `/v1/info` con sondeo moderado (5s) activo únicamente con ventana visible y timeout de seguridad.
-- **Grafo Relacional SVG:** Visualización interactiva y accesible con teclado (<kbd>Enter</kbd> / <kbd>Espacio</kbd>) de los 6 atributos de Benchmark S1.
-- **Terminal de Entrada:** Buffer local de instrucciones con teclado <kbd>Enter</kbd> y avisos transparentes de capacidades.
+### B. Agentic Gateway (`llm_server/agentic_gateway/`)
+* **Tecnología:** Node.js (ES Modules nativos).
+* **Protocolo:** Implementa un cliente MCP compatible con la especificación `2025-03-26` vía tuberías estándar `stdio` sobre el binario de Rust.
+* **Bucle Agéntico:** Intercepta llamadas a herramientas (`relic_interpret`, `relic_verify`, `read_code_file`, etc.), ejecuta las acciones en el microkernel y retroalimenta al modelo para generar la explicación final.
 
----
+### C. Motor LLM Local (`llm_server/`)
+* **Modelo:** `dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf` (2.02 GB).
+* **Inferencia:** `llama-server` optimizado para AVX2/FMA3.
+* **Afinación de Hardware (Intel Core i7-6500U):**
+  * `-t 2` (2 núcleos físicos) para evitar contención de caché L3 (4 MB).
+  * `-np 1` (1 slot) para dedicar el ancho de banda de memoria completo a la sesión activa.
+  * `--flash-attn off` para evitar overhead de mosaico en CPU sin aceleración matricial.
+  * Asignación de prioridad `BelowNormal` en el SO para garantizar fluidez del frontend.
 
-## 6. Estructura del Repositorio
-
-```text
-simple_domain/
-├── README.md                                    # Marco conceptual, arquitectura y visión estratégica
-├── pyproject.toml                               # Configuración de paquete Python y dependencias
-├── src/
-│   └── simple_domain/
-│       ├── baseline0.py                         # Referencia univariada de frecuencias y cuantiles
-│       ├── metrics.py                           # ROC-AUC, Precision, Recall, F1, FPR deterministas
-│       ├── pipeline.py                          # SimpleDomainPipeline y ScoreBreakdown
-│       ├── experiments/
-│       │   ├── benchmark_s1.py                  # Generador determinista Benchmark S1
-│       │   ├── run_exp00.py                     # Ejecutor reproducible Baseline 0
-│       │   ├── relational.py                    # RelationalDetector bivariado
-│       │   └── run_exp01.py                     # Ejecutor experimento relacional
-│       └── service/
-│           ├── app.py                           # Aplicación FastAPI con CORS restringido
-│           ├── schemas.py                       # Esquemas Pydantic v2 de entrada y salida
-│           └── server.py                        # Entrypoint Uvicorn (localhost:4000)
-├── frontend/                                    # Interfaz visual React + TypeScript (Vite)
-│   ├── src/
-│   │   ├── components/                          # Sidebar, TopBar, DiagnosticsModal, CoreVisualization, etc.
-│   │   ├── hooks/                               # useCoreTelemetry con sondeo moderado
-│   │   ├── services/                            # simpleDomainApi con timeout y tipado
-│   │   └── config/                              # env.ts y endpoints.ts centralizados
-│   └── README.md                                # Documentación de la UI
-├── tests/                                       # Suite de pruebas automatizadas (35/35 passing)
-└── docs/                                        # Síntesis teórica y reportes experimentales
-```
+### D. Microkernel RELIC (`relic/`)
+* **Tecnología:** Rust 2024 / Cargo workspace.
+* **Seguridad:** Control de estado protegido por `BlackwallGate` (cero mutaciones sin verificación previa, oráculo de regresión y commits criptográficos SHA-256).
+* **Herramientas MCP:** Expone 12 herramientas formales (`relic_interpret`, `relic_verify`, `relic_retrieve`, `relic_activate`, `relic_diff`, `relic_spectral`, etc.).
+* **Contenedor:** Imagen hardened distroless sin shell (`gcr.io/distroless/cc-debian12:nonroot`) y usuario no-root (`UID 65532`).
 
 ---
 
-## 7. Instrucciones de Ejecución Local
+## 3. Inicio Rápido (Quickstart)
 
-### Backend Python (Servicio HTTP)
+### Opción 1: Aprovisionamiento y Dockerización Automática (Recomendado)
+
+Dispones de un script en JavaScript multiplataforma que comprueba si los pesos del modelo existen, los descarga automáticamente desde Hugging Face si hacen falta y levanta todo el stack con Docker Compose:
+
 ```bash
-# Iniciar servidor local en puerto 4000 con modelo calibrado de demostración
-python -m simple_domain.service.server --port 4000 --demo-model
+# Con Node.js (Windows, Linux, macOS)
+node setup_and_dockerize.mjs
 ```
 
-### Frontend UI (Servidor de Desarrollo)
+O si prefieres Bash (Linux/WSL):
 ```bash
-cd frontend
-npm.cmd run dev
+chmod +x setup_and_dockerize.sh
+./setup_and_dockerize.sh
 ```
-Acceso en navegador: `http://127.0.0.1:5173/`
 
-### Validación de Pruebas y Compilación
+Una vez finalizado, accede a:
+* **Frontend Web:** [http://localhost:5173](http://localhost:5173)
+* **Agentic Gateway:** [http://localhost:4000](http://localhost:4000)
+* **RELIC Server:** [http://localhost:5000](http://localhost:5000)
+* **LLM Engine:** [http://localhost:8081](http://localhost:8081)
+
+---
+
+### Opción 2: Despliegue Local Nativo (Sin Docker)
+
+Si prefieres ejecutar los procesos directamente sobre tu sistema operativo:
+
+1. **Descargar el modelo (si aún no lo tienes):**
+   ```bash
+   bash llm_server/download_model.sh
+   ```
+2. **Compilar el microkernel RELIC:**
+   ```bash
+   cd relic
+   cargo build -p relic_mcp
+   cd ..
+   ```
+3. **Iniciar los servicios con el launcher unificado:**
+   ```powershell
+   # En Windows PowerShell
+   .\start_stack.ps1
+   ```
+4. **Levantar el frontend de desarrollo:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+---
+
+## 4. Matriz de Puertos y Servicios
+
+| Servicio | Rol | Protocolo | Puerto Host | Modo Contenedor |
+| :--- | :--- | :--- | :--- | :--- |
+| **Frontend UI** | Interfaz React 18 | HTTP / SSE | `5173` | `sd_frontend` (Nginx) |
+| **Agentic Gateway** | Orquestador MCP & API | HTTP / JSON-RPC | `4000` | `sd_agentic_gateway` (Node 22) |
+| **RELIC Server** | Motor Neuro-Simbólico | HTTP REST | `5000` | `sd_relic_engine` (Distroless) |
+| **llama-server** | Inferencia LLM | HTTP OpenAI-compat | `8081` | `sd_llm_engine` (llama.cpp) |
+| **RELIC MCP** | Herramientas del Kernel | stdio IPC | Interno | Subproceso en Gateway |
+
+---
+
+## 5. Política de Git y Gestión de Modelos Pesados
+
+* **Regla estricta:** Los archivos de pesos (`*.gguf`), ejecutables nativos (`*.exe`, `*.dll`) y directorios de compilación (`target/`, `node_modules/`, `dist/`) están explícitamente ignorados en [.gitignore](file:///c:/Users/Nicolas%20Pachon/Desktop/Seis%20Ojos/Simple_Domain/.gitignore).
+* **Cumplimiento de límites de GitHub:** Al no incluir archivos binarios de >100 MB en los commits, el repositorio permanece ligero, auditable y listo para `git push` inmediato a GitHub sin consumir cuotas de Git LFS.
+* Los pesos son provisionados on-demand por los scripts de configuración directamente desde el repositorio oficial de Hugging Face (`bartowski/Dolphin3.0-Llama3.2-3B-GGUF`).
+
+---
+
+## 6. Comandos de Verificación y Auditoría
+
 ```bash
-# Pruebas automatizadas del motor Python (35 pruebas)
-python -m pytest
+# Comprobar salud del Gateway y conteo de herramientas MCP activas
+curl http://localhost:4000/health
 
-# Compilación de producción de la UI (TypeScript + Vite)
-cd frontend
-npm.cmd run build
+# Comprobar estado del motor LLM
+curl http://localhost:8081/health
+
+# Inferencia directa con streaming en consola
+curl -N http://localhost:4000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"Verifica el estado de RELIC"}],"stream":true}'
 ```
+
+---
+
+## 7. Licencia
+
+Desarrollado como entorno de desarrollo local soberano. Código base bajo licencia MIT / AGPL-3.0 según especificado en cada submódulo.
