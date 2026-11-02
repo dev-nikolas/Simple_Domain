@@ -62,7 +62,7 @@ fn synthesize_null_trace(family_kind: usize, total_len: usize, period: usize, se
             // Subfamilia 1: Proceso Poisson / Bernoulli independiente
             for item in sig.iter_mut() {
                 state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
-                if (state >> 33).is_multiple_of(period as u64) {
+                if (state >> 33) % (period as u64) == 0 {
                     *item = 1.0;
                 }
             }
@@ -79,7 +79,7 @@ fn synthesize_null_trace(family_kind: usize, total_len: usize, period: usize, se
                     if burst_remaining == 0 {
                         in_burst = false;
                     }
-                } else if (state >> 33).is_multiple_of((period * 4) as u64) {
+                } else if (state >> 33) % ((period * 4) as u64) == 0 {
                     in_burst = true;
                     burst_remaining = 2 + ((state >> 40) % 3) as usize;
                 }

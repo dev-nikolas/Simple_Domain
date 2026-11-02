@@ -55,7 +55,7 @@ fn matches_exhaustive_bfs_on_random_digraphs() {
         }
         for u in 0..n {
             for v in 0..n {
-                if next(&mut seed).is_multiple_of(8) {
+                if next(&mut seed) % 8 == 0 {
                     mem.insert_edge(names[u].as_str(), names[v].as_str());
                 }
             }
