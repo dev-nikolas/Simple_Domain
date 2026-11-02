@@ -1,26 +1,21 @@
 /**
- * Simple Domain — Menú Desplegable de Operaciones del Sistema (+)
- * Acceso directo a ingesta de archivos CSV/JSON para el motor Brain.
+ * Simple Domain — Menú Desplegable de Adjuntar Archivos (+)
+ * Acceso directo a ingesta de archivos CSV/JSON para la conversación activa.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Upload, AlertTriangle, Loader2 } from 'lucide-react';
-import { AppRoute } from '../hooks/useRouter';
-import { modularApi } from '../services/modularApi';
 
 interface OperationsMenuProps {
-  onNavigate?: (route: AppRoute) => void;
   onFileSelected?: (file: File) => void;
   isProcessing?: boolean;
 }
 
 export const OperationsMenu: React.FC<OperationsMenuProps> = ({
-  onNavigate,
   onFileSelected,
   isProcessing = false,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [uploading, setUploading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +30,7 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
     return () => document.removeEventListener('mousedown', handleDocumentClick);
   }, []);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMsg(null);
     const file = e.target.files?.[0];
     if (!file) return;
@@ -53,28 +48,14 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
     setIsOpen(false);
     if (onFileSelected) {
       onFileSelected(file);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
     }
-
-    try {
-      setUploading(true);
-      await modularApi.uploadAndAnalyze(file);
-      if (onNavigate) onNavigate('/analysis');
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Error al analizar archivo.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
-
-  const busy = uploading || isProcessing;
 
   return (
     <div className="relative font-mono text-xs select-none" ref={menuRef}>
       <input
-        id="brain-file-upload-input"
+        id="chat-file-upload-input"
         ref={fileInputRef}
         type="file"
         accept=".csv, .json, text/csv, application/json"
@@ -89,12 +70,12 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
           e.stopPropagation();
           setIsOpen((prev) => !prev);
         }}
-        disabled={busy}
+        disabled={isProcessing}
         className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-cyber-card border border-cyber-border hover:border-cyber-yellow hover:bg-cyber-yellow/15 text-cyber-yellow cut-corner-sm transition-all focus:outline-none shadow-cyber-sm"
-        title="Subir archivo para análisis con Brain"
-        aria-label="Subir archivo para análisis con Brain"
+        title="Adjuntar archivo CSV o JSON al chat"
+        aria-label="Adjuntar archivo CSV o JSON al chat"
       >
-        {busy ? (
+        {isProcessing ? (
           <Loader2 className="w-4 h-4 animate-spin text-cyber-yellow" />
         ) : (
           <Plus className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-45 text-white' : 'text-cyber-yellow'}`} />
@@ -107,7 +88,7 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
           className="absolute bottom-full left-0 mb-2 w-72 bg-cyber-card border border-cyber-yellow/60 cut-corner-sm shadow-cyber-yellow-lg p-2.5 space-y-2 z-50 backdrop-blur-md"
         >
           <div className="flex items-center justify-between border-b border-cyber-border pb-1.5 text-[10px] text-cyber-muted">
-            <span className="font-bold text-cyber-yellow tracking-wider uppercase">SUBIR ARCHIVO A BRAIN</span>
+            <span className="font-bold text-cyber-yellow tracking-wider uppercase">ADJUNTAR ARCHIVO</span>
             <span>CSV / JSON</span>
           </div>
 
@@ -119,18 +100,18 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
           )}
 
           <label
-            htmlFor="brain-file-upload-input"
+            htmlFor="chat-file-upload-input"
             className="w-full flex items-center space-x-2.5 p-2.5 bg-cyber-bg hover:bg-cyber-yellow/10 border border-cyber-border hover:border-cyber-yellow text-left transition-colors group cursor-pointer cut-corner-sm"
           >
             <div className="p-1.5 bg-cyber-card border border-cyber-border group-hover:border-cyber-yellow text-cyber-yellow cut-corner-sm shrink-0">
-              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[11px] font-bold text-white group-hover:text-cyber-yellow truncate">
-                {busy ? 'PROCESANDO EN BRAIN...' : 'SELECCIONAR ARCHIVO'}
+                {isProcessing ? 'PROCESANDO ARCHIVO...' : 'SELECCIONAR ARCHIVO'}
               </div>
               <div className="text-[9px] text-cyber-muted truncate">
-                Tablas o secuencias numéricas (máx. 4 MB)
+                Datos estructurados (máx. 4 MB)
               </div>
             </div>
           </label>
@@ -139,3 +120,5 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
     </div>
   );
 };
+
+export default OperationsMenu;

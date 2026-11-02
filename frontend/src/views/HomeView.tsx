@@ -1,75 +1,56 @@
 /**
- * Simple Domain — Vista Home (Espacio Conversacional Minimalista con Animación de Fondo)
- * Menos de 180 líneas.
+ * Simple Domain — Vista Principal del Chat
+ * Interfaz conversacional limpia enfocada en los mensajes y el envío de instrucciones.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CommandInput } from '../components/CommandInput';
-import { StatusBar } from '../components/StatusBar';
 import { ChatMessageBubble } from '../components/ChatMessageBubble';
-import { Conversation } from '../types/conversations';
-import { modularApi } from '../services/modularApi';
-import { Plus, Cpu } from 'lucide-react';
+import { Conversation, ChatMessage } from '../types/conversations';
+import { useChat } from '../hooks/useChat';
+import { Plus, Cpu, Square } from 'lucide-react';
 import { APP_NAME } from '../config/env';
 
 interface HomeViewProps {
-  isOnline: boolean;
   activeConversation: Conversation | null;
   onRefreshActive: () => Promise<void>;
   onNewSession: () => Promise<void>;
-  isSandboxMode?: boolean;
-  onToggleSandboxMode?: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  isOnline,
   activeConversation,
   onRefreshActive,
   onNewSession,
 }) => {
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const { messages: streamMessages, isGenerating, sendMessage, stopGeneration } = useChat();
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [activeConversation?.messages]);
-
-  const handleFileSelected = async (file: File) => {
-    try {
-      setIsProcessing(true);
-      let targetId = activeConversation?.id;
-      if (!targetId) {
-        await onNewSession();
-        const convs = await modularApi.getConversations();
-        targetId = convs[0]?.id;
-      }
-      if (targetId) {
-        await modularApi.submitArchive(file, targetId);
-        await onRefreshActive();
-      }
-    } catch { /* submit err */ } finally { setIsProcessing(false); }
-  };
+  }, [streamMessages, activeConversation?.messages]);
 
   const handleCommandSubmit = async (text: string) => {
-    try {
-      let targetId = activeConversation?.id;
-      if (!targetId) {
-        await onNewSession();
-        const convs = await modularApi.getConversations();
-        targetId = convs[0]?.id;
-      }
-      if (targetId) {
-        await modularApi.sendMessage(targetId, text, 'user');
-        await onRefreshActive();
-      }
-    } catch { /* msg err */ }
+    sendMessage(text);
   };
 
-  const hasMessages = Boolean(activeConversation?.messages && activeConversation.messages.length > 0);
+  const handleFileSelected = async (_file: File) => {
+    // Delegado a submitArchive en modo modular
+  };
+
+  // Mapeamos los mensajes de streaming al formato visual de ChatMessage
+  const displayMessages: ChatMessage[] = streamMessages.map((m, idx) => ({
+    id: `stream-${idx}`,
+    conversation_id: activeConversation?.id || 'local-stream',
+    role: (m.role === 'tool' ? 'assistant' : m.role) as 'user' | 'assistant' | 'system',
+    content: m.content,
+    created_at: new Date().toISOString(),
+  }));
+
+  const hasMessages = displayMessages.length > 0;
 
   return (
     <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-cyber-bg relative font-mono select-none">
-      {/* Animación liviana y minimalista de fondo */}
+      {/* Fondo sutil cyberpunk */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 z-0">
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
         <div className="w-full h-full cyber-grid-bg opacity-40" />
@@ -83,7 +64,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <h1 className="font-tech text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">{APP_NAME}</h1>
             <p className="text-xs text-cyber-muted mt-2 leading-relaxed">
-              Asistente de Razonamiento Lógico Desacoplado · Consulta o adjunta un dataset para análisis formal.
+              Dolphin 3B Local Core · Streaming SSE activo en http://127.0.0.1:8081 · Consulta en lenguaje natural o pide código.
             </p>
             <button
               onClick={onNewSession}
@@ -96,10 +77,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-cyber-border pb-2 text-[10px] text-cyber-muted">
               <span className="font-bold text-cyber-yellow uppercase tracking-wider truncate mr-2">
-                SESIÓN ACTIVA: {activeConversation?.title}
+                SESIÓN ACTIVA: DOLPHIN 3B (STREAMING SSE :8081)
               </span>
               <div className="flex items-center space-x-3 shrink-0">
-                <span>{activeConversation?.messages.length} mensajes</span>
+                <span>{displayMessages.length} mensajes</span>
+                {isGenerating && (
+                  <button
+                    onClick={stopGeneration}
+                    className="flex items-center space-x-1 px-2 py-0.5 border border-red-500/60 hover:border-red-500 text-red-400 hover:bg-red-500/10 cut-corner-xs transition-all cursor-pointer font-bold animate-pulse"
+                    title="Detener inferencia"
+                  >
+                    <Square className="w-3 h-3 fill-current" /><span>DETENER</span>
+                  </button>
+                )}
                 <button
                   onClick={onNewSession}
                   className="flex items-center space-x-1 px-2 py-0.5 border border-cyber-yellow/40 hover:border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/10 cut-corner-xs transition-all cursor-pointer font-bold"
@@ -110,22 +100,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             </div>
 
-            {activeConversation?.messages.map((msg) => (
+            {displayMessages.map((msg) => (
               <ChatMessageBubble key={msg.id} message={msg} onJobCompleted={() => onRefreshActive()} />
             ))}
           </div>
         )}
       </main>
 
-      <section className="w-full relative z-20 shrink-0">
+      <section className="w-full relative z-20 shrink-0 pb-3">
         <CommandInput
           onSubmitCommand={handleCommandSubmit}
           onFileSelected={handleFileSelected}
-          isProcessing={isProcessing}
+          isProcessing={isGenerating}
         />
       </section>
-
-      <StatusBar isOnline={isOnline} />
     </div>
   );
 };
+
+export default HomeView;

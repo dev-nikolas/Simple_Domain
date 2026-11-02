@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://relic.dev/schemas/episodic_memory_log.json",
+  "title": "RELIC_Engram_LogEntry_V1",
+  "description": "Esquema formal de cada línea en la bitácora append-only JSONL de `relic_lexicon` con encadenamiento SHA-256 (FIPS 180-4) desde GENESIS_PREV_HASH.",
+  "type": "object",
+  "required": [
+    "version",
+    "timestamp_ms",
+    "prev_hash",
+    "entry_hash",
+    "status",
+    "payload"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Versión monotónica estrictamente secuencial (1..N)."
+    },
+    "timestamp_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Marca temporal en milisegundos Unix (0 para la semilla génesis)."
+    },
+    "prev_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Hash SHA-256 de la entrada anterior (64 ceros para v=1)."
+    },
+    "entry_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Hash SHA-256 calculado sobre v|ts|prev|status|payload."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ConfirmedFact", "LexicalAlias", "Reverted", "ConsolidatedCheckpoint"]
+    },
+    "payload": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "graph_fact",
+            "op_alias",
+            "phrase_macro",
+            "entity_alias",
+            "edge_reinforcement",
+            "consolidation_checkpoint",
+            "rollback"
+          ]
+        }
+      }
+    }
+  }
+}

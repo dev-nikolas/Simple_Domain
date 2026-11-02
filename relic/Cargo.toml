@@ -1,0 +1,24 @@
+[workspace]
+members = [
+    "crates/relic_core",
+    "crates/relic_lexicon",
+    "crates/relic_blackwall",
+    "crates/relic_tokenizer",
+    "crates/relic_cli",
+    "crates/relic_server",
+    "crates/relic_mcp",
+    "benchmarks",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["dev-nikolas", "RELIC Team"]
+license = "AGPL-3.0-only"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

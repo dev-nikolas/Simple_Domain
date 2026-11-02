@@ -1,0 +1,14 @@
+/target
+
+/reports/*
+!/reports/*.json
+!/reports/eval/
+!/reports/eval/*.json
+*.bin
+!crates/relic_core/src/anomaly/data/*.bin
+*.pt
+*.safetensors
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.venv/

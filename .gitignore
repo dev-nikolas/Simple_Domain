@@ -55,3 +55,25 @@ node_modules/
 dist/
 .next/
 .env
+
+# Frontend & Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Rust & Cargo
+target/
+
+# LLM Weights & Heavy Artifacts (>100MB)
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.onnx
+
+# Windows / Native Executables & DLLs
+*.exe
+*.dll
+*.pdb
+*.zip
+*.tar.gz

@@ -1,0 +1,15 @@
+.git
+.github
+**/node_modules
+**/dist
+**/target
+**/*.gguf
+**/*.zip
+**/*.tar.gz
+**/*.exe
+**/*.dll
+.pytest_cache
+__pycache__
+tests
+benchmarks/data
+

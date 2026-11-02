@@ -1,19 +1,11 @@
 /**
  * Simple Domain — Hook de Enrutamiento Ligero SPA
- * Soporta rutas fijas, rutas de conversación (/c/:id) y detalle de fuentes (/data-sources/:id).
- * Menos de 180 líneas.
+ * Soporta ruta raíz (/) y rutas de conversación (/c/:id).
  */
 
 import { useCallback, useEffect, useState } from 'react';
 
-export type AppRoute =
-  | '/'
-  | '/data-sources'
-  | '/patterns'
-  | '/research'
-  | '/settings'
-  | '/analysis'
-  | string;
+export type AppRoute = '/' | `/c/${string}` | string;
 
 const NAV_EVENT = 'simple-domain:navigate';
 
@@ -31,21 +23,6 @@ export function useRouter() {
       return p;
     }
 
-    if (p.startsWith('/data-sources')) {
-      if (params.get('id')) {
-        return `/data-sources/${params.get('id')}`;
-      }
-      return p;
-    }
-
-    if (
-      p === '/patterns' ||
-      p === '/research' ||
-      p === '/settings' ||
-      p === '/analysis'
-    ) {
-      return p;
-    }
     return '/';
   };
 
@@ -58,19 +35,8 @@ export function useRouter() {
     return null;
   };
 
-  const extractSourceId = (route: string): string | null => {
-    if (route.startsWith('/data-sources/')) {
-      const part = route.replace('/data-sources/', '').trim();
-      return part && part !== 'details' ? part : null;
-    }
-    return null;
-  };
-
   const [conversationId, setConversationId] = useState<string | null>(() =>
     extractConversationId(getNormalizedPath())
-  );
-  const [sourceId, setSourceId] = useState<string | null>(() =>
-    extractSourceId(getNormalizedPath())
   );
 
   useEffect(() => {
@@ -78,7 +44,6 @@ export function useRouter() {
       const path = getNormalizedPath();
       setCurrentRoute(path);
       setConversationId(extractConversationId(path));
-      setSourceId(extractSourceId(path));
     };
     window.addEventListener('popstate', onPopState);
     window.addEventListener(NAV_EVENT, onPopState);
@@ -98,11 +63,11 @@ export function useRouter() {
       }
       setCurrentRoute(route);
       setConversationId(extractConversationId(route));
-      setSourceId(extractSourceId(route));
-      // Sincroniza el resto de instancias del hook (p. ej. App vs. vistas hijas)
       window.dispatchEvent(new Event(NAV_EVENT));
     }
   }, []);
 
-  return { currentRoute, conversationId, sourceId, navigate };
+  return { currentRoute, conversationId, navigate };
 }
+
+export default useRouter;

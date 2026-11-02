@@ -5,7 +5,6 @@
 
 import React, { useState, useRef } from 'react';
 import { Terminal, CornerDownLeft, XCircle, Clock } from 'lucide-react';
-import { AppRoute } from '../hooks/useRouter';
 import { OperationsMenu } from './OperationsMenu';
 
 interface CommandLog {
@@ -17,14 +16,12 @@ interface CommandLog {
 }
 
 interface CommandInputProps {
-  onNavigate?: (route: AppRoute) => void;
   onSubmitCommand?: (text: string) => void;
   onFileSelected?: (file: File) => void;
   isProcessing?: boolean;
 }
 
 export const CommandInput: React.FC<CommandInputProps> = ({
-  onNavigate,
   onSubmitCommand,
   onFileSelected,
   isProcessing = false,
@@ -75,7 +72,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 relative z-30">
-      {/* Feed emergente con respuesta transparente */}
+      {/* Feed emergente con respuesta */}
       {showLogModal && history.length > 0 && (
         <div className="mb-2 sm:mb-3 bg-cyber-surface/95 border border-cyber-yellow/40 p-3 cut-corner-sm shadow-cyber-yellow-sm backdrop-blur-md">
           <div className="flex items-center justify-between text-[11px] font-mono text-cyber-yellow border-b border-cyber-border pb-1 mb-2">
@@ -116,9 +113,9 @@ export const CommandInput: React.FC<CommandInputProps> = ({
       >
         <div className="absolute -top-1 -left-1 w-2 h-2 bg-cyber-yellow/60 pointer-events-none group-focus-within:bg-cyber-yellow" />
 
-        {/* Botón "+" para desplegar menú de subida de archivos / operaciones */}
+        {/* Botón "+" para adjuntar archivos */}
         <div className="shrink-0 pl-0.5 pr-1">
-          <OperationsMenu onNavigate={onNavigate} onFileSelected={onFileSelected} isProcessing={isProcessing} />
+          <OperationsMenu onFileSelected={onFileSelected} isProcessing={isProcessing} />
         </div>
 
         {/* Campo de texto principal */}
@@ -148,16 +145,12 @@ export const CommandInput: React.FC<CommandInputProps> = ({
           }`}
           title="Enviar instrucción (Enter)"
         >
-          <span className="hidden xs:inline sm:inline">{isSubmitting ? 'DISPATCHING...' : 'DISPATCH'}</span>
+          <span className="hidden xs:inline sm:inline">{isSubmitting ? 'ENVIANDO...' : 'ENVIAR'}</span>
           <CornerDownLeft className="h-3.5 w-3.5" />
         </button>
       </form>
-
-      {/* Microtexto técnico inferior */}
-      <div className="flex items-center justify-between text-[10px] font-mono text-cyber-muted/60 mt-1 px-1 sm:px-2 select-none">
-        <span>PRESS [ENTER] TO DISPATCH</span>
-        <span className="hidden sm:inline">SECURITY // STRICT LOCAL MEMORY</span>
-      </div>
     </div>
   );
 };
+
+export default CommandInput;

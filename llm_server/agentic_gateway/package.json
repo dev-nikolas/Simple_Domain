@@ -1,0 +1,11 @@
+{
+  "name": "agentic-gateway",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agentic Gateway for Dolphin 3B and RELIC MCP",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
+

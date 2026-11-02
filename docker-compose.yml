@@ -1,0 +1,120 @@
+# ==============================================================================
+# Simple Domain — Stack Completo Unificado y Orquestado (Docker Compose)
+# Monorrepo: Frontend (React) + Gateway (Node/MCP) + RELIC (Rust) + LLM Engine
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Motor de Inferencia LLM Local (Dolphin 3B Q4_K_M en llama.cpp)
+  # ----------------------------------------------------------------------------
+  llm_engine:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: sd_llm_engine
+    restart: unless-stopped
+    command: >
+      -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
+      -c 4096
+      -t 2
+      -np 1
+      -ngl 0
+      --host 0.0.0.0
+      --port 8080
+      --flash-attn off
+    volumes:
+      - ./llm_server/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf:/models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf:ro
+    ports:
+      - "127.0.0.1:8081:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3.5G
+        reservations:
+          memory: 2.2G
+
+  # ----------------------------------------------------------------------------
+  # 2. Microkernel Determinista RELIC (Servidor Neuro-Simbólico en Rust)
+  # ----------------------------------------------------------------------------
+  relic_engine:
+    build:
+      context: ./relic
+      dockerfile: Dockerfile
+    image: relic:v1.1.0-core
+    container_name: sd_relic_engine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      - PORT=5000
+      - RUST_BACKTRACE=0
+    user: "65532:65532"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - relic_data:/relic/storage:rw
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 16M
+          mode: 1777
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 128M
+        reservations:
+          memory: 32M
+
+  # ----------------------------------------------------------------------------
+  # 3. Agentic Gateway & Middleware MCP (Orquestador de Herramientas y SSE)
+  # ----------------------------------------------------------------------------
+  agentic_gateway:
+    build:
+      context: .
+      dockerfile: llm_server/agentic_gateway/Dockerfile
+    image: simple-domain-gateway:latest
+    container_name: sd_agentic_gateway
+    restart: unless-stopped
+    depends_on:
+      - llm_engine
+      - relic_engine
+    environment:
+      - PORT=4000
+      - LLAMA_URL=http://llm_engine:8080/v1/chat/completions
+      - RELIC_SERVER_URL=http://relic_engine:5000
+      - RELIC_MCP_BIN=/usr/local/bin/relic_mcp
+    ports:
+      - "127.0.0.1:4000:4000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+
+  # ----------------------------------------------------------------------------
+  # 4. Frontend Web (React / TypeScript / Vite servido por Nginx)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: simple-domain-frontend:latest
+    container_name: sd_frontend
+    restart: unless-stopped
+    depends_on:
+      - agentic_gateway
+    ports:
+      - "127.0.0.1:5173:5173"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+volumes:
+  relic_data:
+    driver: local
+
