@@ -420,10 +420,12 @@ async function startServer() {
 
                   try {
                     const parsed = JSON.parse(payload);
-                    const deltaContent = parsed.choices?.[0]?.delta?.content;
-                    if (deltaContent) {
-                      accumulatedTotal += deltaContent;
-                      sendSSEDelta(deltaContent);
+                    const delta = parsed.choices?.[0]?.delta;
+                    if (delta?.content) {
+                      accumulatedTotal += delta.content;
+                      sendSSEDelta(delta.content);
+                    } else if (delta?.tool_calls) {
+                      res.write(`data: ${JSON.stringify(parsed)}\n\n`);
                     }
                   } catch {
                     // Fragmento incompleto en tránsito

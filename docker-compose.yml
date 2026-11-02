@@ -45,13 +45,15 @@ services:
         condition: service_completed_successfully
     command: >
       -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
-      -c 8192
+      -c 16384
       -t 2
-      -np 1
+      -np 2
+      -sps 0.50
       -ngl 0
       --host 0.0.0.0
       --port 8080
       --flash-attn off
+      -tb 4
     volumes:
       - model_data:/models:ro
     ports:
@@ -59,8 +61,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.0"
-          memory: 6.0G
+          cpus: "4.0"
+          memory: 8.0G
         reservations:
           memory: 3.5G
 
