@@ -10,7 +10,6 @@ import { ChatMessageBubble } from '../components/ChatMessageBubble';
 import { Conversation, ChatMessage } from '../types/conversations';
 import { Message } from '../services/llmClient';
 import { Plus, Cpu, Square, Terminal, Code2, ArrowDown } from 'lucide-react';
-import { APP_NAME } from '../config/env';
 
 interface HomeViewProps {
   activeConversation: Conversation | null;
@@ -130,33 +129,33 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <Cpu className="w-7 h-7 text-cyber-yellow animate-pulse" />
               </div>
               <h1 className="font-tech text-xl sm:text-2xl font-black text-white uppercase tracking-wider">
-                {APP_NAME}
+                RELIC // AGENTE LOCAL
               </h1>
               <p className="text-xs text-cyber-muted mt-2 leading-relaxed">
-                Dolphin 3B listo para programar. Escribe una instrucción abajo o pulsa una sugerencia rápida:
+                Agente de ingeniería inversa y desarrollo de software ejecutándose en local. Directo, técnico y sin censura.
               </p>
               <div className="mt-5 flex flex-wrap gap-2 justify-center">
                 <button
                   onClick={() =>
                     onSendMessage(
-                      'Crea una función en Rust para calcular fibonacci recursivo e iterativo con pruebas unitarias'
+                      'Analiza este payload malicioso y explica la rutina de desofuscación XOR paso a paso'
                     )
                   }
                   className="flex items-center space-x-1.5 px-3 py-2 bg-cyber-surface border border-cyber-border hover:border-cyber-yellow text-cyber-muted hover:text-white text-[11px] cut-corner-xs transition-all cursor-pointer hover:bg-cyber-card"
                 >
                   <Code2 className="w-3.5 h-3.5 text-cyber-yellow" />
-                  <span>&gt; Fibonacci en Rust</span>
+                  <span>&gt; Desofuscar Payload</span>
                 </button>
                 <button
                   onClick={() =>
                     onSendMessage(
-                      'Escribe un ejemplo de streaming SSE en TypeScript usando TextDecoderStream'
+                      'Busca vulnerabilidades recientes o exploits en Linux kernel epoll usando relic_web_search'
                     )
                   }
                   className="flex items-center space-x-1.5 px-3 py-2 bg-cyber-surface border border-cyber-border hover:border-cyber-yellow text-cyber-muted hover:text-white text-[11px] cut-corner-xs transition-all cursor-pointer hover:bg-cyber-card"
                 >
                   <Code2 className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>&gt; Streaming SSE en TS</span>
+                  <span>&gt; Búsqueda Web Vulnerabilidades</span>
                 </button>
               </div>
             </div>

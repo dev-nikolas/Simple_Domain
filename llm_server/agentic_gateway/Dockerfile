@@ -32,8 +32,7 @@ RUN chmod +x /usr/local/bin/relic_mcp
 
 # Copiar código del gateway
 COPY llm_server/agentic_gateway/package.json ./
-COPY llm_server/agentic_gateway/server.mjs ./
-COPY llm_server/agentic_gateway/mcpClient.mjs ./
+COPY llm_server/agentic_gateway/*.mjs ./
 
 ENV NODE_ENV=production
 ENV PORT=4000

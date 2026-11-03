@@ -131,6 +131,7 @@ services:
       - MAX_SLOTS_CACHE_BYTES=5368709120
       - KV_SAVE_TOKEN_THRESHOLD=500
     volumes:
+      - ./llm_server/agentic_gateway:/app
       - gateway_data:/app/data
       - slots_data:/slots_cache
     ports:

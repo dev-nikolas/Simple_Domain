@@ -36,9 +36,14 @@ export function useChat() {
       const newUserMessage: Message = { role: 'user', content: trimmed };
       const assistantPlaceholder: Message = { role: 'assistant', content: '' };
 
-      const base = activeMessages.length > 0
+      const systemPrompt: Message = {
+        role: 'system',
+        content: DEFAULT_SYSTEM_PROMPT,
+      };
+
+      const base = activeMessages.some((m) => m.role === 'system')
         ? activeMessages
-        : [{ role: 'system' as const, content: DEFAULT_SYSTEM_PROMPT }];
+        : [systemPrompt, ...activeMessages];
 
       const fullMessagesForLlm = [...base, newUserMessage];
       const initialWithPlaceholder = [...fullMessagesForLlm, assistantPlaceholder];
@@ -70,8 +75,15 @@ export function useChat() {
         ];
         updateActiveSessionMessages(finalMessages);
 
-        // Sincronizar con el Gateway de forma definitiva
+        // Auto-Save asíncrono en localStorage inmediatamente al interceptar la señal [DONE]
         if (activeSessionId) {
+          try {
+            localStorage.setItem(`relic_session_${activeSessionId}`, JSON.stringify(finalMessages));
+            localStorage.setItem('relic_active_session_id', activeSessionId);
+          } catch (e) {
+            console.warn('[Auto-Save] Error guardando en localStorage:', e);
+          }
+
           try {
             await sessionsApi.syncMessages(activeSessionId, finalMessages);
           } catch {
@@ -147,7 +159,18 @@ export function useChat() {
       updateActiveSessionMessages(finalMessages);
 
       if (activeSessionId) {
-        await sessionsApi.syncMessages(activeSessionId, finalMessages);
+        try {
+          localStorage.setItem(`relic_session_${activeSessionId}`, JSON.stringify(finalMessages));
+          localStorage.setItem('relic_active_session_id', activeSessionId);
+        } catch (e) {
+          console.warn('[Auto-Save] Error guardando en localStorage:', e);
+        }
+
+        try {
+          await sessionsApi.syncMessages(activeSessionId, finalMessages);
+        } catch {
+          // Error silencioso
+        }
       }
     } catch (error: any) {
       if (error.name !== 'AbortError') {
