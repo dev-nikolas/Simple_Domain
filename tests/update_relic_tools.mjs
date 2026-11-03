@@ -1,6 +1,13 @@
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-let toolsCode = fs.readFileSync('Simple_Domain/relic/crates/relic_mcp/src/tools.rs', 'utf8');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.resolve(__dirname, '..');
+const toolsPath = path.resolve(projectRoot, 'relic/crates/relic_mcp/src/tools.rs');
+const serverPath = path.resolve(projectRoot, 'relic/crates/relic_mcp/src/server.rs');
+
+let toolsCode = fs.readFileSync(toolsPath, 'utf8');
 
 const oldValid = '"relic_capsule",';
 const newValid = '"relic_capsule",\n    "relic_fs_modify",\n    "relic_web_search",\n    "relic_memorize",';
@@ -109,12 +116,12 @@ pub fn handle_memorize(args: &Value, blackwall: &mut BlackwallGate) -> CallToolR
 `;
 
   toolsCode += handlers;
-  fs.writeFileSync('Simple_Domain/relic/crates/relic_mcp/src/tools.rs', toolsCode, 'utf8');
+  fs.writeFileSync(toolsPath, toolsCode, 'utf8');
   console.log('Updated tools.rs successfully');
 }
 
 // Now update server.rs in relic_mcp
-let serverCode = fs.readFileSync('Simple_Domain/relic/crates/relic_mcp/src/server.rs', 'utf8');
+let serverCode = fs.readFileSync(serverPath, 'utf8');
 if (!serverCode.includes('handle_fs_modify')) {
   serverCode = serverCode.replace(
     'handle_verify, list_tools, VALID_MCP_TOOLS,',
@@ -128,7 +135,7 @@ if (!serverCode.includes('handle_fs_modify')) {
                     "relic_memorize" => handle_memorize(&args, &mut self.blackwall),`;
 
   serverCode = serverCode.replace(oldCallMatch, newCallMatch);
-  fs.writeFileSync('Simple_Domain/relic/crates/relic_mcp/src/server.rs', serverCode, 'utf8');
+  fs.writeFileSync(serverPath, serverCode, 'utf8');
   console.log('Updated server.rs successfully');
 }
 
