@@ -252,15 +252,15 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
               ) : isThinking ? (
                 <span className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-cyber-yellow animate-pulse">
                   <span className="w-2 h-2 rounded-full bg-cyber-yellow inline-block animate-ping" />
-                  <span>DOLPHIN 3B · PENSANDO</span>
+                  <span>RELIC NEURAL CORE · PENSANDO</span>
                 </span>
               ) : isStreaming ? (
                 <span className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-emerald-400">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
-                  <span>DOLPHIN 3B · ESCRIBIENDO</span>
+                  <span>RELIC NEURAL CORE · ESCRIBIENDO</span>
                 </span>
               ) : (
-                <span className="font-bold uppercase tracking-wider text-cyber-yellow">DOLPHIN 3B</span>
+                <span className="font-bold uppercase tracking-wider text-cyber-yellow">RELIC NEURAL CORE</span>
               )}
             </div>
 
@@ -304,7 +304,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
                 <div className="py-3 px-3.5 bg-cyber-card/70 border border-cyber-yellow/40 cut-corner-sm space-y-2">
                   <div className="flex items-center space-x-2 text-cyber-yellow text-[11px] font-bold">
                     <Cpu className="w-3.5 h-3.5 animate-spin" />
-                    <span className="tracking-wider">DOLPHIN 3B · COMPUTANDO INFERENCIA AVX2...</span>
+                    <span className="tracking-wider">RELIC NEURAL CORE · COMPUTANDO INFERENCIA AVX2...</span>
                   </div>
                   <div className="flex items-center space-x-2 text-cyber-muted text-[10px]">
                     <div className="flex space-x-1">

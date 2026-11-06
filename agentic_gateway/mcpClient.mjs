@@ -11,8 +11,9 @@ export class RelicMcpClient {
   constructor(binaryPath) {
     this.binaryPath = binaryPath 
       || process.env.RELIC_MCP_BIN 
-      || path.resolve(__dirname, '../../relic/target/debug/relic_mcp.exe')
-      || path.resolve(__dirname, '../../../RELIC/target/debug/relic_mcp.exe');
+      || path.resolve(__dirname, '../relic_mcp/target/debug/relic_mcp.exe')
+      || path.resolve(__dirname, '../../relic_mcp/target/debug/relic_mcp.exe')
+      || path.resolve(__dirname, '../../relic/target/debug/relic_mcp.exe');
     this.process = null;
     this.rl = null;
     this.requestId = 0;

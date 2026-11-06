@@ -1,178 +1,44 @@
-# ==============================================================================
-# Simple Domain — Stack Completo Unificado y Orquestado (Docker Compose)
-# Monorrepo: Frontend (React) + Gateway (Node/MCP) + RELIC (Rust) + LLM Engine
-# ==============================================================================
+version: '3.8'
 
 services:
-  # ----------------------------------------------------------------------------
-  # 1. Aprovisionamiento Automático del Modelo en Volumen Docker
-  #    (El modelo se almacena exclusivamente en volumen Docker, no en el host)
-  # ----------------------------------------------------------------------------
-  init_model:
-    image: alpine:latest
-    container_name: sd_init_model
-    restart: "no"
-    command: >
-      sh -c '
-        if [ ! -s /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf ]; then
-          if [ -s /host_llm/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf ]; then
-            echo "[OK] Migrando modelo existente desde host hacia volumen Docker..."
-            cp /host_llm/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
-          else
-            echo "[INIT] Descargando Dolphin 3B directamente al volumen Docker..."
-            apk add --no-cache curl
-            curl -L -C - -o /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf \
-              https://huggingface.co/bartowski/Dolphin3.0-Llama3.2-3B-GGUF/resolve/main/Dolphin3.0-Llama3.2-3B-Q4_K_M.gguf
-          fi
-          echo "[OK] Modelo aprovisionado exitosamente en volumen Docker."
-        else
-          echo "[OK] Modelo ya presente en volumen Docker."
-        fi
-      '
-    volumes:
-      - model_data:/models
-      - ./llm_server:/host_llm:ro
-
-  # ----------------------------------------------------------------------------
-  # 2. Motor de Inferencia LLM Local (Dolphin 3B Q4_K_M en llama.cpp)
-  # ----------------------------------------------------------------------------
-  llm_engine:
-    image: ghcr.io/ggml-org/llama.cpp:server
-    container_name: sd_llm_engine
-    restart: unless-stopped
-    depends_on:
-      init_model:
-        condition: service_completed_successfully
-    # NOTA RENDIMIENTO: -tb 4 con cpus 2.0 degrada prefill ~40% por thread thrashing. Cambiar -tb y cpus juntos.
-    command: >
-      -m /models/dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf
-      -c 16384
-      -t 2
-      -np 2
-      -sps 0.50
-      -ngl 0
-      --host 0.0.0.0
-      --port 8080
-      --flash-attn off
-      -tb 2
-      --slot-save-path /slots_cache
-    volumes:
-      - model_data:/models:ro
-      - slots_data:/slots_cache
-    ports:
-      - "127.0.0.1:8081:8080"
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 8.0G
-        reservations:
-          memory: 3.5G
-
-  # ----------------------------------------------------------------------------
-  # 3. Microkernel Determinista RELIC (Servidor Neuro-Simbólico en Rust)
-  # ----------------------------------------------------------------------------
-  relic_engine:
+  relic_ai:
     build:
-      context: ./relic
+      context: ../RELIC-project
       dockerfile: Dockerfile
-    pull_policy: build
-    image: relic:v1.1.0-core
-    container_name: sd_relic_engine
-    restart: unless-stopped
+    container_name: relic_engine
     ports:
-      - "127.0.0.1:5000:5000"
-    environment:
-      - PORT=5000
-      - RUST_BACKTRACE=0
-    user: "65532:65532"
-    read_only: true
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      - "8080:8080"
     volumes:
-      - relic_data:/relic/storage:rw
-      - type: tmpfs
-        target: /tmp
-        tmpfs:
-          size: 16M
-          mode: 1777
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 128M
-        reservations:
-          memory: 32M
+      - ../RELIC-project/resultados:/app/resultados
+    environment:
+      - PORT=8080
+      - MODEL_PATH=/app/resultados/relic_dolphin.relic
+      - TOKENIZER_PATH=/app/resultados/tokenizer.bin
+    restart: unless-stopped
 
-  # ----------------------------------------------------------------------------
-  # 4. Agentic Gateway & Middleware MCP (Orquestador de Herramientas y SSE)
-  # ----------------------------------------------------------------------------
   agentic_gateway:
     build:
-      context: .
-      dockerfile: llm_server/agentic_gateway/Dockerfile
-    pull_policy: build
-    image: simple-domain-gateway:latest
-    container_name: sd_agentic_gateway
-    restart: unless-stopped
-    depends_on:
-      - llm_engine
-      - relic_engine
-    environment:
-      - PORT=4000
-      - LLAMA_URL=http://llm_engine:8080/v1/chat/completions
-      - RELIC_SERVER_URL=http://relic_engine:5000
-      - RELIC_MCP_BIN=/usr/local/bin/relic_mcp
-      - SESSIONS_FILE=/app/data/sessions.json
-      - LLAMA_BASE_URL=http://llm_engine:8080
-      - SLOTS_CACHE_DIR=/slots_cache
-      - MAX_SLOTS_CACHE_BYTES=5368709120
-      - KV_SAVE_TOKEN_THRESHOLD=500
-    volumes:
-      - ./llm_server/agentic_gateway:/app
-      - gateway_data:/app/data
-      - slots_data:/slots_cache
+      context: ./agentic_gateway
+      dockerfile: Dockerfile
+    container_name: agentic_gateway
     ports:
-      - "127.0.0.1:4000:4000"
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 256M
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - RELIC_SERVER_URL=http://relic_ai:8080
+    depends_on:
+      - relic_ai
+    restart: unless-stopped
 
-  # ----------------------------------------------------------------------------
-  # 5. Frontend Web (React / TypeScript / Vite servido por Nginx)
-  # ----------------------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    pull_policy: build
-    image: simple-domain-frontend:latest
-    container_name: sd_frontend
-    restart: unless-stopped
+    container_name: relic_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_GATEWAY_URL=http://localhost:3000
     depends_on:
       - agentic_gateway
-    ports:
-      - "127.0.0.1:5173:5173"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 128M
-
-volumes:
-  model_data:
-    name: simple_domain_models
-    driver: local
-  relic_data:
-    name: simple_domain_relic_data
-    driver: local
-  gateway_data:
-    name: simple_domain_gateway_data
-    driver: local
-  slots_data:
-    name: simple_domain_slots_data
-    driver: local
+    restart: unless-stopped

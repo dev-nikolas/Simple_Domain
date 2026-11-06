@@ -41,7 +41,7 @@ async function startServer() {
 
   try {
     await fs.mkdir(QUARANTINE_DIR, { recursive: true });
-  } catch {}
+  } catch { }
 
   // 2. Conectar al Servidor MCP de RELIC en Rust
   const mcpClient = new RelicMcpClient();
