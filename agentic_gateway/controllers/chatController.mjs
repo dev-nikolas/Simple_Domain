@@ -2,6 +2,7 @@
 // Principio de Responsabilidad Única (SRP): Inferencia en streaming SSE con RELIC Engine.
 
 import { initSSEStream, sendSSEDelta, sendSSEToolCall, sendSSEError, endSSEStream } from '../views/sseView.mjs';
+import { dispatchLocalAutonomousChat } from './localCognitiveDispatcher.mjs';
 
 export function handleChatCompletion({
   req,
@@ -59,20 +60,43 @@ export function handleChatCompletion({
         relicPayload.tools = toolsToSend;
       }
 
-      if (sessionId) {
+      if (sessionId && slotPersistence) {
         await slotPersistence.restoreIfEvicted(sessionId);
       }
 
-      const relicRes = await fetch(relicEngineUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(relicPayload),
-      });
+      let relicRes = null;
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600);
 
-      if (!relicRes.ok) {
-        const err = await relicRes.text();
-        sendSSEDelta(res, `\n[Error de inferencia en motor RELIC: ${err}]`);
-        endSSEStream(res);
+        relicRes = await fetch(relicEngineUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(relicPayload),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!relicRes.ok) {
+          relicRes = null;
+        }
+      } catch {
+        // Motor C-Engine inactivo o puerto 8080 no levantado
+        relicRes = null;
+      }
+
+      // Despacho autónomo local si el motor C no está activo
+      if (!relicRes) {
+        const lastUser = messages.filter((m) => m.role === 'user').pop();
+        const prompt = lastUser?.content || '';
+        await dispatchLocalAutonomousChat({
+          res,
+          prompt,
+          cartridge: clientPayload.cartridge || 'auto',
+          sessionId,
+          sessionStore,
+          relicMemoryStore,
+        });
         return;
       }
 
@@ -130,7 +154,7 @@ export function handleChatCompletion({
 
         const totalChars = messages.reduce((acc, m) => acc + (m.content?.length || 0), 0) + accumulatedTotal.length;
         const approxTokens = Math.round(totalChars / 4);
-        slotPersistence.scheduleSave(sessionId, approxTokens);
+        if (slotPersistence) slotPersistence.scheduleSave(sessionId, approxTokens);
       }
     } catch (err) {
       console.error('[ChatController] Error procesando completions:', err);

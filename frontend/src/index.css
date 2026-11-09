@@ -11,16 +11,16 @@
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #06070a;
-  color: #e2e4ed;
+  background-color: #050508;
+  color: #e5e7eb;
   overflow-x: hidden;
 }
 
-/* Patrón de rejilla diegética estilo Cyberpunk 2077 HUD */
+/* Patrón de rejilla diegética estilo Cyberpunk HUD en rojo y gris oscuro */
 .cyber-grid-bg {
   background-image: 
-    linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(252, 238, 10, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 31, 61, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -58,7 +58,8 @@ body {
   );
 }
 
-/* Pestaña inclinada amarilla estilo Cyberpunk 2077 HUD de la Imagen 1 */
+/* Pestaña inclinada roja estilo Cyberpunk HUD */
+.cut-tab-red,
 .cut-tab-yellow {
   clip-path: polygon(
     0 0,
@@ -68,7 +69,8 @@ body {
   );
 }
 
-/* Píldora de acción inclinada estilo Imagen 1 (DETAILS, MODS, PRICE) */
+/* Píldora de acción inclinada estilo RELIC HUD */
+.cut-pill-red,
 .cut-pill-cyan {
   clip-path: polygon(
     8px 0,
@@ -81,30 +83,30 @@ body {
 /* Scanline muy sutil para ambientación */
 .scanlines {
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(15, 15, 20, 0) 50%, 
+    rgba(0, 0, 0, 0.3) 50%
   ), linear-gradient(
     90deg,
-    rgba(255, 0, 0, 0.02),
-    rgba(0, 255, 0, 0.01),
-    rgba(0, 255, 0, 0.02)
+    rgba(255, 31, 61, 0.02),
+    rgba(0, 0, 0, 0.01),
+    rgba(255, 31, 61, 0.02)
   );
   background-size: 100% 3px, 6px 100%;
   pointer-events: none;
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars en negro y rojo */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090f;
+  background: #07070b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2233;
+  background: #232530;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: #ff1f3d;
 }

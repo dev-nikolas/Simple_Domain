@@ -4,7 +4,6 @@
  */
 
 import React, { useMemo } from 'react';
-import { Cpu } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ChatMessage } from '../types/conversations';
@@ -12,6 +11,7 @@ import { CodeBlock } from './CodeBlock';
 import { SandboxFeedbackCard } from './SandboxFeedbackCard';
 import { MessageHeader } from './MessageHeader';
 import { sanitizeStreamingMarkdown } from '../utils/markdownSanitizer';
+import { RelicLogo } from './RelicLogo';
 
 interface ChatMessageBubbleProps {
   message: ChatMessage;
@@ -37,7 +37,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
     return (
       <article
         aria-live={isGenerating ? 'polite' : 'off'}
-        className={`flex items-start space-x-3 font-mono text-xs transition-opacity duration-200 ${
+        className={`flex items-start space-x-2.5 sm:space-x-3 font-mono text-xs transition-opacity duration-200 ${
           isUser ? 'justify-end' : 'justify-start'
         }`}
       >
@@ -45,19 +45,19 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
           <div
             className={`w-8 h-8 rounded-lg bg-[#0e1017] border flex items-center justify-center shrink-0 transition-all ${
               isGenerating
-                ? 'border-cyber-yellow text-cyber-yellow shadow-lg shadow-cyber-yellow/20 animate-pulse'
-                : 'border-cyber-yellow/40 text-cyber-yellow'
+                ? 'border-cyber-red shadow-lg shadow-cyber-red/20 animate-pulse'
+                : 'border-cyber-red/50'
             }`}
           >
-            <Cpu className={`w-4 h-4 ${isThinking ? 'animate-spin' : isStreaming ? 'animate-pulse' : ''}`} />
+            <RelicLogo size={18} color="#ff1f3d" className={isThinking ? 'animate-spin' : isStreaming ? 'animate-pulse' : ''} />
           </div>
         )}
 
         <div
           className={`max-w-3xl w-full rounded-xl transition-all relative overflow-hidden ${
             isUser
-              ? 'bg-gradient-to-r from-cyan-950/30 to-[#0e131d] border border-cyan-500/50 text-white shadow-lg shadow-cyan-950/20 ml-8 p-4'
-              : 'bg-[#0b0c14]/90 border border-cyber-border text-cyber-text backdrop-blur-xl shadow-xl shadow-black/50 mr-8 p-4'
+              ? 'bg-[#141520] border border-cyber-red/40 text-white shadow-lg shadow-red-950/20 ml-6 sm:ml-8 p-3 sm:p-4'
+              : 'bg-[#0a0b10]/95 border border-[#232736] text-gray-200 backdrop-blur-xl shadow-xl shadow-black/60 mr-6 sm:mr-8 p-3 sm:p-4'
           }`}
         >
           <MessageHeader
@@ -70,10 +70,10 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
 
           <div className="leading-relaxed font-sans text-[13px] text-gray-200">
             {isThinking ? (
-              <div className="flex items-center space-x-2 py-2 text-cyber-muted text-xs font-mono">
-                <div className="w-2 h-2 rounded-full bg-cyber-yellow animate-ping" />
-                <span className="animate-pulse text-cyber-yellow">
-                  Consultando base de conocimiento y resolviendo con RELIC...
+              <div className="flex items-center space-x-2 py-2 text-gray-400 text-xs font-mono">
+                <div className="w-2 h-2 rounded-full bg-cyber-red animate-ping" />
+                <span className="animate-pulse text-cyber-red">
+                  Consultando base de conocimiento y procesando con RELIC...
                 </span>
               </div>
             ) : (
@@ -87,33 +87,33 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
                     return !inline && match ? (
                       <CodeBlock language={match[1]} codeString={codeString} props={props} />
                     ) : (
-                      <code className="bg-white/10 text-cyber-yellow px-1.5 py-0.5 rounded text-[11px] font-mono border border-white/10" {...props}>
+                      <code className="bg-white/10 text-red-300 px-1.5 py-0.5 rounded text-[11px] font-mono border border-white/10" {...props}>
                         {children}
                       </code>
                     );
                   },
                   a({ href, children, ...props }) {
                     return (
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline hover:text-cyan-300 font-medium break-all" {...props}>
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-red-400 underline hover:text-red-300 font-medium break-all" {...props}>
                         {children}
                       </a>
                     );
                   },
                   table({ children }) {
                     return (
-                      <div className="overflow-x-auto my-3 border border-cyber-border/60 rounded-lg">
-                        <table className="min-w-full divide-y divide-cyber-border/60 text-left text-xs font-mono">{children}</table>
+                      <div className="overflow-x-auto my-3 border border-[#232736] rounded-lg">
+                        <table className="min-w-full divide-y divide-[#232736] text-left text-xs font-mono">{children}</table>
                       </div>
                     );
                   },
                   th({ children }) {
-                    return <th className="bg-[#12131d] px-3 py-2 font-bold text-cyber-yellow uppercase tracking-wider text-[10px] border-b border-cyber-border">{children}</th>;
+                    return <th className="bg-[#12131d] px-3 py-2 font-bold text-cyber-red uppercase tracking-wider text-[10px] border-b border-[#232736]">{children}</th>;
                   },
                   td({ children }) {
-                    return <td className="px-3 py-2 border-b border-cyber-border/30 text-gray-300 text-[11px]">{children}</td>;
+                    return <td className="px-3 py-2 border-b border-[#232736]/40 text-gray-300 text-[11px]">{children}</td>;
                   },
                   blockquote({ children }) {
-                    return <blockquote className="border-l-2 border-cyber-yellow/70 pl-3 my-2 text-cyber-muted italic text-[12px] bg-cyber-yellow/5 py-1 rounded-r">{children}</blockquote>;
+                    return <blockquote className="border-l-2 border-cyber-red/70 pl-3 my-2 text-gray-400 italic text-[12px] bg-red-950/20 py-1 rounded-r">{children}</blockquote>;
                   },
                   p({ children }) {
                     return <p className="mb-2.5 last:mb-0">{children}</p>;

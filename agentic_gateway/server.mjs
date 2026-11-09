@@ -43,12 +43,14 @@ async function startServer() {
     await fs.mkdir(QUARANTINE_DIR, { recursive: true });
   } catch {}
 
-  // 2. Conectar al Microkernel MCP en Rust
+  // 2. Conectar al Microkernel MCP en Rust (si el binario fue compilado)
   const mcpClient = new RelicMcpClient();
+  let mcpActive = false;
   try {
     await mcpClient.start();
+    mcpActive = true;
   } catch (err) {
-    console.warn('[Agentic Gateway] Advertencia MCP Rust (usando ejecutores locales):', err.message);
+    console.log('[Agentic Gateway] MCP Rust no disponible:', err.message);
   }
 
   // 3. Catálogo unificado de herramientas (Rust MCP + Locales)
@@ -71,8 +73,12 @@ async function startServer() {
 
   server.listen(PORT, HOST, () => {
     console.log(`[Agentic Gateway] En línea en http://${HOST}:${PORT}`);
-    console.log(`[Agentic Gateway] MCP Rust activo con ${allTools.length} herramientas`);
-    console.log(`[Agentic Gateway] RELIC Engine en ${RELIC_ENGINE_URL}`);
+    if (mcpActive) {
+      console.log(`[Agentic Gateway] Microkernel MCP Rust conectado (${allTools.length} herramientas)`);
+    } else {
+      console.log(`[Agentic Gateway] Modo Soberano: ${LOCAL_TOOLS.length} herramientas locales JS activas`);
+    }
+    console.log(`[Agentic Gateway] Operación autónoma activa (con fallback local si ${RELIC_ENGINE_URL} no responde)`);
     console.log(`[Agentic Gateway] Sesiones: ${SESSIONS_FILE} | Memoria: ${MEMORY_FILE}`);
   });
 }

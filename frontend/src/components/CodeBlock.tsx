@@ -35,15 +35,14 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   const lineCount = codeString.split('\n').length;
 
   return (
-    <div className="my-3 rounded-lg overflow-hidden border border-cyber-border/70 bg-[#0d0e15] shadow-lg shadow-black/50 group relative">
-      {/* Barra superior de telemetría y lenguaje */}
-      <div className="flex items-center justify-between bg-[#12131d] px-3.5 py-1.5 text-[11px] font-mono border-b border-cyber-border/50 select-none">
+    <div className="my-3 rounded-lg overflow-hidden border border-[#232736] bg-[#090a0f] shadow-lg shadow-black/60 group relative font-mono">
+      <div className="flex items-center justify-between bg-[#0e1017] px-3.5 py-1.5 text-[11px] border-b border-[#232736]/60 select-none">
         <div className="flex items-center space-x-2">
-          <Terminal className="w-3.5 h-3.5 text-cyber-yellow" />
-          <span className="font-bold uppercase tracking-wider text-cyber-yellow px-1.5 py-0.2 bg-cyber-yellow/10 rounded border border-cyber-yellow/30 text-[10px]">
+          <Terminal className="w-3.5 h-3.5 text-cyber-red" />
+          <span className="font-bold uppercase tracking-wider text-cyber-red px-1.5 py-0.2 bg-cyber-red/10 rounded border border-cyber-red/30 text-[10px]">
             {cleanLang}
           </span>
-          <span className="text-cyber-muted text-[10px] hidden sm:inline">
+          <span className="text-gray-500 text-[10px] hidden sm:inline">
             // {lineCount} {lineCount === 1 ? 'línea' : 'líneas'}
           </span>
         </div>
@@ -51,12 +50,12 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
         <button
           onClick={handleCopy}
           aria-label={`Copiar código ${cleanLang}`}
-          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-white/5 hover:bg-cyber-yellow/15 text-cyber-muted hover:text-cyber-yellow border border-transparent hover:border-cyber-yellow/40 transition-all cursor-pointer font-sans text-xs"
+          className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-white/5 hover:bg-cyber-red/15 text-gray-400 hover:text-white border border-transparent hover:border-cyber-red/40 transition-all cursor-pointer font-sans text-xs"
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-semibold text-[11px]">COPIADO</span>
+              <Check className="w-3.5 h-3.5 text-cyber-red" />
+              <span className="text-cyber-red font-semibold text-[11px]">COPIADO</span>
             </>
           ) : (
             <>
@@ -67,8 +66,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
         </button>
       </div>
 
-      {/* Editor / Bloque de código con scroll horizontal suave */}
-      <div className="overflow-x-auto text-[12px] leading-relaxed font-mono">
+      <div className="overflow-x-auto text-[12px] leading-relaxed">
         <SyntaxHighlighter
           style={vscDarkPlus as any}
           language={cleanLang}
@@ -98,4 +96,3 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
 };
 
 export default CodeBlock;
-

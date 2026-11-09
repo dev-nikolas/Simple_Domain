@@ -1,23 +1,22 @@
 /**
- * Simple Domain — Sidebar / Offcanvas de Chats
- * Contiene únicamente lo esencial: gestión y selección de sesiones de chat, búsqueda, renombrado y nuevo chat.
+ * Simple Domain — Offcanvas Drawer de Sesiones (Cyberpunk HUD)
+ * Principio de Responsabilidad Única (SRP): Navegación e historial de chats con estilo RELIC.
  */
 
 import React, { useEffect } from 'react';
-import { PanelLeft, X, Cpu, Plus } from 'lucide-react';
-import { APP_NAME } from '../config/env';
+import { X, Plus, Database } from 'lucide-react';
 import { Conversation } from '../types/conversations';
 import { SidebarSessions } from './SidebarSessions';
+import { RelicLogo } from './RelicLogo';
 
 interface SidebarProps {
-  isMobileOpen: boolean;
-  onCloseMobile: () => void;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
+  isOpen: boolean;
+  onClose: () => void;
   conversations?: Conversation[];
   activeConversationId?: string | null;
   onSelectConversation?: (c: Conversation) => void;
   onNewConversation?: () => void;
+  onOpenEpisodicMemory?: () => void;
   onDeleteConversation?: (id: string, t: string) => void;
   onRenameConversation?: (id: string, newTitle: string) => void;
   searchQuery?: string;
@@ -25,139 +24,103 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  isMobileOpen,
-  onCloseMobile,
-  isCollapsed,
-  onToggleCollapse,
+  isOpen,
+  onClose,
   conversations = [],
   activeConversationId = null,
   onSelectConversation,
   onNewConversation,
+  onOpenEpisodicMemory,
   onDeleteConversation,
   onRenameConversation,
   searchQuery = '',
   onSearchChange,
 }) => {
   useEffect(() => {
-    if (!isMobileOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCloseMobile();
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [isMobileOpen, onCloseMobile]);
-
-  const renderContent = (isMobileDrawer = false) => {
-    const isCol = isCollapsed && !isMobileDrawer;
-    return (
-      <div className="h-full flex flex-col justify-between p-3 font-mono text-xs text-cyber-text">
-        <div className="flex-1 flex flex-col min-h-0">
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-cyber-border shrink-0">
-            {isCol ? (
-              <div className="flex flex-col items-center space-y-2 w-full">
-                <button
-                  onClick={onToggleCollapse}
-                  className="w-10 h-10 bg-cyber-card border border-cyber-yellow/40 hover:border-cyber-yellow flex items-center justify-center cut-corner-sm text-cyber-yellow transition-all group cursor-pointer"
-                  title="Expandir barra lateral"
-                  aria-label="Expandir barra lateral"
-                >
-                  <Cpu className="h-4 w-4 group-hover:hidden" />
-                  <PanelLeft className="h-4 w-4 hidden group-hover:block" />
-                </button>
-                <button
-                  onClick={() => onNewConversation?.()}
-                  className="w-10 h-10 bg-cyber-yellow/10 hover:bg-cyber-yellow/20 border border-cyber-yellow/60 hover:border-cyber-yellow text-cyber-yellow flex items-center justify-center cut-corner-sm transition-all cursor-pointer shadow-sm shadow-cyber-yellow/20"
-                  title="Nuevo Chat (+)"
-                  aria-label="Nuevo Chat"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center space-x-2.5 overflow-hidden">
-                  <div className="w-8 h-8 shrink-0 bg-cyber-card border border-cyber-yellow/40 flex items-center justify-center cut-corner-sm">
-                    <Cpu className="h-4 w-4 text-cyber-yellow" />
-                  </div>
-                  <span className="font-tech text-base tracking-wider text-white font-black truncate">
-                    {APP_NAME}
-                  </span>
-                </div>
-                <button
-                  onClick={isMobileDrawer ? onCloseMobile : onToggleCollapse}
-                  className="p-1.5 text-cyber-muted hover:text-cyber-yellow cursor-pointer"
-                  title={isMobileDrawer ? 'Cerrar' : 'Contraer'}
-                  aria-label={isMobileDrawer ? 'Cerrar barra lateral' : 'Contraer barra lateral'}
-                >
-                  {isMobileDrawer ? <X className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Botón de nuevo chat en modo expandido */}
-          {!isCol && (
-            <div className="mb-3 shrink-0">
-              <button
-                onClick={() => {
-                  onNewConversation?.();
-                  if (isMobileDrawer) onCloseMobile();
-                }}
-                className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 bg-cyber-yellow/10 hover:bg-cyber-yellow hover:text-black border border-cyber-yellow text-cyber-yellow cut-corner-sm font-bold transition-all cursor-pointer shadow-sm shadow-cyber-yellow/10"
-                title="Iniciar nuevo chat"
-              >
-                <Plus className="h-4 w-4" />
-                <span>NUEVO CHAT</span>
-              </button>
-            </div>
-          )}
-
-          {/* Lista de Chats / Sesiones */}
-          {!isCol && (
-            <div className="flex-1 min-h-0 flex flex-col">
-              <SidebarSessions
-                conversations={conversations}
-                activeId={activeConversationId}
-                onSelect={(c) => {
-                  onSelectConversation?.(c);
-                  if (isMobileDrawer) onCloseMobile();
-                }}
-                onNew={() => {
-                  onNewConversation?.();
-                  if (isMobileDrawer) onCloseMobile();
-                }}
-                onDelete={onDeleteConversation}
-                onRename={onRenameConversation}
-                searchQuery={searchQuery}
-                onSearchChange={onSearchChange}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+  }, [isOpen, onClose]);
 
   return (
     <>
-      {isMobileOpen && (
+      {isOpen && (
         <div
-          className="fixed inset-0 bg-black/75 z-40 md:hidden"
-          onClick={onCloseMobile}
+          className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm transition-opacity"
+          onClick={onClose}
+          aria-hidden="true"
         />
       )}
+
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-cyber-surface border-r border-cyber-yellow/40 md:hidden transform transition-transform duration-300 ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 sm:w-80 bg-[#08080d] border-r border-[#232736] shadow-2xl shadow-red-950/30 transform transition-transform duration-300 font-mono flex flex-col justify-between p-3 select-none ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {renderContent(true)}
-      </aside>
-      <aside
-        className={`hidden md:flex flex-col h-screen bg-cyber-surface/95 border-r border-cyber-border transition-all duration-300 shrink-0 relative z-30 ${
-          isCollapsed ? 'w-16' : 'w-64'
-        }`}
-      >
-        {renderContent(false)}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#232736] shrink-0">
+            <div className="flex items-center space-x-2.5 overflow-hidden">
+              <div className="p-1 bg-[#101117] border border-cyber-red/40 rounded flex items-center justify-center">
+                <RelicLogo size={20} color="#ff1f3d" />
+              </div>
+              <span className="font-tech text-base tracking-wider text-white font-black truncate">
+                RELIC SESSIONS
+              </span>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 text-gray-400 hover:text-cyber-red hover:bg-cyber-red/10 rounded transition-colors cursor-pointer"
+              title="Cerrar panel"
+              aria-label="Cerrar panel"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mb-3 space-y-2 shrink-0">
+            <button
+              onClick={() => {
+                onNewConversation?.();
+                onClose();
+              }}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-cyber-red hover:bg-cyber-red-bright text-white rounded font-bold transition-all cursor-pointer shadow-sm shadow-cyber-red/30 text-xs font-mono uppercase tracking-wider"
+              title="Iniciar nuevo chat"
+            >
+              <Plus className="h-4 w-4" />
+              <span>NUEVO CHAT</span>
+            </button>
+
+            {onOpenEpisodicMemory && (
+              <button
+                onClick={() => {
+                  onOpenEpisodicMemory();
+                  onClose();
+                }}
+                className="w-full flex items-center justify-center space-x-2 px-3 py-1.5 bg-[#101117] hover:bg-[#1a1b24] border border-[#2b2f42] hover:border-cyber-red text-gray-300 hover:text-white rounded font-bold transition-all cursor-pointer text-xs font-mono uppercase tracking-wider"
+                title="Memoria episódica y reglas aprendidas"
+              >
+                <Database className="h-3.5 w-3.5 text-cyber-red" />
+                <span>MEMORIA EPISÓDICA</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex-1 min-h-0 flex flex-col">
+            <SidebarSessions
+              conversations={conversations}
+              activeId={activeConversationId}
+              onSelect={(c) => {
+                onSelectConversation?.(c);
+                onClose();
+              }}
+              onDelete={onDeleteConversation}
+              onRename={onRenameConversation}
+              searchQuery={searchQuery}
+              onSearchChange={onSearchChange}
+            />
+          </div>
+        </div>
       </aside>
     </>
   );

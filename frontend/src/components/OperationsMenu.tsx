@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Upload, AlertTriangle, Loader2 } from 'lucide-react';
+import { Plus, Upload, AlertCircle, Loader2 } from 'lucide-react';
 
 interface OperationsMenuProps {
   onFileSelected?: (file: File) => void;
@@ -71,46 +71,46 @@ export const OperationsMenu: React.FC<OperationsMenuProps> = ({
           setIsOpen((prev) => !prev);
         }}
         disabled={isProcessing}
-        className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-cyber-card border border-cyber-border hover:border-cyber-yellow hover:bg-cyber-yellow/15 text-cyber-yellow cut-corner-sm transition-all focus:outline-none shadow-cyber-sm"
+        className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-[#101117] border border-[#232736] hover:border-cyber-red hover:bg-cyber-red/15 text-cyber-red rounded-lg transition-all focus:outline-none"
         title="Adjuntar archivo CSV o JSON al chat"
         aria-label="Adjuntar archivo CSV o JSON al chat"
       >
         {isProcessing ? (
-          <Loader2 className="w-4 h-4 animate-spin text-cyber-yellow" />
+          <Loader2 className="w-4 h-4 animate-spin text-cyber-red" />
         ) : (
-          <Plus className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-45 text-white' : 'text-cyber-yellow'}`} />
+          <Plus className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-45 text-white' : 'text-cyber-red'}`} />
         )}
       </button>
 
       {isOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-full left-0 mb-2 w-72 bg-cyber-card border border-cyber-yellow/60 cut-corner-sm shadow-cyber-yellow-lg p-2.5 space-y-2 z-50 backdrop-blur-md"
+          className="absolute bottom-full left-0 mb-2 w-72 bg-[#0a0a0f] border border-cyber-red/60 rounded-xl p-2.5 space-y-2 z-50 backdrop-blur-md shadow-2xl shadow-red-950/40"
         >
-          <div className="flex items-center justify-between border-b border-cyber-border pb-1.5 text-[10px] text-cyber-muted">
-            <span className="font-bold text-cyber-yellow tracking-wider uppercase">ADJUNTAR ARCHIVO</span>
+          <div className="flex items-center justify-between border-b border-[#232736] pb-1.5 text-[10px] text-gray-400">
+            <span className="font-bold text-cyber-red tracking-wider uppercase">ADJUNTAR ARCHIVO</span>
             <span>CSV / JSON</span>
           </div>
 
           {errorMsg && (
-            <div className="flex items-center space-x-1.5 p-2 bg-red-950/60 border border-red-500/50 text-red-300 text-[10px] cut-corner-sm">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center space-x-1.5 p-2 bg-red-950/60 border border-cyber-red/50 text-red-300 text-[10px] rounded">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{errorMsg}</span>
             </div>
           )}
 
           <label
             htmlFor="chat-file-upload-input"
-            className="w-full flex items-center space-x-2.5 p-2.5 bg-cyber-bg hover:bg-cyber-yellow/10 border border-cyber-border hover:border-cyber-yellow text-left transition-colors group cursor-pointer cut-corner-sm"
+            className="w-full flex items-center space-x-2.5 p-2.5 bg-[#101117] hover:bg-cyber-red/10 border border-[#232736] hover:border-cyber-red text-left transition-colors group cursor-pointer rounded-lg"
           >
-            <div className="p-1.5 bg-cyber-card border border-cyber-border group-hover:border-cyber-yellow text-cyber-yellow cut-corner-sm shrink-0">
+            <div className="p-1.5 bg-[#0a0a0f] border border-[#232736] group-hover:border-cyber-red text-cyber-red rounded shrink-0">
               {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-bold text-white group-hover:text-cyber-yellow truncate">
+              <div className="text-[11px] font-bold text-white group-hover:text-cyber-red truncate">
                 {isProcessing ? 'PROCESANDO ARCHIVO...' : 'SELECCIONAR ARCHIVO'}
               </div>
-              <div className="text-[9px] text-cyber-muted truncate">
+              <div className="text-[9px] text-gray-500 truncate">
                 Datos estructurados (máx. 4 MB)
               </div>
             </div>

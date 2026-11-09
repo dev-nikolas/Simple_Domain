@@ -51,10 +51,10 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
       onKeyDown={(e) => {
         if (!isEditing && (e.key === 'Enter' || e.key === ' ')) onSelect(c);
       }}
-      className={`w-full text-left p-2 transition-all cut-corner-sm border cursor-pointer group relative ${
+      className={`w-full text-left p-2 transition-all rounded border cursor-pointer group relative ${
         isActive
-          ? 'bg-cyber-yellow/15 border-cyber-yellow/70 text-white shadow-cyber-yellow-sm font-bold'
-          : 'bg-cyber-card/40 border-cyber-border/60 text-cyber-muted hover:text-white hover:border-cyber-border hover:bg-cyber-card'
+          ? 'bg-red-950/40 border-cyber-red/80 text-white font-bold'
+          : 'bg-[#101117]/60 border-[#232736]/70 text-gray-400 hover:text-white hover:border-[#35394f] hover:bg-[#141620]'
       }`}
     >
       {isEditing ? (
@@ -65,12 +65,12 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
             onChange={(e) => setEditingTitle(e.target.value)}
             autoFocus
             onKeyDown={(e) => e.key === 'Escape' && setIsEditing(false)}
-            className="flex-1 bg-cyber-bg border border-cyber-yellow px-1.5 py-0.5 text-xs text-white focus:outline-none"
+            className="flex-1 bg-[#050508] border border-cyber-red px-1.5 py-0.5 text-xs text-white focus:outline-none rounded"
           />
-          <button type="submit" className="p-1 text-emerald-400 hover:text-emerald-300" title="Guardar título">
+          <button type="submit" className="p-1 text-cyber-red hover:text-white" title="Guardar título">
             <Check className="w-3.5 h-3.5" />
           </button>
-          <button type="button" onClick={cancelEditing} className="p-1 text-rose-400 hover:text-rose-300" title="Cancelar">
+          <button type="button" onClick={cancelEditing} className="p-1 text-gray-400 hover:text-white" title="Cancelar">
             <X className="w-3.5 h-3.5" />
           </button>
         </form>
@@ -84,7 +84,7 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
               {onRename && (
                 <button
                   onClick={startEditing}
-                  className="p-1 text-cyber-muted hover:text-cyber-yellow rounded transition-all shrink-0 cursor-pointer"
+                  className="p-1 text-gray-400 hover:text-cyber-red rounded transition-all shrink-0 cursor-pointer"
                   title="Renombrar sesión"
                   aria-label={`Renombrar sesión ${c.title}`}
                 >
@@ -97,7 +97,7 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
                     e.stopPropagation();
                     onDelete(c.id, c.title);
                   }}
-                  className="p-1 text-cyber-muted hover:text-rose-400 rounded transition-all shrink-0 cursor-pointer"
+                  className="p-1 text-gray-400 hover:text-cyber-red rounded transition-all shrink-0 cursor-pointer"
                   title="Eliminar sesión"
                   aria-label={`Eliminar sesión ${c.title}`}
                 >
@@ -106,14 +106,15 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between text-[9px] text-cyber-muted/70 mt-1">
+
+          <div className="flex items-center justify-between mt-1 text-[9px] text-gray-500 font-mono">
             <span className="flex items-center space-x-1">
               <Clock className="w-2.5 h-2.5" />
-              <span>
-                {new Date(c.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
+              <span>{new Date(c.updated_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
             </span>
-            <span>{c.messages?.length || c.message_count || 0} msgs</span>
+            {c.message_count !== undefined && (
+              <span>{c.message_count} msg</span>
+            )}
           </div>
         </>
       )}
@@ -122,4 +123,3 @@ export const SidebarSessionItem: React.FC<SidebarSessionItemProps> = ({
 };
 
 export default SidebarSessionItem;
-

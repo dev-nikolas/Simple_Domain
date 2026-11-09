@@ -2,6 +2,7 @@
 // Capa Modelo: Entidad y persistencia de conversaciones y mensajes.
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 export class SessionModel {
   constructor(filePath, defaultSystemPrompt) {
@@ -27,7 +28,7 @@ export class SessionModel {
     }
 
     if (this.sessions.size === 0) {
-      const defaultId = Date.now().toString();
+      const defaultId = crypto.randomUUID();
       this.sessions.set(defaultId, {
         id: defaultId,
         title: 'Nueva Conversación',
@@ -48,9 +49,14 @@ export class SessionModel {
       try {
         await fs.mkdir(path.dirname(this.filePath), { recursive: true });
         const list = Array.from(this.sessions.values());
-        const tempPath = `${this.filePath}.${Date.now()}.tmp`;
+        const tempPath = `${this.filePath}.${crypto.randomUUID()}.tmp`;
         await fs.writeFile(tempPath, JSON.stringify(list, null, 2), 'utf-8');
-        await fs.rename(tempPath, this.filePath);
+        try {
+          await fs.rename(tempPath, this.filePath);
+        } catch {
+          await fs.copyFile(tempPath, this.filePath);
+          await fs.unlink(tempPath).catch(() => {});
+        }
       } catch (err) {
         console.error('[SessionModel] Error guardando sesiones:', err);
       }
@@ -88,7 +94,7 @@ export class SessionModel {
   }
 
   create(data = {}) {
-    const id = data.id || Date.now().toString();
+    const id = data.id || crypto.randomUUID();
     const title = data.title || 'Nueva Conversación';
     const messages = Array.isArray(data.messages) && data.messages.length > 0
       ? data.messages

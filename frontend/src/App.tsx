@@ -1,7 +1,6 @@
 /**
  * Simple Domain — App (Espacio Conversacional Esencial - Cyberpunk HUD System)
- * Interfaz enfocada en chats con persistencia en Gateway/localStorage,
- * sincronización de URL /c/:id, búsqueda, renombrado y streaming en tiempo real con RELIC Engine.
+ * Principio de Responsabilidad Única (SRP): Orquestador raíz de vistas, offcanvas y drawer.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -9,14 +8,12 @@ import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { useRouter } from './hooks/useRouter';
 import { HomeView } from './views/HomeView';
+import { EpisodicMemoryView } from './views/EpisodicMemoryView';
 import { Conversation } from './types/conversations';
 import { useChat } from './hooks/useChat';
-import { EpisodicMemoryDrawer } from './components/EpisodicMemoryDrawer';
 
 export const App: React.FC = () => {
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [isEpisodicDrawerOpen, setIsEpisodicDrawerOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const {
     sessions,
@@ -29,35 +26,30 @@ export const App: React.FC = () => {
     setSearchQuery,
     activeCartridge,
     setActiveCartridge,
-    securityLevel,
-    setSecurityLevel,
     sendMessage,
     regenerateLastMessage,
     stopGeneration,
     createNewSession,
     renameSession,
     deleteSession,
+    isGatewayOffline,
+    retryConnection,
   } = useChat();
 
-  const { conversationId, navigate } = useRouter();
+  const { currentRoute, conversationId, navigate } = useRouter();
 
-  // Sincronizar URL /c/:id con la sesión activa al cargar o navegar directamente
   useEffect(() => {
-    if (conversationId && conversationId !== activeSessionId) {
-      setActiveSessionId(conversationId);
+    if (conversationId) {
+      if (conversationId !== activeSessionId) {
+        setActiveSessionId(conversationId);
+      }
+    } else if (currentRoute === '/') {
+      if (activeSessionId !== null) {
+        setActiveSessionId(null);
+      }
     }
-  }, [conversationId, activeSessionId, setActiveSessionId]);
+  }, [conversationId, currentRoute, activeSessionId, setActiveSessionId]);
 
-  // Actualizar la barra de direcciones cuando cambia la sesión activa
-  useEffect(() => {
-    if (activeSessionId) {
-      navigate(`/c/${activeSessionId}`, true);
-    } else {
-      navigate('/', true);
-    }
-  }, [activeSessionId, navigate]);
-
-  // Convertir las sesiones de Gateway/localStorage a la interfaz visual Conversation
   const conversations: Conversation[] = sessions.map((s) => ({
     id: s.id,
     title: s.title,
@@ -85,79 +77,74 @@ export const App: React.FC = () => {
       }
     : null;
 
-  // Calcular índice de la sesión activa para el contador "08 / 18 SESS" estilo Cyberpunk 2077
-  const activeSessionIndex = Math.max(
-    sessions.findIndex((s) => s.id === activeSessionId) + 1,
-    1
-  );
-  const totalSessionsCount = Math.max(sessions.length, 1);
-
   const handleSelectConversation = (conv: Conversation) => {
     setActiveSessionId(conv.id);
     navigate(`/c/${conv.id}`);
-    setIsMobileSidebarOpen(false);
   };
 
   const handleNewConversation = () => {
-    createNewSession();
+    setActiveSessionId(null);
     navigate('/');
-    setIsMobileSidebarOpen(false);
+  };
+
+  const handleSendMessage = async (text: string) => {
+    if (!activeSessionId) {
+      const newSession = await createNewSession();
+      navigate(`/c/${newSession.id}`);
+      await sendMessage(text, newSession.id);
+    } else {
+      await sendMessage(text, activeSessionId);
+    }
   };
 
   const handleDeleteConversation = (convId: string, title: string) => {
     if (!window.confirm(`¿Eliminar la sesión "${title}"?`)) return;
     deleteSession(convId);
+    if (activeSessionId === convId) {
+      handleNewConversation();
+    }
   };
 
   return (
-    <div className="h-screen w-full bg-[#06070a] text-cyber-text flex overflow-hidden font-mono">
-      {/* Sidebar fijo a la izquierda */}
+    <div className="h-screen w-full bg-[#050508] text-gray-200 flex overflow-hidden font-mono relative">
       <Sidebar
-        isMobileOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         conversations={conversations}
         activeConversationId={activeSessionId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        onOpenEpisodicMemory={() => navigate('/memory-episodic')}
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={renameSession}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
 
-      {/* Contenido principal a la derecha */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <TopBar
-          onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
-          onNewConversation={handleNewConversation}
-          activeSessionIndex={activeSessionIndex}
-          totalSessions={totalSessionsCount}
+          onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          isGatewayOffline={isGatewayOffline}
+          onRetryConnection={retryConnection}
+          activeSessionTitle={activeSession?.title}
           activeCartridge={activeCartridge}
           onSelectCartridge={setActiveCartridge}
-          securityLevel={securityLevel}
-          onSelectSecurityLevel={setSecurityLevel}
-          onOpenEpisodicMemory={() => setIsEpisodicDrawerOpen(true)}
         />
 
-        <HomeView
-          activeConversation={activeConversation}
-          streamMessages={messages}
-          isGenerating={isGenerating}
-          onSendMessage={sendMessage}
-          onStopGeneration={stopGeneration}
-          onNewSession={handleNewConversation}
-          onRegenerate={regenerateLastMessage}
-          activeCartridge={activeCartridge}
-        />
+        {currentRoute === '/memory-episodic' ? (
+          <EpisodicMemoryView onBackToChat={() => navigate('/')} />
+        ) : (
+          <HomeView
+            activeConversation={activeConversation}
+            streamMessages={messages}
+            isGenerating={isGenerating}
+            onSendMessage={handleSendMessage}
+            onStopGeneration={stopGeneration}
+            onRegenerate={regenerateLastMessage}
+            isGatewayOffline={isGatewayOffline}
+          />
+        )}
       </div>
-
-      {/* Cajón de Memoria Episódica RELIC */}
-      <EpisodicMemoryDrawer
-        isOpen={isEpisodicDrawerOpen}
-        onClose={() => setIsEpisodicDrawerOpen(false)}
-      />
     </div>
   );
 };

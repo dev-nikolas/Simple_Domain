@@ -1,36 +1,34 @@
 /**
- * Simple Domain — Terminal de Entrada Inferior (Cyberpunk HUD Console)
- * Principio de Responsabilidad Única y Composición.
+ * Simple Domain — Terminal de Entrada Inferior (Cyberpunk HUD Console en Puntas)
+ * Principio de Responsabilidad Única (SRP): Entrada de usuario, auto-ajuste y despacho de instrucciones.
+ * Estilo Cyberpunk: Formas angulares (cut-corner-sm / cut-corner-xs), acentos carmesí y telemetría local.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { CornerDownLeft, Loader2, Shield, Zap } from 'lucide-react';
+import { CornerDownLeft, Loader2, Shield, Terminal } from 'lucide-react';
 import { OperationsMenu } from './OperationsMenu';
-import { CommandFeedback, CommandLog } from './CommandFeedback';
 
 interface CommandInputProps {
   onSubmitCommand?: (text: string) => void;
   onFileSelected?: (file: File) => void;
   isProcessing?: boolean;
+  isGatewayOffline?: boolean;
 }
 
 export const CommandInput: React.FC<CommandInputProps> = ({
   onSubmitCommand,
   onFileSelected,
   isProcessing = false,
+  isGatewayOffline = false,
 }) => {
   const [inputVal, setInputVal] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [history, setHistory] = useState<CommandLog[]>([]);
-  const [showLogModal, setShowLogModal] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adjustHeight = () => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    const nextHeight = Math.min(Math.max(el.scrollHeight, 44), 220);
-    el.style.height = `${nextHeight}px`;
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, 40), 180)}px`;
   };
 
   useEffect(() => {
@@ -40,7 +38,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const trimmed = inputVal.trim();
-    if (!trimmed || isSubmitting || isProcessing) return;
+    if (!trimmed || isProcessing) return;
 
     if (onSubmitCommand) {
       onSubmitCommand(trimmed);
@@ -49,29 +47,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
         textareaRef.current.style.height = 'auto';
         textareaRef.current.focus();
       }
-      return;
     }
-
-    setIsSubmitting(true);
-    const timeStr = new Date().toLocaleTimeString('es-ES', { hour12: false });
-    const newLog: CommandLog = {
-      id: Math.random().toString(36).substring(2, 9),
-      command: trimmed,
-      timestamp: timeStr,
-      status: 'INFO',
-      response: `Instrucción registrada en buffer local: "${trimmed}".`,
-    };
-
-    setTimeout(() => {
-      setHistory((prev) => [newLog, ...prev.slice(0, 4)]);
-      setInputVal('');
-      setIsSubmitting(false);
-      setShowLogModal(true);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-        textareaRef.current.focus();
-      }
-    }, 200);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -82,39 +58,28 @@ export const CommandInput: React.FC<CommandInputProps> = ({
     }
   };
 
-  const canSubmit = inputVal.trim().length > 0 && !isSubmitting && !isProcessing;
+  const canSubmit = inputVal.trim().length > 0 && !isProcessing;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 relative z-30 select-none">
-      {/* Guía de micro-telemetría superior */}
-      <div className="flex items-center justify-between text-[10px] text-cyber-muted tracking-wider mb-1 px-1">
-        <div className="flex items-center space-x-2">
-          <span className="text-cyan-400 font-bold flex items-center space-x-1">
-            <Zap className="w-2.5 h-2.5 text-cyber-yellow" />
-            <span>TERMINAL INPUT // RELIC-STREAM</span>
-          </span>
-          <span className="hidden sm:inline text-gray-500">[UTF-8 LOCAL MMAP]</span>
+    <div className="w-full max-w-3xl mx-auto px-3 sm:px-4 py-2 relative z-30 select-none font-mono">
+      {/* Micro-guía de telemetría superior */}
+      <div className="flex items-center justify-between text-[10px] text-gray-500 tracking-wider mb-1 px-1">
+        <div className="flex items-center space-x-1.5 truncate">
+          <Terminal className="w-2.5 h-2.5 text-cyber-red shrink-0" />
+          <span className="truncate text-gray-400">TERMINAL INPUT // RELIC-STREAM</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-emerald-400 font-semibold flex items-center space-x-1">
-            <Shield className="w-2.5 h-2.5" />
-            <span>SOBERANÍA LOCAL: 100%</span>
-          </span>
+        <div className="hidden xs:flex items-center space-x-1 text-gray-400 shrink-0">
+          <Shield className="w-2.5 h-2.5 text-cyber-red" />
+          <span>SOBERANÍA LOCAL: 100%</span>
         </div>
       </div>
 
-      {/* Modal emergente de feedback */}
-      {showLogModal && <CommandFeedback logs={history} onClose={() => setShowLogModal(false)} />}
-
-      {/* Formulario de entrada */}
+      {/* Contenedor angular en puntas estilo Cyberpunk (cut-corner-sm) */}
       <form
         onSubmit={handleSubmit}
-        className="group relative flex items-end bg-[#0a0b12]/95 border border-cyber-border focus-within:border-cyan-400 focus-within:shadow-lg focus-within:shadow-cyan-400/20 transition-all duration-200 p-2 rounded-xl backdrop-blur-xl"
+        className="group relative flex items-center bg-[#0a0a10]/95 border border-[#232736] focus-within:border-cyber-red focus-within:shadow-xl focus-within:shadow-red-950/40 transition-all duration-200 px-2 sm:px-3 py-1.5 sm:py-2 cut-corner-sm backdrop-blur-xl"
       >
-        <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-cyan-400 pointer-events-none group-focus-within:border-cyber-yellow transition-colors" />
-        <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-cyan-400 pointer-events-none group-focus-within:border-cyber-yellow transition-colors" />
-
-        <div className="shrink-0 pl-0.5 pr-1 pb-1">
+        <div className="shrink-0">
           <OperationsMenu onFileSelected={onFileSelected} isProcessing={isProcessing} />
         </div>
 
@@ -125,42 +90,31 @@ export const CommandInput: React.FC<CommandInputProps> = ({
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={isSubmitting}
           rows={1}
-          placeholder="Escribe una instrucción para RELIC (Enter para enviar, Shift+Enter para salto de línea)..."
-          aria-label="Introduce una instrucción para RELIC"
-          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-3 py-1.5 font-sans text-xs sm:text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none resize-none leading-relaxed select-text cursor-text max-h-[220px] overflow-y-auto"
+          placeholder={isGatewayOffline ? '[OFFLINE] Gateway desconectado (:3000)...' : 'Escribe una instrucción para RELIC...'}
+          className="flex-1 min-w-0 bg-transparent px-2.5 sm:px-3 py-1 font-sans text-xs sm:text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none resize-none leading-relaxed select-text cursor-text max-h-[180px] overflow-y-auto"
         />
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          aria-label={isProcessing ? 'Generando...' : isSubmitting ? 'Enviando...' : 'Enviar instrucción (Enter)'}
-          className={`flex items-center space-x-1.5 px-3 sm:px-4 py-2 font-tech font-bold text-xs uppercase tracking-wider transition-all rounded-lg shrink-0 mb-0.5 ${
-            canSubmit
-              ? 'bg-cyber-yellow text-black hover:bg-white hover:shadow-lg hover:shadow-cyber-yellow/40 cursor-pointer'
-              : isProcessing
-              ? 'bg-[#151724] text-cyber-yellow border border-cyber-yellow/40 cursor-wait'
-              : 'bg-[#10121c] text-gray-600 border border-cyber-border cursor-not-allowed opacity-60'
-          }`}
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-cyber-yellow" />
-              <span className="hidden xs:inline">PROCESANDO</span>
-            </>
-          ) : isSubmitting ? (
-            <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span className="hidden xs:inline">ENVIANDO...</span>
-            </>
-          ) : (
-            <>
-              <span className="hidden xs:inline">DISPATCH</span>
-              <CornerDownLeft className="h-3.5 w-3.5" />
-            </>
-          )}
-        </button>
+        <div className="shrink-0 flex items-center pl-2">
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            aria-label="Enviar instrucción"
+            className={`w-8 h-8 cut-corner-xs flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+              canSubmit
+                ? 'bg-cyber-red text-white hover:bg-cyber-red-bright hover:shadow-md hover:shadow-cyber-red/30'
+                : isProcessing
+                ? 'bg-[#181926] text-cyber-red cursor-wait'
+                : 'bg-white/5 text-gray-600 cursor-not-allowed opacity-50'
+            }`}
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin text-cyber-red" />
+            ) : (
+              <CornerDownLeft className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

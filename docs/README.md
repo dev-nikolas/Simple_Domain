@@ -29,7 +29,7 @@ graph TD
     end
 
     subgraph Engine["Motor Nativo C / C++ (:8080)"]
-        RelicInference["RELIC-project (relic.exe / relic_dolphin.relic)"]
+        RelicInference["RELIC-project (relic.exe / relic_core.relic)"]
         SlotCache["KV Cache / Slot Persistence en Disco"]
         EpisodicMemory["episodic_log.relic"]
     end

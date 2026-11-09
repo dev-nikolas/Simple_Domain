@@ -104,3 +104,41 @@ test('Router - ruta desconocida responde 404', async () => {
   const err = JSON.parse(res.body);
   assert.ok(err.error.toLowerCase().includes('no encontrado'));
 });
+
+test('Router - POST /v1/chat/completions opera autónomamente si motor C está inactivo', async () => {
+  const { router, sessionStore } = setupRouter();
+  const session = sessionStore.create({ title: 'Nueva Sesión' });
+
+  const payload = JSON.stringify({
+    session_id: session.id,
+    messages: [{ role: 'user', content: 'auditar puertos powershell' }],
+  });
+
+  const req = {
+    method: 'POST',
+    url: '/v1/chat/completions',
+    headers: { 'content-type': 'application/json' },
+    on(event, cb) {
+      if (event === 'data') cb(payload);
+      if (event === 'end') cb();
+    }
+  };
+
+  const chunks = [];
+  const res = {
+    statusCode: 200,
+    headers: {},
+    setHeader(k, v) { this.headers[k.toLowerCase()] = v; },
+    writeHead(code, hdrs) { this.statusCode = code; },
+    write(chunk) { chunks.push(chunk); },
+    end() {}
+  };
+
+  await router(req, res);
+  await new Promise(r => setTimeout(r, 1800));
+
+  const totalOutput = chunks.join('');
+  assert.ok(totalOutput.includes('data: '));
+  assert.ok(totalOutput.includes('[DONE]'));
+  assert.ok(totalOutput.includes('RELIC'));
+});

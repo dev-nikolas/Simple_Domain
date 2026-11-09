@@ -12,7 +12,7 @@ services:
       - ../RELIC-project/resultados:/app/resultados
     environment:
       - PORT=8080
-      - MODEL_PATH=/app/resultados/relic_dolphin.relic
+      - MODEL_PATH=/app/resultados/relic_core.relic
       - TOKENIZER_PATH=/app/resultados/tokenizer.bin
     restart: unless-stopped
 

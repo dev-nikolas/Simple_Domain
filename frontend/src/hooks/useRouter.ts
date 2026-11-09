@@ -5,28 +5,15 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-export type AppRoute = '/' | `/c/${string}` | string;
-
-const NAV_EVENT = 'simple-domain:navigate';
-
 export function useRouter() {
   const getNormalizedPath = (): string => {
     const p = window.location.pathname;
-    const search = window.location.search;
-    const params = new URLSearchParams(search);
-
-    if (params.get('c')) {
-      return `/c/${params.get('c')}`;
-    }
-
-    if (p.startsWith('/c/')) {
-      return p;
-    }
-
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('c')) return `/c/${params.get('c')}`;
+    if (p.startsWith('/c/')) return p;
+    if (p.startsWith('/memory-episodic')) return '/memory-episodic';
     return '/';
   };
-
-  const [currentRoute, setCurrentRoute] = useState<string>(getNormalizedPath);
 
   const extractConversationId = (route: string): string | null => {
     if (route.startsWith('/c/')) {
@@ -35,6 +22,7 @@ export function useRouter() {
     return null;
   };
 
+  const [currentRoute, setCurrentRoute] = useState<string>(getNormalizedPath);
   const [conversationId, setConversationId] = useState<string | null>(() =>
     extractConversationId(getNormalizedPath())
   );
@@ -46,16 +34,12 @@ export function useRouter() {
       setConversationId(extractConversationId(path));
     };
     window.addEventListener('popstate', onPopState);
-    window.addEventListener(NAV_EVENT, onPopState);
-    return () => {
-      window.removeEventListener('popstate', onPopState);
-      window.removeEventListener(NAV_EVENT, onPopState);
-    };
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   const navigate = useCallback((route: string, replace = false) => {
-    const currentFull = window.location.pathname;
-    if (currentFull !== route) {
+    if (window.location.pathname === route) return;
+    try {
       if (replace) {
         window.history.replaceState({}, '', route);
       } else {
@@ -63,11 +47,10 @@ export function useRouter() {
       }
       setCurrentRoute(route);
       setConversationId(extractConversationId(route));
-      window.dispatchEvent(new Event(NAV_EVENT));
+    } catch {
+      // Evitar cuelgues si el navegador limita pushState
     }
   }, []);
 
   return { currentRoute, conversationId, navigate };
 }
-
-export default useRouter;

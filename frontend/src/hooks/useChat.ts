@@ -27,7 +27,7 @@ export function useChat() {
   });
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, overrideSessionId?: string) => {
       const trimmed = content.trim();
       if (!trimmed || isGenerating) return;
 
@@ -40,7 +40,7 @@ export function useChat() {
 
       const fullMessages = [...base, newUserMessage];
       sessionManager.updateActiveSessionMessages([...fullMessages, { role: 'assistant', content: '' }]);
-      await startStream(fullMessages);
+      await startStream(fullMessages, overrideSessionId);
     },
     [sessionManager.activeMessages, sessionManager.updateActiveSessionMessages, isGenerating, startStream]
   );

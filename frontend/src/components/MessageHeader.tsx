@@ -35,37 +35,37 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between text-[10px] text-cyber-muted border-b border-cyber-border/40 pb-2 mb-2 select-none">
+    <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-[#232736]/60 pb-2 mb-2 select-none">
       <div className="flex items-center space-x-2">
         {isUser ? (
           <>
-            <User className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-bold text-cyan-300 uppercase tracking-wider">
+            <User className="w-3.5 h-3.5 text-cyber-red" />
+            <span className="font-bold text-gray-300 uppercase tracking-wider">
               OPERADOR // USUARIO
             </span>
           </>
         ) : (
           <div className="flex items-center space-x-2">
-            <span className="px-2 py-0.5 bg-cyber-yellow text-black font-tech font-bold uppercase tracking-wider text-[11px] cut-corner-xs shadow-sm shadow-cyber-yellow/20">
+            <span className="px-2 py-0.5 bg-cyber-red text-white font-tech font-bold uppercase tracking-wider text-[11px] cut-corner-xs shadow-sm shadow-cyber-red/20">
               RELIC // COGNITIVE CORE
             </span>
-            <span className="text-[10px] text-cyber-muted hidden sm:inline">
-              ENGINE C // LOCAL
+            <span className="text-[10px] text-gray-500 hidden sm:inline">
+              SOBERANO // LOCAL
             </span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center space-x-2 text-cyber-muted">
+      <div className="flex items-center space-x-2 text-gray-400">
         <button
           onClick={handleCopy}
-          className="flex items-center space-x-1 p-1 hover:text-cyber-yellow transition-colors cursor-pointer rounded"
+          className="flex items-center space-x-1 p-1 hover:text-cyber-red transition-colors cursor-pointer rounded"
           title="Copiar texto completo"
         >
           {copied ? (
             <>
-              <Check className="w-3 h-3 text-emerald-400" />
-              <span className="text-[10px] text-emerald-400 font-bold">COPIADO</span>
+              <Check className="w-3 h-3 text-cyber-red" />
+              <span className="text-[10px] text-cyber-red font-bold">COPIADO</span>
             </>
           ) : (
             <>
@@ -78,7 +78,7 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
         {isLastAssistantMessage && !isGenerating && onRegenerate && (
           <button
             onClick={onRegenerate}
-            className="flex items-center space-x-1 p-1 hover:text-cyan-400 transition-colors cursor-pointer rounded"
+            className="flex items-center space-x-1 p-1 hover:text-cyber-red transition-colors cursor-pointer rounded"
             title="Regenerar respuesta con RELIC"
           >
             <RotateCcw className="w-3 h-3" />
@@ -91,4 +91,3 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
 };
 
 export default MessageHeader;
-

@@ -7,7 +7,6 @@ import { useState, useRef, useCallback } from 'react';
 import { streamChatCompletion } from '../services/relicStreamService';
 import { Message } from '../types/relic';
 import { saveActiveSessionMessages } from '../services/sessionStorage';
-import { sessionsApi } from '../services/sessionsApi';
 
 interface UseChatStreamOptions {
   activeSessionId: string | null;
@@ -27,7 +26,8 @@ export function useChatStream({
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const startStream = useCallback(
-    async (messagesForRelic: Message[]) => {
+    async (messagesForRelic: Message[], overrideSessionId?: string) => {
+      const targetSessionId = overrideSessionId || activeSessionId;
       setIsGenerating(true);
       setChatError(null);
       abortControllerRef.current = new AbortController();
@@ -36,7 +36,7 @@ export function useChatStream({
       try {
         await streamChatCompletion({
           messages: messagesForRelic,
-          sessionId: activeSessionId || undefined,
+          sessionId: targetSessionId || undefined,
           cartridge: activeCartridge,
           securityLevel,
           signal: abortControllerRef.current.signal,
@@ -55,13 +55,8 @@ export function useChatStream({
         ];
         updateMessages(finalMessages);
 
-        if (activeSessionId) {
-          saveActiveSessionMessages(activeSessionId, finalMessages);
-          try {
-            await sessionsApi.syncMessages(activeSessionId, finalMessages);
-          } catch {
-            // Silencioso
-          }
+        if (targetSessionId) {
+          saveActiveSessionMessages(targetSessionId, finalMessages);
         }
       } catch (error: any) {
         if (error.name !== 'AbortError') {
@@ -74,7 +69,7 @@ export function useChatStream({
               role: 'assistant',
               content: accumulated
                 ? accumulated + `\n\n*(Error en streaming: ${error.message})*`
-                : `⚠️ Error del motor RELIC: ${error.message}`,
+                : `[!] Error del motor RELIC: ${error.message}`,
             },
           ];
           updateMessages(fallbackMessages);

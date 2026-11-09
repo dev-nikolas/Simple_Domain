@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import readline from 'node:readline';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,6 +25,11 @@ export class RelicMcpClient {
 
   async start() {
     return new Promise((resolve, reject) => {
+      if (!fs.existsSync(this.binaryPath)) {
+        this.isInitialized = false;
+        return reject(new Error(`Binario no encontrado en "${this.binaryPath}". Se usarán las herramientas locales en JS.`));
+      }
+
       try {
         this.process = spawn(this.binaryPath, [], {
           stdio: ['pipe', 'pipe', 'inherit'],
@@ -31,12 +37,12 @@ export class RelicMcpClient {
         });
 
         this.process.on('error', (err) => {
-          console.error('[RelicMcpClient] Error en proceso child:', err);
+          this.isInitialized = false;
           reject(err);
         });
 
         this.process.on('exit', (code, signal) => {
-          console.log(`[RelicMcpClient] Proceso finalizado con código ${code}, señal ${signal}`);
+          this.isInitialized = false;
         });
 
         this.rl = readline.createInterface({

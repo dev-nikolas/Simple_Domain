@@ -96,7 +96,7 @@ def run_relic_engine() -> None:
 
     # Buscar modelo .relic en resultados/
     model_dir = RELIC_PROJECT_ROOT / "resultados"
-    model_file = model_dir / "relic_dolphin.relic"
+    model_file = model_dir / "relic_core.relic"
     cmd = [str(engine_exe), "--port", "8080"]
     if model_file.exists():
         cmd.extend(["--model", str(model_file)])
