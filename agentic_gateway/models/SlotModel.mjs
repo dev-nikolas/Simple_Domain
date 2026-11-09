@@ -1,10 +1,11 @@
-// Simple Domain — Gestor de Persistencia de KV Slots en Disco (--slot-save-path)
+// Simple Domain — Slot Model
+// Capa Modelo: Entidad y persistencia en disco de snapshots KV de sesiones.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-export class SlotPersistenceManager {
-  constructor({ llamaBaseUrl, cacheDir, maxBytes, tokenThreshold }) {
-    this.llamaBaseUrl = llamaBaseUrl.replace(/\/+$/, '');
+export class SlotModel {
+  constructor({ relicEngineBaseUrl, cacheDir, maxBytes, tokenThreshold }) {
+    this.relicEngineBaseUrl = (relicEngineBaseUrl || 'http://127.0.0.1:8080').replace(/\/+$/, '');
     this.cacheDir = cacheDir;
     this.maxBytes = maxBytes;
     this.tokenThreshold = tokenThreshold;
@@ -38,43 +39,41 @@ export class SlotPersistenceManager {
   async deleteSnapshot(sessionId) {
     try {
       await fs.unlink(this.getSnapshotPath(sessionId));
-      console.log(`[SlotPersistence] Snapshot eliminado para sesión ${sessionId}`);
     } catch {}
   }
 
   async enforceMaxCacheSize() {
     try {
       const files = await fs.readdir(this.cacheDir);
-      const fileStats = [];
-      let totalBytes = 0;
+      let total = 0;
+      const stats = [];
 
-      for (const file of files) {
-        if (!file.endsWith('.bin')) continue;
-        const filePath = path.join(this.cacheDir, file);
-        const st = await fs.stat(filePath);
-        totalBytes += st.size;
-        fileStats.push({ filePath, size: st.size, mtime: st.mtimeMs });
+      for (const f of files) {
+        if (!f.endsWith('.bin')) continue;
+        const p = path.join(this.cacheDir, f);
+        try {
+          const s = await fs.stat(p);
+          stats.push({ path: p, size: s.size, mtime: s.mtimeMs });
+          total += s.size;
+        } catch {}
       }
 
-      if (totalBytes > this.maxBytes) {
-        fileStats.sort((a, b) => a.mtime - b.mtime);
-        while (totalBytes > this.maxBytes && fileStats.length > 0) {
-          const oldest = fileStats.shift();
-          try {
-            await fs.unlink(oldest.filePath);
-            totalBytes -= oldest.size;
-            console.log(`[SlotPersistence] Limpieza LRU: eliminado snapshot ${path.basename(oldest.filePath)}`);
-          } catch {}
-        }
+      if (total <= this.maxBytes) return;
+
+      stats.sort((a, b) => a.mtime - b.mtime);
+      for (const item of stats) {
+        if (total <= this.maxBytes) break;
+        try {
+          await fs.unlink(item.path);
+          total -= item.size;
+        } catch {}
       }
-    } catch (err) {
-      console.warn('[SlotPersistence] Error ejecutando enforceMaxCacheSize:', err.message);
-    }
+    } catch {}
   }
 
   async getSlots() {
     try {
-      const res = await fetch(`${this.llamaBaseUrl}/slots`);
+      const res = await fetch(`${this.relicEngineBaseUrl}/slots`);
       if (!res.ok) return [];
       return await res.json();
     } catch {
@@ -93,24 +92,17 @@ export class SlotPersistenceManager {
       if (!idleSlot) return false;
 
       const filename = this.getSnapshotFilename(sessionId);
-      const restoreUrl = `${this.llamaBaseUrl}/slots/${idleSlot.id}?action=restore`;
+      const restoreUrl = `${this.relicEngineBaseUrl}/slots/${idleSlot.id}?action=restore`;
       const res = await fetch(restoreUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename }),
       });
 
-      if (res.ok) {
-        console.log(`[SlotPersistence] Slot ${idleSlot.id} restaurado exitosamente desde disco para sesión ${sessionId}`);
-        return true;
-      } else {
-        const errText = await res.text();
-        console.warn(`[SlotPersistence] llama-server rechazó restore en slot ${idleSlot.id} (${res.status}): ${errText}`);
-      }
-    } catch (err) {
-      console.warn(`[SlotPersistence] Fallo restaurando slot para sesión ${sessionId} (fallback automático a recálculo):`, err.message);
+      return res.ok;
+    } catch {
+      return false;
     }
-    return false;
   }
 
   scheduleSave(sessionId, approxTokens) {
@@ -124,9 +116,7 @@ export class SlotPersistenceManager {
       this.saveDebounceTimers.delete(sessionId);
       try {
         const slots = await this.getSlots();
-        const anyBusy = slots.some((s) => s.is_processing);
-        if (anyBusy) {
-          // Reintentar en 3 segundos si otro slot está generando
+        if (slots.some((s) => s.is_processing)) {
           this.scheduleSave(sessionId, approxTokens);
           return;
         }
@@ -135,23 +125,20 @@ export class SlotPersistenceManager {
         if (!targetSlot) return;
 
         const filename = this.getSnapshotFilename(sessionId);
-        const saveUrl = `${this.llamaBaseUrl}/slots/${targetSlot.id}?action=save`;
+        const saveUrl = `${this.relicEngineBaseUrl}/slots/${targetSlot.id}?action=save`;
         const res = await fetch(saveUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ filename }),
         });
 
-        if (res.ok) {
-          console.log(`[SlotPersistence] Guardado snapshot en disco para sesión ${sessionId} (~${approxTokens} tok)`);
-          await this.enforceMaxCacheSize();
-        }
-      } catch (err) {
-        console.warn(`[SlotPersistence] Error guardando slot para sesión ${sessionId}:`, err.message);
-      }
+        if (res.ok) await this.enforceMaxCacheSize();
+      } catch {}
     }, 4000);
 
     this.saveDebounceTimers.set(sessionId, timer);
   }
 }
+
+export const SlotPersistenceManager = SlotModel;
 

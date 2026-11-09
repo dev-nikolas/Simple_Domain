@@ -1,26 +1,16 @@
-// src/services/llmClient.ts
+/**
+ * Simple Domain — Servicio de Streaming de Inferencia RELIC Engine
+ * Responsabilidad Única (SRP): Manejo de peticiones SSE y decodificación de tokens.
+ */
 
 import { API_BASE_URL } from '../config/env';
-
-export type Role = 'system' | 'user' | 'assistant' | 'tool';
-
-export interface Message {
-  role: Role;
-  content: string;
-}
-
-export interface ChatOptions {
-  messages: Message[];
-  sessionId?: string;
-  onUpdate: (token: string) => void;
-  signal?: AbortSignal;
-  maxTokens?: number;
-  temperature?: number;
-}
+import { ChatOptions } from '../types/relic';
 
 export async function streamChatCompletion({
   messages,
   sessionId,
+  cartridge,
+  securityLevel = 2,
   onUpdate,
   signal,
   maxTokens = 2048,
@@ -33,6 +23,8 @@ export async function streamChatCompletion({
     body: JSON.stringify({
       messages,
       session_id: sessionId,
+      cartridge,
+      security_level: securityLevel,
       stream: true,
       temperature,
       max_tokens: maxTokens,
@@ -48,11 +40,11 @@ export async function streamChatCompletion({
     } catch {
       // Ignorar fallback
     }
-    throw new Error(`Error en API Gateway: ${errorDetail}`);
+    throw new Error(`[RELIC Gateway Error] ${errorDetail}`);
   }
 
   if (!response.body) {
-    throw new Error('El cuerpo de la respuesta HTTP es nulo.');
+    throw new Error('El canal de streaming del motor RELIC no devolvió datos.');
   }
 
   const reader = response.body.getReader();
@@ -64,10 +56,7 @@ export async function streamChatCompletion({
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Decodificar bytes recibidos
       buffer += decoder.decode(value, { stream: true });
-
-      // Dividir por líneas según la especificación SSE
       const lines = buffer.split('\n');
       buffer = lines.pop() || '';
 
@@ -95,7 +84,6 @@ export async function streamChatCompletion({
             if (e.message && !e.message.includes('JSON')) {
               throw e;
             }
-            // Ignorar paquetes JSON incompletos en tránsito
           }
         }
       }
@@ -104,3 +92,4 @@ export async function streamChatCompletion({
     reader.releaseLock();
   }
 }
+

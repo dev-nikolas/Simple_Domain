@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 Simple Domain — Runner Multi-Plataforma Unificado (Windows / Linux / macOS)
-Inicia y monitoriza los 4 servicios concurrentemente mostrando un dashboard de 4 paneles en terminal:
-  1. Motor LLM (llama-server :8081)
-  2. Microkernel RELIC Server (Rust :5000)
-  3. Agentic Gateway & MCP (Node.js :4000)
-  4. Frontend UI (React/Vite :5173)
+Inicia y monitoriza los 4 servicios concurrentemente con un dashboard estático
+de 4 paneles que se actualiza en el mismo lugar de la pantalla (usando Rich Live).
 
-No requiere dependencias externas; funciona con la biblioteca estándar de Python.
+Servicios:
+  1. Motor de Inferencia RELIC Engine (:8080)
+  2. Microkernel RELIC MCP en Rust (:5000)
+  3. Agentic Gateway & MCP (:3000)
+  4. Frontend UI Cyberpunk HUD (:5173)
 """
 
 import io
@@ -18,48 +19,45 @@ import subprocess
 import sys
 import threading
 import time
-import urllib.error
-import urllib.request
 from collections import deque
 from pathlib import Path
 from typing import Any
 
-# Habilitar UTF-8 y colores ANSI en Windows
-if sys.platform == "win32":
-    os.system("")
-    try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    except (AttributeError, io.UnsupportedOperation):
-        pass
+from rich.console import Console
+from rich.layout import Layout
+from rich.live import Live
+from rich.panel import Panel
+from rich.text import Text
 
-# Raíz del proyecto (donde reside este script)
+# Raíz del proyecto
 PROJECT_ROOT = Path(__file__).resolve().parent
+RELIC_PROJECT_ROOT = PROJECT_ROOT.parent / "RELIC-project"
 
 # Configuración de los 4 servicios
 SERVICES: list[dict[str, Any]] = [
     {
-        "id": "llm",
-        "name": "1. Motor LLM (Dolphin 3B)",
-        "port": 8081,
-        "color": "\033[96m",  # Cyan
+        "id": "relic_engine",
+        "name": "1. Motor RELIC Engine (C Nativo)",
+        "port": 8080,
+        "style": "cyan",
     },
     {
-        "id": "relic",
-        "name": "2. Microkernel RELIC (Rust)",
+        "id": "relic_mcp",
+        "name": "2. Microkernel RELIC MCP (Rust)",
         "port": 5000,
-        "color": "\033[92m",  # Verde
+        "style": "green",
     },
     {
         "id": "gateway",
         "name": "3. Agentic Gateway & MCP",
-        "port": 4000,
-        "color": "\033[93m",  # Amarillo
+        "port": 3000,
+        "style": "yellow",
     },
     {
         "id": "frontend",
-        "name": "4. Frontend Web UI (React)",
+        "name": "4. Frontend Web UI (Cyberpunk HUD)",
         "port": 5173,
-        "color": "\033[95m",  # Magenta
+        "style": "magenta",
     },
 ]
 
@@ -79,109 +77,64 @@ def log_line(service_id: str, line: str) -> None:
         LOG_BUFFERS[service_id].append(clean)
 
 
-def check_and_download_model() -> bool:
-    model_dir = PROJECT_ROOT / "llm_server"
-    model_path = model_dir / "dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf"
-    if model_path.exists() and model_path.stat().st_size > 1024 * 1024:
-        return True
+def run_relic_engine() -> None:
+    service_id = "relic_engine"
+    exe_name = "relic.exe" if os.name == "nt" else "relic"
+    engine_exe = RELIC_PROJECT_ROOT / exe_name
 
-    log_line("llm", "[INIT] Modelo Dolphin 3B no encontrado en disco.")
-    log_line("llm", "[INIT] Descargando desde Hugging Face (~2.02 GB)...")
-    url = (
-        "https://huggingface.co/bartowski/Dolphin3.0-Llama3.2-3B-GGUF"
-        "/resolve/main/Dolphin3.0-Llama3.2-3B-Q4_K_M.gguf"
-    )
+    if not engine_exe.exists():
+        # Intentar relic_cli.exe como alternativa
+        alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
+        if alt_exe.exists():
+            engine_exe = alt_exe
 
-    try:
-
-        def reporthook(block_num: int, block_size: int, total_size: int) -> None:
-            if total_size > 0 and block_num % 1000 == 0:
-                downloaded = block_num * block_size
-                pct = min(100.0, (downloaded / total_size) * 100.0)
-                mb = downloaded / (1024 * 1024)
-                total_mb = total_size / (1024 * 1024)
-                log_line("llm", f"Descargando: {pct:.1f}% ({mb:.1f}/{total_mb:.1f} MB)")
-
-        urllib.request.urlretrieve(url, str(model_path), reporthook=reporthook)
-        log_line("llm", "[OK] Modelo descargado exitosamente.")
-        return True
-    except (urllib.error.URLError, OSError) as err:
-        log_line("llm", f"[ERROR] No se pudo descargar el modelo: {err}")
-        return False
-
-
-def run_llm() -> None:
-    service_id = "llm"
-    model_path = PROJECT_ROOT / "llm_server" / "dolphin-2.9.4-llama3.2-3b-q4_k_m.gguf"
-
-    if not model_path.exists():
-        check_and_download_model()
-
-    exe_candidates = [
-        PROJECT_ROOT
-        / "llm_server"
-        / ("llama-server.exe" if os.name == "nt" else "llama-server"),
-        shutil.which("llama-server"),
-        shutil.which("llama-server.exe"),
-    ]
-    llama_exe = next(
-        (str(p) for p in exe_candidates if p and os.path.exists(str(p))), None
-    )
-
-    if not llama_exe:
-        STATUS[service_id] = "Omitido (sin llama-server local)"
-        log_line(
-            service_id, "[INFO] llama-server no encontrado en PATH ni en llm_server/."
-        )
-        log_line(
-            service_id, "[INFO] Si ejecutas con Docker, el motor corre automáticamente."
-        )
+    if not engine_exe.exists():
+        STATUS[service_id] = "Compilación requerida"
+        log_line(service_id, f"[INFO] Binario {exe_name} no encontrado en {RELIC_PROJECT_ROOT}.")
+        log_line(service_id, "[INFO] Compila RELIC-project con build.ps1 / Makefile o usa Docker Compose.")
         return
 
-    cmd = [
-        llama_exe,
-        "-m",
-        str(model_path),
-        "-c",
-        "2048",
-        "-t",
-        "2",
-        "-ngl",
-        "0",
-        "--host",
-        "127.0.0.1",
-        "--port",
-        "8081",
-        "--flash-attn",
-        "off",
-    ]
-    spawn_and_stream(service_id, cmd, cwd=PROJECT_ROOT / "llm_server")
+    # Buscar modelo .relic en resultados/
+    model_dir = RELIC_PROJECT_ROOT / "resultados"
+    model_file = model_dir / "relic_dolphin.relic"
+    cmd = [str(engine_exe), "--port", "8080"]
+    if model_file.exists():
+        cmd.extend(["--model", str(model_file)])
+
+    log_line(service_id, f"[START] Iniciando RELIC Engine en puerto 8080...")
+    spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
 
 
-def run_relic() -> None:
-    service_id = "relic"
+def run_relic_mcp() -> None:
+    service_id = "relic_mcp"
     cargo = shutil.which("cargo")
     if not cargo:
         STATUS[service_id] = "Error (Cargo no encontrado)"
         log_line(service_id, "[ERROR] Rust/Cargo no está instalado en el sistema.")
         return
 
+    mcp_dir = PROJECT_ROOT / "relic_mcp"
+    if not mcp_dir.exists():
+        STATUS[service_id] = "Omitido"
+        log_line(service_id, f"[INFO] Directorio {mcp_dir} no encontrado.")
+        return
+
     cmd = [cargo, "run", "--release", "-p", "relic_server"]
-    spawn_and_stream(service_id, cmd, cwd=PROJECT_ROOT / "relic")
+    spawn_and_stream(service_id, cmd, cwd=mcp_dir)
 
 
 def run_gateway() -> None:
     service_id = "gateway"
     node = shutil.which("node")
     npm = shutil.which("npm") or shutil.which("npm.cmd")
-    gateway_dir = PROJECT_ROOT / "llm_server" / "agentic_gateway"
+    gateway_dir = PROJECT_ROOT / "agentic_gateway"
 
     if not node:
         STATUS[service_id] = "Error (Node no encontrado)"
         log_line(service_id, "[ERROR] Node.js no está instalado en el sistema.")
         return
 
-    # Verificar si faltan dependencias node_modules
+    # Verificar dependencias
     if not (gateway_dir / "node_modules").exists() and npm:
         STATUS[service_id] = "npm install..."
         log_line(service_id, "[SETUP] Instalando dependencias del Gateway...")
@@ -191,9 +144,8 @@ def run_gateway() -> None:
             log_line(service_id, f"[WARN] npm install fallo: {err}")
 
     env = os.environ.copy()
-    env["PORT"] = "4000"
-    env["LLAMA_URL"] = "http://127.0.0.1:8081/v1/chat/completions"
-    env["RELIC_SERVER_URL"] = "http://127.0.0.1:5000"
+    env["PORT"] = "3000"
+    env["RELIC_SERVER_URL"] = "http://127.0.0.1:8080"
 
     cmd = [node, "server.mjs"]
     spawn_and_stream(service_id, cmd, cwd=gateway_dir, env=env)
@@ -209,7 +161,7 @@ def run_frontend() -> None:
         log_line(service_id, "[ERROR] npm no está disponible en el sistema.")
         return
 
-    # Verificar si faltan dependencias node_modules
+    # Verificar dependencias
     if not (frontend_dir / "node_modules").exists():
         STATUS[service_id] = "npm install..."
         log_line(
@@ -230,118 +182,121 @@ def spawn_and_stream(
     cwd: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> None:
-    STATUS[service_id] = "Ejecutando"
-    log_line(service_id, f"[START] {' '.join(str(c) for c in cmd)}")
+    STATUS[service_id] = "Activo"
     try:
         proc = subprocess.Popen(
             cmd,
-            cwd=str(cwd) if cwd else None,
-            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            cwd=str(cwd) if cwd else None,
+            env=env,
             text=True,
             bufsize=1,
-            universal_newlines=True,
             encoding="utf-8",
             errors="replace",
         )
         PROCESSES.append(proc)
-        if proc.stdout:
-            for line in iter(proc.stdout.readline, ""):
-                if STOP_EVENT.is_set():
-                    break
-                log_line(service_id, line)
-            proc.stdout.close()
-        proc.wait()
-        STATUS[service_id] = f"Finalizado ({proc.returncode})"
-    except OSError as err:
-        STATUS[service_id] = "Error"
-        log_line(service_id, f"[EXCEPCION] {err}")
+    except Exception as err:
+        STATUS[service_id] = "Fallo"
+        log_line(service_id, f"[ERROR] No se pudo iniciar el proceso: {err}")
+        return
+
+    def reader_thread() -> None:
+        try:
+            if proc.stdout:
+                for line in proc.stdout:
+                    if STOP_EVENT.is_set():
+                        break
+                    log_line(service_id, line)
+        except Exception as err:
+            log_line(service_id, f"[WARN] Fin del flujo de logs: {err}")
+        finally:
+            ret = proc.wait()
+            if not STOP_EVENT.is_set():
+                STATUS[service_id] = f"Finalizado ({ret})"
+                log_line(service_id, f"[INFO] Proceso detenido con código {ret}")
+
+    t = threading.Thread(
+        target=reader_thread, daemon=True, name=f"LogReader-{service_id}"
+    )
+    t.start()
+
+
+def make_service_panel(service: dict[str, Any], height: int) -> Panel:
+    service_id = service["id"]
+    with LOCK:
+        logs = list(LOG_BUFFERS[service_id])[-height:]
+
+    content = Text("\n".join(logs) if logs else "Esperando logs...")
+    title = f"[{service['style']} bold]{service['name']} [{STATUS[service_id]}][/{service['style']} bold]"
+    return Panel(
+        content,
+        title=title,
+        border_style=service["style"],
+        expand=True,
+    )
+
+
+def make_layout() -> Layout:
+    layout = Layout(name="root")
+    layout.split_column(
+        Layout(name="header", size=3),
+        Layout(name="body", ratio=1),
+        Layout(name="footer", size=3),
+    )
+    layout["body"].split_column(
+        Layout(name="top_row", ratio=1),
+        Layout(name="bottom_row", ratio=1),
+    )
+    layout["top_row"].split_row(
+        Layout(name="relic_engine", ratio=1),
+        Layout(name="relic_mcp", ratio=1),
+    )
+    layout["bottom_row"].split_row(
+        Layout(name="gateway", ratio=1),
+        Layout(name="frontend", ratio=1),
+    )
+    return layout
+
+
+def update_layout(layout: Layout, term_height: int) -> None:
+    header_text = Text(
+        "SIMPLE DOMAIN — ECOSISTEMA AGÉNTICO RELIC (LOCAL)",
+        style="bold cyan",
+        justify="center",
+    )
+    layout["header"].update(Panel(header_text, border_style="cyan", padding=(0, 1)))
+
+    panel_height = max(3, (term_height - 12) // 2)
+
+    for s in SERVICES:
+        layout[s["id"]].update(make_service_panel(s, panel_height))
+
+    footer_text = Text(
+        "Frontend: :5173  |  Gateway: :3000  |  RELIC MCP: :5000  |  RELIC Engine: :8080    (Ctrl+C para salir)",
+        style="dim white",
+        justify="center",
+    )
+    layout["footer"].update(
+        Panel(footer_text, border_style="dim white", padding=(0, 1))
+    )
 
 
 def render_dashboard() -> None:
-    clear_screen = "\033[2J\033[H"
-    reset_color = "\033[0m"
-    bold = "\033[1m"
-    dim = "\033[2m"
+    console = Console()
+    layout = make_layout()
 
-    while not STOP_EVENT.is_set():
-        cols, rows = shutil.get_terminal_size(fallback=(100, 30))
-        cols = max(cols, 60)
-        rows = max(rows, 16)
-
-        half_w = max(28, (cols - 3) // 2)
-        total_w = half_w * 2 + 3
-
-        # Altura de líneas de logs por panel
-        panel_h = max(3, (rows - 6) // 2)
-
-        out: list[str] = [clear_screen]
-
-        # Encabezado principal
-        title = " SIMPLE DOMAIN - 4 SERVICIOS CONCURRENTES "
-        bar = "=" * max(0, (total_w - len(title)) // 2)
-        out.append(f"{bold}\033[94m{bar}{title}{bar}{reset_color}\n")
-
-        def pad_box(text: str, w: int) -> str:
-            clean = text[: w - 1] if len(text) > w else text
-            return clean + (" " * (w - len(clean)))
-
-        # Paneles superiores: LLM y RELIC | Paneles inferiores: Gateway y Frontend
-        pairs = [
-            (SERVICES[0], SERVICES[1]),
-            (SERVICES[2], SERVICES[3]),
-        ]
-
-        for s1, s2 in pairs:
-            title1 = f"|-- {s1['name']} [{STATUS[s1['id']]}] "
-            title2 = f"|-- {s2['name']} [{STATUS[s2['id']]}] "
-
-            border1 = title1 + ("-" * max(0, half_w - len(title1))) + "+"
-            border2 = title2 + ("-" * max(0, half_w - len(title2))) + "+"
-            out.append(
-                f"{s1['color']}{bold}{border1}{reset_color} | "
-                f"{s2['color']}{bold}{border2}{reset_color}\n"
-            )
-
-            with LOCK:
-                logs1 = list(LOG_BUFFERS[s1["id"]])[-panel_h:]
-                logs2 = list(LOG_BUFFERS[s2["id"]])[-panel_h:]
-
-            logs1 = [""] * (panel_h - len(logs1)) + logs1
-            logs2 = [""] * (panel_h - len(logs2)) + logs2
-
-            for l1, l2 in zip(logs1, logs2):
-                col1 = pad_box(l1, half_w - 2)
-                col2 = pad_box(l2, half_w - 2)
-                out.append(
-                    f"{s1['color']}|{reset_color} {col1} {s1['color']}|{reset_color} | "
-                    f"{s2['color']}|{reset_color} {col2} {s2['color']}|{reset_color}\n"
-                )
-
-            bot1 = "+" + ("-" * (half_w - 2)) + "+"
-            bot2 = "+" + ("-" * (half_w - 2)) + "+"
-            out.append(
-                f"{s1['color']}{bot1}{reset_color} | {s2['color']}{bot2}{reset_color}\n"
-            )
-
-        out.append(
-            f"{dim}URLs: UI: http://localhost:5173 | Gateway: :4000 | "
-            f"RELIC: :5000 | LLM: :8081  (Ctrl+C para salir){reset_color}\n"
-        )
-
-        try:
-            sys.stdout.write("".join(out))
-            sys.stdout.flush()
-        except OSError:
-            pass
-
-        time.sleep(0.5)
+    with Live(layout, console=console, screen=True, auto_refresh=False) as live:
+        while not STOP_EVENT.is_set():
+            term_height = console.size.height
+            update_layout(layout, term_height)
+            live.refresh()
+            time.sleep(0.25)
 
 
 def cleanup(sig: int | None = None, frame: Any = None) -> None:
     STOP_EVENT.set()
-    sys.stdout.write("\n\033[0mDeteniendo los 4 servicios de Simple Domain...\n")
+    sys.stdout.write("\nDeteniendo los servicios de Simple Domain...\n")
     sys.stdout.flush()
     for proc in PROCESSES:
         try:
@@ -359,7 +314,7 @@ def cleanup(sig: int | None = None, frame: Any = None) -> None:
                 proc.kill()
         except OSError:
             pass
-    sys.stdout.write("[OK] Servicios finalizados.\n")
+    sys.stdout.write("[OK] Todos los servicios han sido finalizados.\n")
     sys.exit(0)
 
 
@@ -368,24 +323,15 @@ def main() -> None:
     signal.signal(signal.SIGTERM, cleanup)
 
     workers = [
-        threading.Thread(target=run_llm, daemon=True, name="Worker-LLM"),
-        threading.Thread(target=run_relic, daemon=True, name="Worker-RELIC"),
+        threading.Thread(target=run_relic_engine, daemon=True, name="Worker-RELIC-Engine"),
+        threading.Thread(target=run_relic_mcp, daemon=True, name="Worker-RELIC-MCP"),
         threading.Thread(target=run_gateway, daemon=True, name="Worker-Gateway"),
         threading.Thread(target=run_frontend, daemon=True, name="Worker-Frontend"),
     ]
     for w in workers:
         w.start()
 
-    render_thread = threading.Thread(
-        target=render_dashboard, daemon=True, name="Dashboard"
-    )
-    render_thread.start()
-
-    try:
-        while not STOP_EVENT.is_set():
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        cleanup()
+    render_dashboard()
 
 
 if __name__ == "__main__":

@@ -8,22 +8,24 @@ export default {
     extend: {
       colors: {
         cyber: {
-          bg: '#070709',
-          surface: '#0f1015',
-          card: '#14161f',
-          panel: '#1b1d28',
-          border: '#2a2d3d',
+          bg: '#06070a',
+          surface: '#0d0e16',
+          card: '#12141f',
+          panel: '#181a28',
+          border: '#242738',
           yellow: '#fcee0a',
-          'yellow-dim': '#cfc408',
+          'yellow-dim': '#d6cb09',
           'yellow-glow': 'rgba(252, 238, 10, 0.25)',
           cyan: '#00f0ff',
-          'cyan-dim': '#00a3ad',
+          'cyan-dim': '#00b8c4',
+          'cyan-glow': 'rgba(0, 240, 255, 0.25)',
           red: '#ff003c',
           text: '#e6e8f0',
           muted: '#808599',
         }
       },
       fontFamily: {
+        sans: ['"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
         tech: ['"Rajdhani"', '"Orbitron"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
@@ -31,6 +33,7 @@ export default {
         'cyber-yellow': '0 0 15px rgba(252, 238, 10, 0.35)',
         'cyber-yellow-sm': '0 0 8px rgba(252, 238, 10, 0.25)',
         'cyber-cyan': '0 0 15px rgba(0, 240, 255, 0.35)',
+        'cyber-cyan-sm': '0 0 8px rgba(0, 240, 255, 0.25)',
         'cyber-panel': 'inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.7)',
       },
       animation: {

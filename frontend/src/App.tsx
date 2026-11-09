@@ -1,7 +1,7 @@
 /**
- * Simple Domain — App (Espacio Conversacional Esencial)
+ * Simple Domain — App (Espacio Conversacional Esencial - Cyberpunk HUD System)
  * Interfaz enfocada en chats con persistencia en Gateway/localStorage,
- * sincronización de URL /c/:id, búsqueda, renombrado y streaming en tiempo real.
+ * sincronización de URL /c/:id, búsqueda, renombrado y streaming en tiempo real con RELIC Engine.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,10 +11,12 @@ import { useRouter } from './hooks/useRouter';
 import { HomeView } from './views/HomeView';
 import { Conversation } from './types/conversations';
 import { useChat } from './hooks/useChat';
+import { EpisodicMemoryDrawer } from './components/EpisodicMemoryDrawer';
 
 export const App: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isEpisodicDrawerOpen, setIsEpisodicDrawerOpen] = useState<boolean>(false);
 
   const {
     sessions,
@@ -25,6 +27,10 @@ export const App: React.FC = () => {
     isGenerating,
     searchQuery,
     setSearchQuery,
+    activeCartridge,
+    setActiveCartridge,
+    securityLevel,
+    setSecurityLevel,
     sendMessage,
     regenerateLastMessage,
     stopGeneration,
@@ -51,7 +57,7 @@ export const App: React.FC = () => {
     }
   }, [activeSessionId, navigate]);
 
-  // Convertimos las sesiones de Gateway/localStorage a la interfaz visual Conversation
+  // Convertir las sesiones de Gateway/localStorage a la interfaz visual Conversation
   const conversations: Conversation[] = sessions.map((s) => ({
     id: s.id,
     title: s.title,
@@ -79,6 +85,13 @@ export const App: React.FC = () => {
       }
     : null;
 
+  // Calcular índice de la sesión activa para el contador "08 / 18 SESS" estilo Cyberpunk 2077
+  const activeSessionIndex = Math.max(
+    sessions.findIndex((s) => s.id === activeSessionId) + 1,
+    1
+  );
+  const totalSessionsCount = Math.max(sessions.length, 1);
+
   const handleSelectConversation = (conv: Conversation) => {
     setActiveSessionId(conv.id);
     navigate(`/c/${conv.id}`);
@@ -97,7 +110,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-cyber-bg text-cyber-text flex overflow-hidden font-mono">
+    <div className="h-screen w-full bg-[#06070a] text-cyber-text flex overflow-hidden font-mono">
       {/* Sidebar fijo a la izquierda */}
       <Sidebar
         isMobileOpen={isMobileSidebarOpen}
@@ -119,6 +132,13 @@ export const App: React.FC = () => {
         <TopBar
           onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
           onNewConversation={handleNewConversation}
+          activeSessionIndex={activeSessionIndex}
+          totalSessions={totalSessionsCount}
+          activeCartridge={activeCartridge}
+          onSelectCartridge={setActiveCartridge}
+          securityLevel={securityLevel}
+          onSelectSecurityLevel={setSecurityLevel}
+          onOpenEpisodicMemory={() => setIsEpisodicDrawerOpen(true)}
         />
 
         <HomeView
@@ -129,8 +149,15 @@ export const App: React.FC = () => {
           onStopGeneration={stopGeneration}
           onNewSession={handleNewConversation}
           onRegenerate={regenerateLastMessage}
+          activeCartridge={activeCartridge}
         />
       </div>
+
+      {/* Cajón de Memoria Episódica RELIC */}
+      <EpisodicMemoryDrawer
+        isOpen={isEpisodicDrawerOpen}
+        onClose={() => setIsEpisodicDrawerOpen(false)}
+      />
     </div>
   );
 };

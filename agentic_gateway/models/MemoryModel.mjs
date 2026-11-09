@@ -1,8 +1,9 @@
-// Simple Domain — Almacén Persistente de Memoria Episódica RELIC (relic_memory.json)
+// Simple Domain — Memory Model
+// Capa Modelo: Entidad y persistencia de memoria episódica de RELIC.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-export class RelicMemoryStore {
+export class MemoryModel {
   constructor(filePath) {
     this.filePath = filePath;
     this.memories = [];
@@ -13,33 +14,27 @@ export class RelicMemoryStore {
       await fs.mkdir(path.dirname(this.filePath), { recursive: true });
       const raw = await fs.readFile(this.filePath, 'utf-8');
       const list = JSON.parse(raw);
-      if (Array.isArray(list)) {
-        this.memories = list;
-      }
-      console.log(`[RelicMemoryStore] ${this.memories.length} conclusiones cargadas desde ${this.filePath}`);
+      if (Array.isArray(list)) this.memories = list;
     } catch {
       this.memories = [];
-      console.log(`[RelicMemoryStore] Inicializando nuevo almacén en ${this.filePath}`);
     }
   }
 
   async add(topic, conclusion) {
-    const safeTopic = (topic || 'General').trim();
-    const safeConclusion = (conclusion || '').trim();
     const entry = {
       id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       timestamp: new Date().toISOString(),
-      topic: safeTopic,
-      conclusion: safeConclusion,
+      topic: (topic || 'General').trim(),
+      conclusion: (conclusion || '').trim(),
     };
     this.memories.push(entry);
     try {
+      await fs.mkdir(path.dirname(this.filePath), { recursive: true });
       const tempPath = `${this.filePath}.${Date.now()}.tmp`;
       await fs.writeFile(tempPath, JSON.stringify(this.memories, null, 2), 'utf-8');
       await fs.rename(tempPath, this.filePath);
-      console.log(`[RelicMemoryStore] Conclusión persistida: [${entry.topic}]`);
     } catch (err) {
-      console.error('[RelicMemoryStore] Error escribiendo memoria:', err.message);
+      console.error('[MemoryModel] Error escribiendo memoria:', err.message);
     }
     return entry;
   }
@@ -68,3 +63,4 @@ export class RelicMemoryStore {
   }
 }
 
+export const RelicMemoryStore = MemoryModel;

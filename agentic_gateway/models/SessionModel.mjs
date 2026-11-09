@@ -1,8 +1,9 @@
-// Simple Domain — Almacén Persistente de Sesiones (JSON Atómico con Flush Debounced)
+// Simple Domain — Session Model
+// Capa Modelo: Entidad y persistencia de conversaciones y mensajes.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-export class SessionStore {
+export class SessionModel {
   constructor(filePath, defaultSystemPrompt) {
     this.filePath = filePath;
     this.defaultSystemPrompt = defaultSystemPrompt;
@@ -18,14 +19,11 @@ export class SessionStore {
       const list = JSON.parse(raw);
       if (Array.isArray(list)) {
         for (const s of list) {
-          if (s && s.id) {
-            this.sessions.set(s.id, s);
-          }
+          if (s?.id) this.sessions.set(s.id, s);
         }
       }
-      console.log(`[SessionStore] ${this.sessions.size} sesiones cargadas desde ${this.filePath}`);
     } catch {
-      console.log(`[SessionStore] Inicializando nuevo almacén en ${this.filePath}`);
+      // Almacén vacío
     }
 
     if (this.sessions.size === 0) {
@@ -48,14 +46,22 @@ export class SessionStore {
       if (!this.isDirty) return;
       this.isDirty = false;
       try {
+        await fs.mkdir(path.dirname(this.filePath), { recursive: true });
         const list = Array.from(this.sessions.values());
         const tempPath = `${this.filePath}.${Date.now()}.tmp`;
         await fs.writeFile(tempPath, JSON.stringify(list, null, 2), 'utf-8');
         await fs.rename(tempPath, this.filePath);
       } catch (err) {
-        console.error('[SessionStore] Error guardando sesiones en disco:', err);
+        console.error('[SessionModel] Error guardando sesiones:', err);
       }
     }, 400);
+  }
+
+  close() {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
   }
 
   list() {
@@ -88,12 +94,7 @@ export class SessionStore {
       ? data.messages
       : [{ role: 'system', content: this.defaultSystemPrompt }];
 
-    const session = {
-      id,
-      title,
-      messages,
-      updatedAt: Date.now(),
-    };
+    const session = { id, title, messages, updatedAt: Date.now() };
     this.sessions.set(id, session);
     this.scheduleSave();
     return session;
@@ -120,10 +121,7 @@ export class SessionStore {
   }
 
   addMessage(id, message) {
-    let s = this.sessions.get(id);
-    if (!s) {
-      s = this.create({ id });
-    }
+    let s = this.sessions.get(id) || this.create({ id });
     if (!s.messages) s.messages = [];
     s.messages.push(message);
     s.updatedAt = Date.now();
@@ -140,10 +138,7 @@ export class SessionStore {
 
   syncSessionMessages(id, messages) {
     let s = this.sessions.get(id);
-    if (!s) {
-      s = this.create({ id, messages });
-      return s;
-    }
+    if (!s) return this.create({ id, messages });
     s.messages = messages;
     s.updatedAt = Date.now();
     if (s.title === 'Nueva Conversación') {
@@ -158,3 +153,4 @@ export class SessionStore {
   }
 }
 
+export const SessionStore = SessionModel;

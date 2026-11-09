@@ -5,7 +5,8 @@
   "description": "Agentic Gateway for RELIC AI and RELIC MCP",
   "main": "server.mjs",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs"
   }
 }
 

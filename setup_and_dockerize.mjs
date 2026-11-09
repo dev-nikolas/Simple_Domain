@@ -40,7 +40,7 @@ async function main() {
     console.log('  * Frontend Web:       http://localhost:5173');
     console.log('  * Agentic Gateway:    http://localhost:4000');
     console.log('  * Microkernel RELIC:  http://localhost:5000');
-    console.log('  * Motor LLM (8081):   http://localhost:8081');
+    console.log('  * Motor RELIC AI (8080): http://localhost:8080');
     console.log('============================================================\n');
   } catch (err) {
     console.error(`\n[ERROR DOCKER] ${err.message}`);

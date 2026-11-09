@@ -4,7 +4,7 @@
  */
 
 import { API_BASE_URL } from '../config/env';
-import { Message } from './llmClient';
+import { Message } from './relicClient';
 
 export interface ChatSessionSummary {
   id: string;
