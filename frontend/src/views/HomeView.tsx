@@ -42,7 +42,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const hasMessages = displayMessages.length > 0;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-[#050508] relative font-mono select-none">
+    <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-[#050508] relative font-mono">
       {/* Fondo ambiental sutil en rojo oscuro y rejilla */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-25 z-0">
         <div

@@ -66,7 +66,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
         </button>
       </div>
 
-      <div className="overflow-x-auto text-[12px] leading-relaxed">
+      <div className="overflow-x-auto text-[12px] leading-relaxed select-text cursor-text">
         <SyntaxHighlighter
           style={vscDarkPlus as any}
           language={cleanLang}

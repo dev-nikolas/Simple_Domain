@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Brain } from 'lucide-react';
 import { ChatMessage } from '../types/conversations';
 import { CodeBlock } from './CodeBlock';
 import { SandboxFeedbackCard } from './SandboxFeedbackCard';
@@ -24,12 +25,27 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
   ({ message, isGenerating = false, isLastAssistantMessage = false, onRegenerate }) => {
     const isUser = message.role === 'user';
     const hasContent = Boolean(message.content && message.content.trim() !== '');
-    const isThinking = isGenerating && !hasContent;
-    const isStreaming = isGenerating && hasContent;
+
+    const { thinkingContent, responseContent, isOnlyThinking } = useMemo(() => {
+      const raw = message.content || '';
+      const closeIdx = raw.indexOf('</think>');
+      if (closeIdx !== -1) {
+        const thinking = raw.slice(0, closeIdx).replace(/^<think>\s*/i, '').trim();
+        const resp = raw.slice(closeIdx + 8).trim();
+        return { thinkingContent: thinking, responseContent: resp, isOnlyThinking: false };
+      }
+      if (raw.startsWith('<think>')) {
+        return { thinkingContent: raw.slice(7).trim(), responseContent: '', isOnlyThinking: true };
+      }
+      return { thinkingContent: null, responseContent: raw, isOnlyThinking: false };
+    }, [message.content]);
+
+    const isThinking = isGenerating && !hasContent && !thinkingContent;
+    const isStreaming = isGenerating && (hasContent || Boolean(thinkingContent));
 
     const sanitizedContent = useMemo(
-      () => sanitizeStreamingMarkdown(message.content, isStreaming),
-      [message.content, isStreaming]
+      () => sanitizeStreamingMarkdown(responseContent, isStreaming),
+      [responseContent, isStreaming]
     );
 
     const hasSandboxVerification = !isUser && message.content.includes('[VERIFICADO EN SANDBOX]');
@@ -62,13 +78,37 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
         >
           <MessageHeader
             isUser={isUser}
-            content={message.content}
+            content={responseContent || message.content}
             isLastAssistantMessage={isLastAssistantMessage}
             isGenerating={isGenerating}
             onRegenerate={onRegenerate}
           />
 
-          <div className="leading-relaxed font-sans text-[13px] text-gray-200">
+          <div className="leading-relaxed font-sans text-[13px] text-gray-200 select-text cursor-text">
+            {thinkingContent && (
+              <details
+                className="mb-3 border border-red-950/60 bg-[#0c0d14] rounded-lg text-xs font-mono group"
+                open={isOnlyThinking}
+              >
+                <summary className="px-3 py-1.5 cursor-pointer text-gray-400 hover:text-gray-200 flex items-center justify-between select-none">
+                  <span className="flex items-center space-x-1.5 text-cyber-red/80 font-semibold text-[11px]">
+                    <Brain className="w-3.5 h-3.5 text-cyber-red" />
+                    <span>
+                      {isOnlyThinking && isGenerating
+                        ? 'RAZONANDO // PROCESO COGNITIVO...'
+                        : 'PROCESO COGNITIVO // RAZONAMIENTO'}
+                    </span>
+                  </span>
+                  <span className="text-[10px] text-gray-500 group-open:rotate-180 transition-transform">
+                    ▼
+                  </span>
+                </summary>
+                <div className="p-3 border-t border-[#232736]/60 text-gray-400 text-[12px] leading-relaxed italic bg-black/30 select-text cursor-text whitespace-pre-wrap">
+                  {thinkingContent}
+                </div>
+              </details>
+            )}
+
             {isThinking ? (
               <div className="flex items-center space-x-2 py-2 text-gray-400 text-xs font-mono">
                 <div className="w-2 h-2 rounded-full bg-cyber-red animate-ping" />
@@ -76,7 +116,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
                   Consultando base de conocimiento y procesando con RELIC...
                 </span>
               </div>
-            ) : (
+            ) : sanitizedContent ? (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -122,6 +162,8 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
               >
                 {sanitizedContent}
               </ReactMarkdown>
+            ) : isOnlyThinking ? null : (
+              <div className="text-gray-500 text-xs italic">Sin contenido de respuesta.</div>
             )}
 
             {hasSandboxVerification && (
