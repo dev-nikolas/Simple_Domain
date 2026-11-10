@@ -22,7 +22,7 @@ export function handleChatCompletion({
       const messages = [...(clientPayload.messages || [])];
       const sessionId = clientPayload.session_id;
       const maxTokens = clientPayload.max_tokens || 2048;
-      const temperature = clientPayload.temperature ?? 0.1;
+      const temperature = clientPayload.temperature ?? 0.6;
 
       // Inyectar contexto de memoria episodica al system prompt de RELIC si existe
       const memoryContext = relicMemoryStore.getSystemPromptMemoryContext();
@@ -67,7 +67,7 @@ export function handleChatCompletion({
       let relicRes = null;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
 
         relicRes = await fetch(relicEngineUrl, {
           method: 'POST',
