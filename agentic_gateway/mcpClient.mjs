@@ -10,11 +10,16 @@ const __dirname = path.dirname(__filename);
 
 export class RelicMcpClient {
   constructor(binaryPath) {
-    this.binaryPath = binaryPath 
-      || process.env.RELIC_MCP_BIN 
-      || path.resolve(__dirname, '../relic_mcp/target/debug/relic_mcp.exe')
-      || path.resolve(__dirname, '../../relic_mcp/target/debug/relic_mcp.exe')
-      || path.resolve(__dirname, '../../relic/target/debug/relic_mcp.exe');
+    const ext = process.platform === 'win32' ? '.exe' : '';
+    const candidates = [
+      binaryPath,
+      process.env.RELIC_MCP_BIN,
+      path.resolve(__dirname, `../relic_mcp/target/release/relic_mcp${ext}`),
+      path.resolve(__dirname, `../relic_mcp/target/debug/relic_mcp${ext}`),
+      path.resolve(__dirname, `../../relic_mcp/target/release/relic_mcp${ext}`),
+      path.resolve(__dirname, `../../relic_mcp/target/debug/relic_mcp${ext}`),
+    ].filter(Boolean);
+    this.binaryPath = candidates.find(p => fs.existsSync(p)) || candidates[0];
     this.process = null;
     this.rl = null;
     this.requestId = 0;

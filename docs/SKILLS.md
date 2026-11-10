@@ -10,9 +10,11 @@ frontend-design
 generative_ui
 impeccable
 karpathy-guidelines
+keenable-web
 migrate-agent-settings
 migrate-workflows
 plugin
+perplexity
 ponytail
 ponytail-audit
 ponytail-debt

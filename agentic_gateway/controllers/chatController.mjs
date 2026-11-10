@@ -67,7 +67,7 @@ export function handleChatCompletion({
       let relicRes = null;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 600);
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
         relicRes = await fetch(relicEngineUrl, {
           method: 'POST',

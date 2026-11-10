@@ -94,32 +94,46 @@ def run_relic_engine() -> None:
         log_line(service_id, "[INFO] Compila RELIC-project con build.ps1 / Makefile o usa Docker Compose.")
         return
 
-    # Buscar modelo .relic en resultados/
-    model_dir = RELIC_PROJECT_ROOT / "resultados"
-    model_file = model_dir / "relic_core.relic"
-    cmd = [str(engine_exe), "--port", "8080"]
-    if model_file.exists():
+    # Buscar modelo .relic en models/ o resultados/
+    candidates = [
+        RELIC_PROJECT_ROOT / "models" / "relic_core.relic",
+        RELIC_PROJECT_ROOT / "resultados" / "relic_core.relic",
+        RELIC_PROJECT_ROOT / "relic_core.relic",
+        RELIC_PROJECT_ROOT / "models" / "nano_model.relic",
+    ]
+    model_file = None
+    for cand in candidates:
+        if cand.exists():
+            model_file = cand
+            break
+
+    cmd = [str(engine_exe), "--server", "--port", "8080"]
+    if model_file:
         cmd.extend(["--model", str(model_file)])
 
-    log_line(service_id, f"[START] Iniciando RELIC Engine en puerto 8080...")
+    log_line(service_id, f"[START] Iniciando RELIC Engine en puerto 8080 con modelo: {model_file.name if model_file else 'default'}...")
     spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
 
 
 def run_relic_mcp() -> None:
     service_id = "relic_mcp"
-    cargo = shutil.which("cargo")
-    if not cargo:
-        STATUS[service_id] = "Error (Cargo no encontrado)"
-        log_line(service_id, "[ERROR] Rust/Cargo no está instalado en el sistema.")
-        return
-
     mcp_dir = PROJECT_ROOT / "relic_mcp"
     if not mcp_dir.exists():
         STATUS[service_id] = "Omitido"
         log_line(service_id, f"[INFO] Directorio {mcp_dir} no encontrado.")
         return
 
-    cmd = [cargo, "run", "--release", "-p", "relic_server"]
+    ext = ".exe" if os.name == "nt" else ""
+    server_bin = mcp_dir / "target" / "release" / f"relic_server{ext}"
+    if server_bin.exists():
+        cmd = [str(server_bin)]
+    else:
+        cargo = shutil.which("cargo")
+        if not cargo:
+            STATUS[service_id] = "Error (Cargo no encontrado)"
+            log_line(service_id, "[ERROR] Rust/Cargo no está instalado en el sistema.")
+            return
+        cmd = [cargo, "run", "--release", "-p", "relic_server"]
     spawn_and_stream(service_id, cmd, cwd=mcp_dir)
 
 
@@ -302,7 +316,15 @@ def cleanup(sig: int | None = None, frame: Any = None) -> None:
         try:
             if proc.poll() is None:
                 if os.name == "nt":
-                    proc.terminate()
+                    try:
+                        subprocess.run(
+                            ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            check=False,
+                        )
+                    except Exception:
+                        proc.terminate()
                 else:
                     proc.send_signal(signal.SIGTERM)
         except OSError:
