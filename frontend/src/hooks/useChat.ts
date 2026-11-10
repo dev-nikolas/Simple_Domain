@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useChatSessions, DEFAULT_SYSTEM_PROMPT } from './useChatSessions';
+import { useChatSessions } from './useChatSessions';
 import { useChatStream } from './useChatStream';
 import { Message } from '../types/relic';
 
@@ -32,14 +32,9 @@ export function useChat() {
       if (!trimmed || isGenerating) return;
 
       const newUserMessage: Message = { role: 'user', content: trimmed };
-      const systemPrompt: Message = { role: 'system', content: DEFAULT_SYSTEM_PROMPT };
       const currentMessages = sessionManager.getActiveMessages();
+      const fullMessages = [...currentMessages, newUserMessage];
 
-      const base = currentMessages.some((m) => m.role === 'system')
-        ? currentMessages
-        : [systemPrompt, ...currentMessages];
-
-      const fullMessages = [...base, newUserMessage];
       sessionManager.updateActiveSessionMessages(
         [...fullMessages, { role: 'assistant', content: '' }],
         overrideSessionId

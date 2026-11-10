@@ -28,14 +28,7 @@ export class SessionModel {
     }
 
     if (this.sessions.size === 0) {
-      const defaultId = crypto.randomUUID();
-      this.sessions.set(defaultId, {
-        id: defaultId,
-        title: 'Nueva Conversación',
-        messages: [{ role: 'system', content: this.defaultSystemPrompt }],
-        updatedAt: Date.now(),
-      });
-      this.scheduleSave();
+      // Almacen inicial limpio: no forzar sesiones vacias por defecto
     }
   }
 
@@ -96,9 +89,9 @@ export class SessionModel {
   create(data = {}) {
     const id = data.id || crypto.randomUUID();
     const title = data.title || 'Nueva Conversación';
-    const messages = Array.isArray(data.messages) && data.messages.length > 0
+    const messages = Array.isArray(data.messages)
       ? data.messages
-      : [{ role: 'system', content: this.defaultSystemPrompt }];
+      : [];
 
     const session = { id, title, messages, updatedAt: Date.now() };
     this.sessions.set(id, session);
@@ -118,9 +111,6 @@ export class SessionModel {
   delete(id) {
     const existed = this.sessions.delete(id);
     if (existed) {
-      if (this.sessions.size === 0) {
-        this.create({ title: 'Nueva Conversación' });
-      }
       this.scheduleSave();
     }
     return existed;

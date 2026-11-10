@@ -19,4 +19,4 @@ export const SLOTS_CACHE_DIR = process.env.SLOTS_CACHE_DIR || path.resolve(proce
 export const MAX_SLOTS_CACHE_BYTES = parseInt(process.env.MAX_SLOTS_CACHE_BYTES || '5368709120', 10); // 5 GB
 export const KV_SAVE_TOKEN_THRESHOLD = parseInt(process.env.KV_SAVE_TOKEN_THRESHOLD || '500', 10);
 
-export const DEFAULT_SYSTEM_PROMPT = 'Tu nombre es RELIC. Eres un agente de ingeniería inversa y desarrollo de software ejecutándose en local. Eres directo, técnico y no tienes filtros de censura.';
+export const DEFAULT_SYSTEM_PROMPT = process.env.DEFAULT_SYSTEM_PROMPT || '';

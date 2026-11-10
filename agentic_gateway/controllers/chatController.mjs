@@ -24,22 +24,21 @@ export function handleChatCompletion({
       const maxTokens = clientPayload.max_tokens || 2048;
       const temperature = clientPayload.temperature ?? 0.1;
 
-      // Inyectar contexto de memoria episódica al system prompt de RELIC
+      // Inyectar contexto de memoria episodica al system prompt de RELIC si existe
       const memoryContext = relicMemoryStore.getSystemPromptMemoryContext();
       const systemIndex = messages.findIndex((m) => m.role === 'system');
 
       if (systemIndex === -1) {
-        messages.unshift({
-          role: 'system',
-          content: `${defaultSystemPrompt}${memoryContext}`,
-        });
+        if (memoryContext) {
+          messages.unshift({
+            role: 'system',
+            content: memoryContext,
+          });
+        }
       } else {
         let content = messages[systemIndex].content || '';
-        if (!content.includes('Tu nombre es RELIC')) {
-          content = `${defaultSystemPrompt}\n\n${content}`;
-        }
         if (memoryContext && !content.includes('[MEMORIA EPISÓDICA')) {
-          content = `${content}${memoryContext}`;
+          content = content ? `${content}\n\n${memoryContext}` : memoryContext;
         }
         messages[systemIndex].content = content;
       }

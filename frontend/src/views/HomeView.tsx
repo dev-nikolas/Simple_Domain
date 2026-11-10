@@ -77,7 +77,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Contenido principal: QuickActionTiles o ChatFeed */}
       <div className="flex-1 flex flex-col min-h-0 relative z-10">
-        {!hasMessages && !activeConversation ? (
+        {!hasMessages ? (
           <QuickActionTiles />
         ) : (
           <ChatFeed

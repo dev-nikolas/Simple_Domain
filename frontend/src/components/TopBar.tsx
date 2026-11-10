@@ -12,7 +12,7 @@ interface TopBarProps {
   onToggleSidebar: () => void;
   isGatewayOffline?: boolean;
   onRetryConnection?: () => void;
-  activeSessionTitle?: string;
+  activeSessionTitle?: string | null;
   activeCartridge?: string;
   onSelectCartridge?: (id: string) => void;
 }
@@ -21,7 +21,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onToggleSidebar,
   isGatewayOffline = false,
   onRetryConnection,
-  activeSessionTitle = 'Nueva Conversación',
+  activeSessionTitle,
   activeCartridge = 'auto',
   onSelectCartridge,
 }) => {
@@ -57,9 +57,11 @@ export const TopBar: React.FC<TopBarProps> = ({
         )}
 
         {/* Título de sesión activa en pantallas medianas/grandes */}
-        <div className="hidden xl:flex items-center text-xs font-mono text-gray-400 truncate max-w-[240px] pl-3 border-l border-gray-800">
-          <span className="truncate">{activeSessionTitle}</span>
-        </div>
+        {activeSessionTitle && (
+          <div className="hidden xl:flex items-center text-xs font-mono text-gray-400 truncate max-w-[240px] pl-3 border-l border-gray-800">
+            <span className="truncate">{activeSessionTitle}</span>
+          </div>
+        )}
       </div>
 
       {/* Lado derecho: Estado de conexión soberano */}

@@ -51,11 +51,8 @@ export function useChatSessions() {
       setIsGatewayOffline(true);
       isOfflineRef.current = true;
       const backup = loadSessionsBackup();
-      const initial = backup.length > 0 ? backup : [
-        { id: 'local-default', title: 'Nueva Conversación', updatedAt: Date.now(), messageCount: 0 }
-      ];
-      setSessions(initial);
-      return initial;
+      setSessions(backup);
+      return backup;
     }
   }, []);
 
@@ -63,7 +60,7 @@ export function useChatSessions() {
     const cached = loadActiveSessionMessages(id);
     const listToSearch = currentList || sessionsRef.current;
     const fallbackTitle = listToSearch.find((s) => s.id === id)?.title || 'Nueva Conversación';
-    const fallbackMsgs = cached.length > 0 ? cached : [{ role: 'system', content: DEFAULT_PROMPT }];
+    const fallbackMsgs = cached.length > 0 ? cached : [];
 
     if (isOfflineRef.current) {
       const localDetail = { id, title: fallbackTitle, messages: fallbackMsgs, updatedAt: Date.now() };
@@ -145,10 +142,12 @@ export function useChatSessions() {
         setActiveSessionIdState(nextList[0].id);
         fetchSessionDetail(nextList[0].id, nextList);
       } else {
-        createNewSession();
+        setActiveSessionIdState(null);
+        activeSessionRef.current = null;
+        setActiveSession(null);
       }
     }
-  }, [activeSessionId, fetchSessionDetail, createNewSession]);
+  }, [activeSessionId, fetchSessionDetail]);
 
   const updateActiveSessionMessages = useCallback((newMessages: Message[], targetId?: string) => {
     const sessionId = targetId || activeSessionRef.current?.id || activeSessionId;

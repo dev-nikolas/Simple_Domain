@@ -12,8 +12,7 @@ import {
   removeSessionStorage,
 } from './sessionStorage';
 
-export const DEFAULT_PROMPT =
-  'Tu nombre es RELIC. Eres un agente de ciberseguridad e ingeniería inversa en local.';
+export const DEFAULT_PROMPT = '';
 
 export async function createSessionRecord(
   isOffline: boolean,
@@ -25,14 +24,14 @@ export async function createSessionRecord(
   const detail: ChatSessionDetail = {
     id,
     title: 'Nueva Conversación',
-    messages: [{ role: 'system', content: DEFAULT_PROMPT }],
+    messages: [],
     updatedAt: Date.now(),
   };
 
   if (!isOffline) {
     try {
-      const created = await sessionsApi.create({ title: 'Nueva Conversación' });
-      detail.id = created.id;
+      const created = await sessionsApi.create({ id, title: 'Nueva Conversación', messages: [] });
+      if (created?.id) detail.id = created.id;
     } catch {}
   }
 
