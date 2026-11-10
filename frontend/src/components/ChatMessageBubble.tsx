@@ -61,11 +61,11 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
           <div
             className={`w-8 h-8 rounded-lg bg-[#0e1017] border flex items-center justify-center shrink-0 transition-all ${
               isGenerating
-                ? 'border-cyber-red shadow-lg shadow-cyber-red/20 animate-pulse'
+                ? 'border-cyber-red shadow-sm shadow-cyber-red/20'
                 : 'border-cyber-red/50'
             }`}
           >
-            <RelicLogo size={18} color="#ff1f3d" className={isThinking ? 'animate-spin' : isStreaming ? 'animate-pulse' : ''} />
+            <RelicLogo size={18} color="#ff1f3d" />
           </div>
         )}
 
@@ -95,8 +95,8 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
                     <Brain className="w-3.5 h-3.5 text-cyber-red" />
                     <span>
                       {isOnlyThinking && isGenerating
-                        ? 'RAZONANDO // PROCESO COGNITIVO...'
-                        : 'PROCESO COGNITIVO // RAZONAMIENTO'}
+                        ? 'Pensando...'
+                        : 'Razonamiento'}
                     </span>
                   </span>
                   <span className="text-[10px] text-gray-500 group-open:rotate-180 transition-transform">
@@ -111,10 +111,8 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
 
             {isThinking ? (
               <div className="flex items-center space-x-2 py-2 text-gray-400 text-xs font-mono">
-                <div className="w-2 h-2 rounded-full bg-cyber-red animate-ping" />
-                <span className="animate-pulse text-cyber-red">
-                  Consultando base de conocimiento y procesando con RELIC...
-                </span>
+                <div className="w-1.5 h-1.5 rounded-full bg-cyber-red animate-pulse" />
+                <span className="text-gray-400">Pensando...</span>
               </div>
             ) : sanitizedContent ? (
               <ReactMarkdown

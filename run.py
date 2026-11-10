@@ -37,25 +37,25 @@ RELIC_PROJECT_ROOT = PROJECT_ROOT.parent / "RELIC-project"
 SERVICES: list[dict[str, Any]] = [
     {
         "id": "relic_engine",
-        "name": "1. Motor RELIC Engine (C Nativo)",
+        "name": "1. RELIC Engine (:8080)",
         "port": 8080,
         "style": "cyan",
     },
     {
         "id": "relic_mcp",
-        "name": "2. Microkernel RELIC MCP (Rust)",
+        "name": "2. RELIC MCP (:5000)",
         "port": 5000,
         "style": "green",
     },
     {
         "id": "gateway",
-        "name": "3. Agentic Gateway & MCP",
+        "name": "3. Gateway (:3000)",
         "port": 3000,
         "style": "yellow",
     },
     {
         "id": "frontend",
-        "name": "4. Frontend Web UI (Cyberpunk HUD)",
+        "name": "4. Frontend (:5173)",
         "port": 5173,
         "style": "magenta",
     },
@@ -275,7 +275,7 @@ def make_layout() -> Layout:
 
 def update_layout(layout: Layout, term_height: int) -> None:
     header_text = Text(
-        "SIMPLE DOMAIN — ECOSISTEMA AGÉNTICO RELIC (LOCAL)",
+        "RELIC — ECOSISTEMA LOCAL",
         style="bold cyan",
         justify="center",
     )

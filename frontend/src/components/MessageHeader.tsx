@@ -47,10 +47,7 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
         ) : (
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 bg-cyber-red text-white font-tech font-bold uppercase tracking-wider text-[11px] cut-corner-xs shadow-sm shadow-cyber-red/20">
-              RELIC // COGNITIVE CORE
-            </span>
-            <span className="text-[10px] text-gray-500 hidden sm:inline">
-              SOBERANO // LOCAL
+              RELIC
             </span>
           </div>
         )}

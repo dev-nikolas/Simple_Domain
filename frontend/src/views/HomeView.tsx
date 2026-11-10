@@ -10,7 +10,7 @@ import { Conversation, ChatMessage } from '../types/conversations';
 import { Message } from '../types/relic';
 import { QuickActionTiles } from './QuickActionTiles';
 import { ChatFeed } from './ChatFeed';
-import { Terminal, Square } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 interface HomeViewProps {
   activeConversation: Conversation | null;
@@ -67,14 +67,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
 
             {isGenerating && (
-              <button
-                onClick={onStopGeneration}
-                className="flex items-center space-x-1 px-2.5 py-0.5 border border-cyber-red text-cyber-red hover:bg-cyber-red/20 rounded text-[10px] transition-all cursor-pointer font-bold animate-pulse"
-                title="Detener inferencia de RELIC"
-              >
-                <Square className="w-2.5 h-2.5 fill-current" />
-                <span>INTERRUMPIR</span>
-              </button>
+              <span className="text-[10px] text-cyber-red font-mono tracking-wider">
+                GENERANDO...
+              </span>
             )}
           </div>
         </div>
@@ -97,6 +92,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section className="w-full relative z-20 shrink-0 pb-2">
         <CommandInput
           onSubmitCommand={onSendMessage}
+          onStopGeneration={onStopGeneration}
           isProcessing={isGenerating}
           isGatewayOffline={isGatewayOffline}
         />

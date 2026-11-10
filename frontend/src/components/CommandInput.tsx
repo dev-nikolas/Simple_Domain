@@ -5,11 +5,12 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { CornerDownLeft, Loader2, Shield, Terminal } from 'lucide-react';
+import { CornerDownLeft, Shield, Square, Terminal } from 'lucide-react';
 import { OperationsMenu } from './OperationsMenu';
 
 interface CommandInputProps {
   onSubmitCommand?: (text: string) => void;
+  onStopGeneration?: () => void;
   onFileSelected?: (file: File) => void;
   isProcessing?: boolean;
   isGatewayOffline?: boolean;
@@ -17,6 +18,7 @@ interface CommandInputProps {
 
 export const CommandInput: React.FC<CommandInputProps> = ({
   onSubmitCommand,
+  onStopGeneration,
   onFileSelected,
   isProcessing = false,
   isGatewayOffline = false,
@@ -96,24 +98,30 @@ export const CommandInput: React.FC<CommandInputProps> = ({
         />
 
         <div className="shrink-0 flex items-center pl-2">
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            aria-label="Enviar instrucción"
-            className={`w-8 h-8 cut-corner-xs flex items-center justify-center transition-all shrink-0 cursor-pointer ${
-              canSubmit
-                ? 'bg-cyber-red text-white hover:bg-cyber-red-bright hover:shadow-md hover:shadow-cyber-red/30'
-                : isProcessing
-                ? 'bg-[#181926] text-cyber-red cursor-wait'
-                : 'bg-white/5 text-gray-600 cursor-not-allowed opacity-50'
-            }`}
-          >
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin text-cyber-red" />
-            ) : (
+          {isProcessing ? (
+            <button
+              type="button"
+              onClick={onStopGeneration}
+              aria-label="Detener respuesta"
+              title="Detener respuesta"
+              className="w-8 h-8 cut-corner-xs flex items-center justify-center bg-cyber-red/20 border border-cyber-red text-cyber-red hover:bg-cyber-red hover:text-white transition-all shrink-0 cursor-pointer shadow-sm shadow-cyber-red/30 animate-pulse"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              aria-label="Enviar instrucción"
+              className={`w-8 h-8 cut-corner-xs flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                canSubmit
+                  ? 'bg-cyber-red text-white hover:bg-cyber-red-bright hover:shadow-md hover:shadow-cyber-red/30'
+                  : 'bg-white/5 text-gray-600 cursor-not-allowed opacity-50'
+              }`}
+            >
               <CornerDownLeft className="h-4 w-4" />
-            )}
-          </button>
+            </button>
+          )}
         </div>
       </form>
     </div>
