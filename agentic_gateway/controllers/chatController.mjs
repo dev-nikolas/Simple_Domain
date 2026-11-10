@@ -52,6 +52,7 @@ export function handleChatCompletion({
 
       const relicPayload = {
         messages,
+        cartridge: clientPayload.cartridge || 'auto',
         temperature,
         max_tokens: maxTokens,
         stream: true,

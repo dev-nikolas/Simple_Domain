@@ -33,34 +33,39 @@ export function useChat() {
 
       const newUserMessage: Message = { role: 'user', content: trimmed };
       const systemPrompt: Message = { role: 'system', content: DEFAULT_SYSTEM_PROMPT };
+      const currentMessages = sessionManager.getActiveMessages();
 
-      const base = sessionManager.activeMessages.some((m) => m.role === 'system')
-        ? sessionManager.activeMessages
-        : [systemPrompt, ...sessionManager.activeMessages];
+      const base = currentMessages.some((m) => m.role === 'system')
+        ? currentMessages
+        : [systemPrompt, ...currentMessages];
 
       const fullMessages = [...base, newUserMessage];
-      sessionManager.updateActiveSessionMessages([...fullMessages, { role: 'assistant', content: '' }]);
+      sessionManager.updateActiveSessionMessages(
+        [...fullMessages, { role: 'assistant', content: '' }],
+        overrideSessionId
+      );
       await startStream(fullMessages, overrideSessionId);
     },
-    [sessionManager.activeMessages, sessionManager.updateActiveSessionMessages, isGenerating, startStream]
+    [sessionManager.getActiveMessages, sessionManager.updateActiveSessionMessages, isGenerating, startStream]
   );
 
   const regenerateLastMessage = useCallback(async () => {
-    if (isGenerating || sessionManager.activeMessages.length === 0) return;
+    const currentMessages = sessionManager.getActiveMessages();
+    if (isGenerating || currentMessages.length === 0) return;
 
     let lastUserIndex = -1;
-    for (let i = sessionManager.activeMessages.length - 1; i >= 0; i--) {
-      if (sessionManager.activeMessages[i].role === 'user') {
+    for (let i = currentMessages.length - 1; i >= 0; i--) {
+      if (currentMessages[i].role === 'user') {
         lastUserIndex = i;
         break;
       }
     }
     if (lastUserIndex === -1) return;
 
-    const messagesUpToUser = sessionManager.activeMessages.slice(0, lastUserIndex + 1);
+    const messagesUpToUser = currentMessages.slice(0, lastUserIndex + 1);
     sessionManager.updateActiveSessionMessages([...messagesUpToUser, { role: 'assistant', content: '' }]);
     await startStream(messagesUpToUser);
-  }, [isGenerating, sessionManager.activeMessages, sessionManager.updateActiveSessionMessages, startStream]);
+  }, [isGenerating, sessionManager.getActiveMessages, sessionManager.updateActiveSessionMessages, startStream]);
 
   return {
     ...sessionManager,

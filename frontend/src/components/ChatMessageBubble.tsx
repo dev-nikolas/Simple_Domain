@@ -6,6 +6,9 @@
 import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { Brain } from 'lucide-react';
 import { ChatMessage } from '../types/conversations';
 import { CodeBlock } from './CodeBlock';
@@ -116,7 +119,8 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = React.memo(
               </div>
             ) : sanitizedContent ? (
               <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[[rehypeKatex, { strict: false, throwOnError: false }]]}
                 components={{
                   code({ node, inline, className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || '');

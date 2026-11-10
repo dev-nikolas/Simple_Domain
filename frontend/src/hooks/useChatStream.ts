@@ -12,7 +12,7 @@ interface UseChatStreamOptions {
   activeSessionId: string | null;
   activeCartridge: string;
   securityLevel: number;
-  updateMessages: (messages: Message[]) => void;
+  updateMessages: (messages: Message[], targetId?: string) => void;
 }
 
 export function useChatStream({
@@ -27,7 +27,7 @@ export function useChatStream({
 
   const startStream = useCallback(
     async (messagesForRelic: Message[], overrideSessionId?: string) => {
-      const targetSessionId = overrideSessionId || activeSessionId;
+      const targetSessionId = overrideSessionId || activeSessionId || undefined;
       setIsGenerating(true);
       setChatError(null);
       abortControllerRef.current = new AbortController();
@@ -36,16 +36,19 @@ export function useChatStream({
       try {
         await streamChatCompletion({
           messages: messagesForRelic,
-          sessionId: targetSessionId || undefined,
+          sessionId: targetSessionId,
           cartridge: activeCartridge,
           securityLevel,
           signal: abortControllerRef.current.signal,
           onUpdate: (token) => {
             accumulated += token;
-            updateMessages([
-              ...messagesForRelic,
-              { role: 'assistant', content: accumulated },
-            ]);
+            updateMessages(
+              [
+                ...messagesForRelic,
+                { role: 'assistant', content: accumulated },
+              ],
+              targetSessionId
+            );
           },
         });
 
@@ -53,7 +56,7 @@ export function useChatStream({
           ...messagesForRelic,
           { role: 'assistant', content: accumulated },
         ];
-        updateMessages(finalMessages);
+        updateMessages(finalMessages, targetSessionId);
 
         if (targetSessionId) {
           saveActiveSessionMessages(targetSessionId, finalMessages);
@@ -61,7 +64,7 @@ export function useChatStream({
       } catch (error: any) {
         if (error.name !== 'AbortError') {
           console.error('[useChatStream] Error en inferencia RELIC:', error);
-          setChatError(error.message || 'Error conectando con RELIC Engine');
+          setChatError(error.message || 'Error conectando con RELIC');
 
           const fallbackMessages: Message[] = [
             ...messagesForRelic,
@@ -69,10 +72,10 @@ export function useChatStream({
               role: 'assistant',
               content: accumulated
                 ? accumulated + `\n\n*(Error en streaming: ${error.message})*`
-                : `[!] Error del motor RELIC: ${error.message}`,
+                : `[!] Error de RELIC: ${error.message}`,
             },
           ];
-          updateMessages(fallbackMessages);
+          updateMessages(fallbackMessages, targetSessionId);
         }
       } finally {
         setIsGenerating(false);
@@ -97,4 +100,3 @@ export function useChatStream({
     stopGeneration,
   };
 }
-

@@ -25,7 +25,7 @@ export const DEFAULT_SYSTEM_PROMPT = DEFAULT_PROMPT;
 export function useChatSessions() {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
   const [activeSession, setActiveSession] = useState<ChatSessionDetail | null>(null);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionIdState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGatewayOffline, setIsGatewayOffline] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -35,6 +35,8 @@ export function useChatSessions() {
   const hasInitializedRef = useRef(false);
   const sessionsRef = useRef<ChatSessionSummary[]>(sessions);
   sessionsRef.current = sessions;
+  const activeSessionRef = useRef<ChatSessionDetail | null>(activeSession);
+  activeSessionRef.current = activeSession;
 
   const fetchSessions = useCallback(async () => {
     try {
@@ -64,21 +66,30 @@ export function useChatSessions() {
     const fallbackMsgs = cached.length > 0 ? cached : [{ role: 'system', content: DEFAULT_PROMPT }];
 
     if (isOfflineRef.current) {
-      setActiveSession({ id, title: fallbackTitle, messages: fallbackMsgs, updatedAt: Date.now() });
+      const localDetail = { id, title: fallbackTitle, messages: fallbackMsgs, updatedAt: Date.now() };
+      activeSessionRef.current = localDetail;
+      setActiveSession(localDetail);
       setIsLoading(false);
       return;
     }
     try {
       setIsLoading(true);
       const detail = await sessionsApi.get(id);
-      setActiveSession(detail);
-      if (detail.messages) saveActiveSessionMessages(id, detail.messages);
+      const mergedMessages = detail.messages && detail.messages.length > 1
+        ? detail.messages
+        : (cached.length > (detail.messages?.length || 0) ? cached : (detail.messages || fallbackMsgs));
+      const finalDetail = { ...detail, messages: mergedMessages };
+      activeSessionRef.current = finalDetail;
+      setActiveSession(finalDetail);
+      saveActiveSessionMessages(id, mergedMessages);
       setIsGatewayOffline(false);
       isOfflineRef.current = false;
     } catch {
       setIsGatewayOffline(true);
       isOfflineRef.current = true;
-      setActiveSession({ id, title: fallbackTitle, messages: fallbackMsgs, updatedAt: Date.now() });
+      const fallbackDetail = { id, title: fallbackTitle, messages: fallbackMsgs, updatedAt: Date.now() };
+      activeSessionRef.current = fallbackDetail;
+      setActiveSession(fallbackDetail);
     } finally {
       setIsLoading(false);
     }
@@ -92,10 +103,11 @@ export function useChatSessions() {
       const match = window.location.pathname.match(/^\/c\/([^/]+)$/);
       if (match) {
         const targetId = match[1];
-        setActiveSessionId(targetId);
+        setActiveSessionIdState(targetId);
         await fetchSessionDetail(targetId, list);
       } else {
-        setActiveSessionId(null);
+        setActiveSessionIdState(null);
+        activeSessionRef.current = null;
         setActiveSession(null);
       }
       setIsLoading(false);
@@ -103,38 +115,47 @@ export function useChatSessions() {
   }, [fetchSessions, fetchSessionDetail]);
 
   const createNewSession = useCallback(async () => {
-    const { detail, nextList } = await createSessionRecord(isOfflineRef.current, sessions);
+    const { detail, nextList } = await createSessionRecord(isOfflineRef.current, sessionsRef.current);
+    activeSessionRef.current = detail;
     setSessions(nextList);
-    setActiveSessionId(detail.id);
+    setActiveSessionIdState(detail.id);
     setActiveSession(detail);
     return detail;
-  }, [sessions]);
+  }, []);
 
   const renameSession = useCallback(async (id: string, newTitle: string) => {
     const trimmed = newTitle.trim();
     if (!trimmed) return;
-    const nextList = await renameSessionRecord(id, trimmed, isOfflineRef.current, sessions);
+    const nextList = await renameSessionRecord(id, trimmed, isOfflineRef.current, sessionsRef.current);
     setSessions(nextList);
-    if (activeSession?.id === id) setActiveSession((prev) => (prev ? { ...prev, title: trimmed } : null));
-  }, [activeSession?.id, sessions]);
+    if (activeSessionRef.current?.id === id) {
+      setActiveSession((prev) => {
+        const next = prev ? { ...prev, title: trimmed } : null;
+        activeSessionRef.current = next;
+        return next;
+      });
+    }
+  }, []);
 
   const deleteSession = useCallback(async (id: string) => {
-    const nextList = await deleteSessionRecord(id, isOfflineRef.current, sessions);
+    const nextList = await deleteSessionRecord(id, isOfflineRef.current, sessionsRef.current);
     setSessions(nextList);
     if (activeSessionId === id) {
       if (nextList.length > 0) {
-        setActiveSessionId(nextList[0].id);
+        setActiveSessionIdState(nextList[0].id);
         fetchSessionDetail(nextList[0].id, nextList);
       } else {
         createNewSession();
       }
     }
-  }, [activeSessionId, sessions, fetchSessionDetail, createNewSession]);
+  }, [activeSessionId, fetchSessionDetail, createNewSession]);
 
-  const updateActiveSessionMessages = useCallback((newMessages: Message[]) => {
+  const updateActiveSessionMessages = useCallback((newMessages: Message[], targetId?: string) => {
+    const sessionId = targetId || activeSessionRef.current?.id || activeSessionId;
     setActiveSession((prev) => {
-      if (!prev) return null;
-      let title = prev.title;
+      const base = prev || (sessionId ? { id: sessionId, title: 'Nueva Conversación', messages: [], updatedAt: Date.now() } : null);
+      if (!base) return null;
+      let title = base.title;
       if (title === 'Nueva Conversación') {
         const firstUser = newMessages.find((m) => m.role === 'user');
         if (firstUser?.content.trim()) {
@@ -142,28 +163,46 @@ export function useChatSessions() {
           title = clean.length > 36 ? clean.substring(0, 36) + '...' : clean;
         }
       }
-      const updated = { ...prev, title, messages: newMessages, updatedAt: Date.now() };
+      const updated = { ...base, title, messages: newMessages, updatedAt: Date.now() };
+      activeSessionRef.current = updated;
       saveActiveSessionMessages(updated.id, updated.messages);
       return updated;
     });
-    setSessions((prev) => {
-      const updated = prev.map((s) => (s.id === activeSessionId ? { ...s, messageCount: newMessages.filter((m) => m.role !== 'system').length, updatedAt: Date.now() } : s));
-      saveSessionsBackup(updated);
-      return updated;
-    });
+    if (sessionId) {
+      setSessions((prev) => {
+        const updated = prev.map((s) => (
+          s.id === sessionId
+            ? { ...s, messageCount: newMessages.filter((m) => m.role !== 'system').length, updatedAt: Date.now() }
+            : s
+        ));
+        saveSessionsBackup(updated);
+        return updated;
+      });
+    }
   }, [activeSessionId]);
+
+  const setActiveSessionId = useCallback((id: string | null) => {
+    startTransition(() => setActiveSessionIdState(id));
+    if (id) {
+      if (activeSessionRef.current?.id !== id) {
+        fetchSessionDetail(id);
+      }
+    } else {
+      activeSessionRef.current = null;
+      setActiveSession(null);
+    }
+  }, [fetchSessionDetail]);
+
+  const getActiveMessages = useCallback(() => activeSessionRef.current?.messages || [], []);
 
   return {
     sessions: sessions.filter((s) => s.title.toLowerCase().includes(searchQuery.toLowerCase())),
     allSessions: sessions,
     activeSessionId,
-    setActiveSessionId: (id: string | null) => {
-      startTransition(() => setActiveSessionId(id));
-      if (id) fetchSessionDetail(id);
-      else setActiveSession(null);
-    },
+    setActiveSessionId,
     activeSession,
     activeMessages: activeSession?.messages || [],
+    getActiveMessages,
     isLoading,
     isGatewayOffline,
     error: isGatewayOffline ? 'Gateway desconectado' : null,
