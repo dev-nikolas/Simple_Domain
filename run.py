@@ -15,6 +15,7 @@ import io
 import os
 import shutil
 import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -33,30 +34,64 @@ from rich.text import Text
 PROJECT_ROOT = Path(__file__).resolve().parent
 RELIC_PROJECT_ROOT = PROJECT_ROOT.parent / "RELIC-project"
 
+# Puertos asignados dinámicamente
+ASSIGNED_PORTS: dict[str, int] = {}
+
+def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
+    """Comprueba si un puerto TCP está disponible para enlace en host local."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.4)
+        try:
+            s.bind((host, port))
+            return True
+        except OSError:
+            return False
+
+def find_available_port(default_port: int, service_id: str, max_attempts: int = 50) -> int:
+    """
+    Determina el puerto disponible más cercano a partir del default_port.
+    Genera log de análisis si el puerto por defecto se encuentra ocupado.
+    """
+    for offset in range(max_attempts):
+        candidate = default_port + offset
+        if is_port_free(candidate):
+            if offset > 0:
+                print(f"[PORT SCAN] Puerto por defecto {default_port} ocupado para '{service_id}'. Reubicado dinámicamente en {candidate}.")
+            else:
+                print(f"[PORT SCAN] Puerto {default_port} libre para '{service_id}'.")
+            return candidate
+    raise RuntimeError(f"No se encontró ningún puerto disponible en el rango [{default_port}, {default_port + max_attempts}) para {service_id}")
+
+# Detección inicial de puertos disponibles
+ASSIGNED_PORTS["relic_engine"] = find_available_port(8080, "relic_engine")
+ASSIGNED_PORTS["relic_mcp"] = find_available_port(5000, "relic_mcp")
+ASSIGNED_PORTS["gateway"] = find_available_port(3000, "gateway")
+ASSIGNED_PORTS["frontend"] = find_available_port(5173, "frontend")
+
 # Configuración de los 4 servicios
 SERVICES: list[dict[str, Any]] = [
     {
         "id": "relic_engine",
-        "name": "1. RELIC Engine (:8080)",
-        "port": 8080,
+        "name": f"1. RELIC Engine (:{ASSIGNED_PORTS['relic_engine']})",
+        "port": ASSIGNED_PORTS["relic_engine"],
         "style": "cyan",
     },
     {
         "id": "relic_mcp",
-        "name": "2. RELIC MCP (:5000)",
-        "port": 5000,
+        "name": f"2. RELIC MCP (:{ASSIGNED_PORTS['relic_mcp']})",
+        "port": ASSIGNED_PORTS["relic_mcp"],
         "style": "green",
     },
     {
         "id": "gateway",
-        "name": "3. Gateway (:3000)",
-        "port": 3000,
+        "name": f"3. Gateway (:{ASSIGNED_PORTS['gateway']})",
+        "port": ASSIGNED_PORTS["gateway"],
         "style": "yellow",
     },
     {
         "id": "frontend",
-        "name": "4. Frontend (:5173)",
-        "port": 5173,
+        "name": f"4. Frontend (:{ASSIGNED_PORTS['frontend']})",
+        "port": ASSIGNED_PORTS["frontend"],
         "style": "magenta",
     },
 ]
@@ -79,6 +114,7 @@ def log_line(service_id: str, line: str) -> None:
 
 def run_relic_engine() -> None:
     service_id = "relic_engine"
+    engine_port = ASSIGNED_PORTS[service_id]
     exe_name = "relic.exe" if os.name == "nt" else "relic"
     engine_exe = RELIC_PROJECT_ROOT / exe_name
 
@@ -107,38 +143,48 @@ def run_relic_engine() -> None:
             model_file = cand
             break
 
-    cmd = [str(engine_exe), "--server", "--port", "8080"]
+    # relic.exe recibe la ruta al modelo posicionalmente y las opciones con flags
+    cmd = [str(engine_exe)]
     if model_file:
-        cmd.extend(["--model", str(model_file)])
+        cmd.append(str(model_file))
+    cmd.extend(["--server", "--port", str(engine_port)])
 
-    log_line(service_id, f"[START] Iniciando RELIC Engine en puerto 8080 con modelo: {model_file.name if model_file else 'default'}...")
+    log_line(service_id, f"[START] Iniciando RELIC Engine (C) en puerto {engine_port} con modelo: {model_file.name if model_file else 'default'}...")
     spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
 
 
 def run_relic_mcp() -> None:
     service_id = "relic_mcp"
+    mcp_port = ASSIGNED_PORTS[service_id]
     mcp_dir = PROJECT_ROOT / "relic_mcp"
     if not mcp_dir.exists():
         STATUS[service_id] = "Omitido"
         log_line(service_id, f"[INFO] Directorio {mcp_dir} no encontrado.")
         return
 
+    env = os.environ.copy()
+    env["PORT"] = str(mcp_port)
+
     ext = ".exe" if os.name == "nt" else ""
     server_bin = mcp_dir / "target" / "release" / f"relic_server{ext}"
     if server_bin.exists():
-        cmd = [str(server_bin)]
+        cmd = [str(server_bin), str(mcp_port)]
     else:
         cargo = shutil.which("cargo")
         if not cargo:
             STATUS[service_id] = "Error (Cargo no encontrado)"
             log_line(service_id, "[ERROR] Rust/Cargo no está instalado en el sistema.")
             return
-        cmd = [cargo, "run", "--release", "-p", "relic_server"]
-    spawn_and_stream(service_id, cmd, cwd=mcp_dir)
+        cmd = [cargo, "run", "--release", "-p", "relic_server", "--", str(mcp_port)]
+    spawn_and_stream(service_id, cmd, cwd=mcp_dir, env=env)
 
 
 def run_gateway() -> None:
     service_id = "gateway"
+    gateway_port = ASSIGNED_PORTS[service_id]
+    engine_port = ASSIGNED_PORTS["relic_engine"]
+    mcp_port = ASSIGNED_PORTS["relic_mcp"]
+
     node = shutil.which("node")
     npm = shutil.which("npm") or shutil.which("npm.cmd")
     gateway_dir = PROJECT_ROOT / "agentic_gateway"
@@ -158,8 +204,9 @@ def run_gateway() -> None:
             log_line(service_id, f"[WARN] npm install fallo: {err}")
 
     env = os.environ.copy()
-    env["PORT"] = "3000"
-    env["RELIC_SERVER_URL"] = "http://127.0.0.1:8080"
+    env["PORT"] = str(gateway_port)
+    env["RELIC_SERVER_URL"] = f"http://127.0.0.1:{engine_port}"
+    env["RELIC_MCP_URL"] = f"http://127.0.0.1:{mcp_port}"
 
     cmd = [node, "server.mjs"]
     spawn_and_stream(service_id, cmd, cwd=gateway_dir, env=env)
@@ -167,6 +214,9 @@ def run_gateway() -> None:
 
 def run_frontend() -> None:
     service_id = "frontend"
+    frontend_port = ASSIGNED_PORTS[service_id]
+    gateway_port = ASSIGNED_PORTS["gateway"]
+
     npm = shutil.which("npm") or shutil.which("npm.cmd")
     frontend_dir = PROJECT_ROOT / "frontend"
 
@@ -186,8 +236,11 @@ def run_frontend() -> None:
         except OSError as err:
             log_line(service_id, f"[WARN] npm install: {err}")
 
-    cmd = [npm, "run", "dev", "--", "--host", "127.0.0.1", "--port", "5173"]
-    spawn_and_stream(service_id, cmd, cwd=frontend_dir)
+    env = os.environ.copy()
+    env["VITE_GATEWAY_URL"] = f"http://127.0.0.1:{gateway_port}"
+
+    cmd = [npm, "run", "dev", "--", "--host", "127.0.0.1", "--port", str(frontend_port)]
+    spawn_and_stream(service_id, cmd, cwd=frontend_dir, env=env)
 
 
 def spawn_and_stream(
@@ -287,7 +340,7 @@ def update_layout(layout: Layout, term_height: int) -> None:
         layout[s["id"]].update(make_service_panel(s, panel_height))
 
     footer_text = Text(
-        "Frontend: :5173  |  Gateway: :3000  |  RELIC MCP: :5000  |  RELIC Engine: :8080    (Ctrl+C para salir)",
+        f"Frontend: :{ASSIGNED_PORTS['frontend']}  |  Gateway: :{ASSIGNED_PORTS['gateway']}  |  RELIC MCP: :{ASSIGNED_PORTS['relic_mcp']}  |  RELIC Engine: :{ASSIGNED_PORTS['relic_engine']}    (Ctrl+C para salir)",
         style="dim white",
         justify="center",
     )

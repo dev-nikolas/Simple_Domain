@@ -162,6 +162,7 @@ dependencies = [
  "relic_cli",
  "relic_core",
  "relic_lexicon",
+ "relic_mcp",
  "relic_tokenizer",
  "serde",
  "serde_json",

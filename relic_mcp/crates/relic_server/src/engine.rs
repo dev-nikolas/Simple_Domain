@@ -110,13 +110,79 @@ fn answer_deterministic(query: &str, state: &ServerState) -> (String, String, St
     (answer.text, answer.route, answer.status)
 }
 
+fn dispatch_mcp_tool_call(tool_name: &str, args: &serde_json::Value, state: &ServerState) -> Option<String> {
+    let mut gate = state.blackwall.write().unwrap();
+    let res = match tool_name {
+        "relic_interpret" => {
+            let res = relic_mcp::tools::handle_interpret(args, &mut gate);
+            res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n")
+        }
+        "relic_verify" => {
+            let res = relic_mcp::tools::handle_verify(args);
+            res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n")
+        }
+        "relic_retrieve" => {
+            let res = relic_mcp::tools::handle_retrieve(args, &mut gate);
+            res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n")
+        }
+        "relic_calculator" | "relic_math" => {
+            let query = args.get("expression").or_else(|| args.get("text")).and_then(|v| v.as_str()).unwrap_or("");
+            let (_, ans) = gate.evaluate_query(query);
+            ans.text
+        }
+        _ => return None,
+    };
+    Some(res)
+}
+
+pub fn check_and_execute_tool_calls(gen_text: &mut String, state: &ServerState) -> bool {
+    let mut executed = false;
+    if let Some(start_idx) = gen_text.find("<tool_call>") {
+        if let Some(end_idx) = gen_text[start_idx..].find("</tool_call>") {
+            let inner = gen_text[start_idx + "<tool_call>".len()..start_idx + end_idx].trim();
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(inner) {
+                if let Some(tool_name) = val.get("name").and_then(|n| n.as_str()) {
+                    let args = val.get("arguments").cloned().unwrap_or(serde_json::json!({}));
+                    if let Some(obs) = dispatch_mcp_tool_call(tool_name, &args, state) {
+                        gen_text.push_str(&format!("\n<observation>\n{}\n</observation>\n", obs));
+                        executed = true;
+                    }
+                }
+            }
+        }
+    }
+    for tool_name in ["relic_interpret", "relic_retrieve", "relic_verify", "relic_calculator"] {
+        let pattern = format!("{}(", tool_name);
+        if let Some(pos) = gen_text.find(&pattern) {
+            let rest = &gen_text[pos + pattern.len()..];
+            if let Some(close_paren) = rest.find(')') {
+                let raw_arg = rest[..close_paren].trim().trim_matches(|c| c == '"' || c == '\'');
+                let args = if tool_name == "relic_retrieve" {
+                    serde_json::json!({ "entity": raw_arg })
+                } else if tool_name == "relic_calculator" {
+                    serde_json::json!({ "expression": raw_arg })
+                } else {
+                    serde_json::json!({ "text": raw_arg })
+                };
+                if let Some(obs) = dispatch_mcp_tool_call(tool_name, &args, state) {
+                    gen_text.push_str(&format!("\n<observation>\n{}\n</observation>\n", obs));
+                    executed = true;
+                }
+            }
+        }
+    }
+    executed
+}
+
 fn generate_neural(text: &str, state: &ServerState, model: &relic_core::RelicModel, tok: &relic_tokenizer::BpeTokenizer) -> (String, String, String) {
-    let token_ids = tok.encode(text);
+    let formatted = format!("<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n<think>\n", text.trim());
+    let token_ids = tok.encode(&formatted);
+    let max_budget = state.config.max_train_seq_len.saturating_sub(token_ids.len()).min(512);
     let mut kv = KvCache::new(state.config.num_hidden_layers, state.config.max_train_seq_len, state.config.num_key_value_heads, state.config.head_dim);
     let mut logits = vec![0.0f32; state.config.vocab_size];
     for (pos, &tid) in token_ids.iter().enumerate() { model.forward_decode_step(tid, pos, &mut kv, &mut logits); }
-    let mut gen_ids = token_ids.clone();
-    for _ in 0..48 {
+    let mut gen_ids = Vec::new();
+    for _ in 0..max_budget {
         let nxt = Sampler::greedy(&logits);
         if tok.vocab().is_eos(nxt) { break; }
         gen_ids.push(nxt);
@@ -124,5 +190,12 @@ fn generate_neural(text: &str, state: &ServerState, model: &relic_core::RelicMod
         if pos >= state.config.max_train_seq_len { break; }
         model.forward_decode_step(nxt, pos, &mut kv, &mut logits);
     }
-    (tok.decode(&gen_ids).unwrap_or_else(|_| text.to_string()), "neural_model".to_string(), "GENERATED".to_string())
+    let gen_text = tok.decode(&gen_ids).unwrap_or_default();
+    let mut final_text = if gen_text.starts_with("<think>") {
+        gen_text
+    } else {
+        format!("<think>\n{}", gen_text)
+    };
+    check_and_execute_tool_calls(&mut final_text, state);
+    (final_text, "neural_model".to_string(), "GENERATED".to_string())
 }

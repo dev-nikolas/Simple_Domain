@@ -132,6 +132,45 @@ fn plan_from_tokens(tokens: &[MathToken]) -> Option<ArithmeticPlan> {
     if plan.steps.is_empty() { None } else { Some(plan) }
 }
 
+fn extract_math_candidate(text: &str) -> Option<&str> {
+    let bytes = text.as_bytes();
+    let mut best: Option<&str> = None;
+    let mut i = 0;
+    while i < bytes.len() {
+        let b = bytes[i];
+        if b.is_ascii_digit() || b == b'(' {
+            let start = i;
+            let mut j = i;
+            let mut has_op = false;
+            let mut last_valid = start;
+            while j < bytes.len() {
+                let bj = bytes[j];
+                if bj.is_ascii_digit() || bj == b'.' || bj == b' ' || bj == b'\t' || bj == b'(' || bj == b')' {
+                    if bj.is_ascii_digit() || bj == b')' {
+                        last_valid = j + 1;
+                    }
+                    j += 1;
+                } else if matches!(bj, b'+' | b'-' | b'*' | b'/' | b'x' | b'X') {
+                    has_op = true;
+                    j += 1;
+                } else {
+                    break;
+                }
+            }
+            if has_op && last_valid > start {
+                let candidate = text[start..last_valid].trim();
+                if candidate.chars().any(|c| c.is_ascii_digit()) {
+                    best = Some(candidate);
+                }
+            }
+            i = if j > i { j } else { i + 1 };
+        } else {
+            i += 1;
+        }
+    }
+    best
+}
+
 pub fn parse_math_expression(text: &str) -> Option<ArithmeticPlan> {
     let clean = text.trim_matches(|c| matches!(c, '¿' | '?' | '¡' | '!' | '.'));
     let lower = clean.to_lowercase();
@@ -140,7 +179,15 @@ pub fn parse_math_expression(text: &str) -> Option<ArithmeticPlan> {
         if let Some(idx) = lower.find(prefix) { expr = &clean[idx + prefix.len()..]; break; }
     }
     if expr.trim().is_empty() { return None; }
-    let tokens = tokenize_math(expr.trim())?;
+    let tokens = tokenize_math(expr.trim()).or_else(|| {
+        if lower.contains("doble") || lower.contains("triple") || lower.contains("mitad")
+            || lower.contains("tercio") || lower.contains("cuarto") || lower.contains('%')
+            || lower.contains("por ciento") || lower.contains("repartir") || lower.contains("reparte") {
+            return None;
+        }
+        let cand = extract_math_candidate(clean)?;
+        tokenize_math(cand)
+    })?;
     match evaluate_math_tokens_with_reductions(&tokens)? {
         Ok((val, reductions)) => {
             if let Some(mut plan) = plan_from_tokens(&tokens) {

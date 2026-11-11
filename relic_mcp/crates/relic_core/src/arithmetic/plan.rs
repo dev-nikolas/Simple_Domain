@@ -115,7 +115,16 @@ impl ArithmeticPlan {
     /// Genera la representación textual de la fórmula interpretada para transparencia.
     pub fn format_formula(&self) -> String {
         let fmt_n = |n: f64| -> String {
-            if (n.fract()).abs() < 1e-6 { format!("{}", n.round() as i64) } else { format!("{:.2}", n) }
+            if (n.fract()).abs() < 1e-6 {
+                format!("{}", n.round() as i64)
+            } else {
+                let s = format!("{:.2}", n);
+                if s.ends_with('0') && s.contains('.') {
+                    s.trim_end_matches('0').to_string()
+                } else {
+                    s
+                }
+            }
         };
         let op_sym = |op: ArithmeticOp| match op {
             ArithmeticOp::Add => "+",

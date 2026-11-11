@@ -139,3 +139,22 @@ fn test_rir_validation_before_execution() {
     let doc = RirDocumentV1::new_inventory(invalid_plan.unit.clone(), invalid_plan.initial, rir_steps);
     assert!(doc.validate_semantic().is_err());
 }
+
+#[test]
+fn test_dispatch_embedded_math_query() {
+    let q1 = "Si uno más uno es dos, ¿cuánto es 123*321/456?";
+    if let DispatchIntent::Arithmetic(plan) = parse_dispatch_intent(q1) {
+        let res = plan.execute().unwrap();
+        assert!((res - 86.58552631578948).abs() < 1e-6);
+    } else {
+        panic!("Fallo al extraer y resolver expresion matematica embebida: '{}'", q1);
+    }
+
+    let q2 = "¿Cuánto es 123*321/456?";
+    if let DispatchIntent::Arithmetic(plan) = parse_dispatch_intent(q2) {
+        let res = plan.execute().unwrap();
+        assert!((res - 86.58552631578948).abs() < 1e-6);
+    } else {
+        panic!("Fallo al resolver '{}'", q2);
+    }
+}

@@ -24,7 +24,8 @@ pub fn handle_generate_sse(prompt_text: &str, state: &ServerState) -> Vec<u8> {
             model.forward_decode_step(tid, pos, &mut kv_cache, &mut step_logits);
         }
 
-        for _ in 0..48 {
+        let max_budget = state.config.max_train_seq_len.saturating_sub(token_ids.len()).min(512);
+        for _ in 0..max_budget {
             let next_token = Sampler::greedy(&step_logits);
             if tokenizer.vocab().is_eos(next_token) {
                 break;

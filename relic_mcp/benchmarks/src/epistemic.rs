@@ -101,7 +101,11 @@ pub fn run_bench2_reasoning_and_epistemic() -> ReasoningEpistemicMetrics {
                         }
                         _ => ans.text.contains(expected_trace_substring),
                     };
-                    if trace_ok { exact_trace_matches += 1; }
+                    if trace_ok {
+                        exact_trace_matches += 1;
+                    } else {
+                        println!("TRACE FAIL: query='{}', expected_trace='{}', ans='{}'", query, expected_trace_substring, ans.text);
+                    }
                 }
             }
             Bench2Case::UnanswerableTrap { query } => {

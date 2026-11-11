@@ -144,4 +144,24 @@ fn test_server_blackwall_end_to_end_endpoints() {
     assert!(val_s.get("PeriodicBeaconDetected").is_some());
 }
 
+#[test]
+fn test_mcp_tool_bridge_execution() {
+    let state = ServerState::new();
+
+    // 1. Tool call formato JSON: relic_interpret
+    let mut text1 = "<think>\nNecesito interpretar la consulta\n<tool_call>{\"name\":\"relic_interpret\",\"arguments\":{\"text\":\"123*321/456\"}}</tool_call>\n</think>".to_string();
+    let handled1 = relic_server::engine::check_and_execute_tool_calls(&mut text1, &state);
+    assert!(handled1);
+    assert!(text1.contains("<observation>"));
+    assert!(text1.contains("86.59"));
+
+    // 2. Tool call formato inline: relic_calculator
+    let mut text2 = "<think>\nCalculando...\nrelic_calculator(\"10 + 20 * 3\")\n</think>".to_string();
+    let handled2 = relic_server::engine::check_and_execute_tool_calls(&mut text2, &state);
+    assert!(handled2);
+    assert!(text2.contains("<observation>"));
+    assert!(text2.contains("70"));
+}
+
+
 
