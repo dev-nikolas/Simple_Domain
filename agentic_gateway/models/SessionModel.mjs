@@ -128,6 +128,9 @@ export class SessionModel {
   }
 
   addMessage(id, message) {
+    if (!message || (message.role === 'assistant' && (!message.content || !message.content.trim()))) {
+      return this.sessions.get(id) || null;
+    }
     let s = this.sessions.get(id) || this.create({ id });
     if (!s.messages) s.messages = [];
     s.messages.push(message);

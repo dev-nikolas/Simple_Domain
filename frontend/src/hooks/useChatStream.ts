@@ -41,7 +41,7 @@ export function useChatStream({
           securityLevel,
           signal: abortControllerRef.current.signal,
           onUpdate: (token) => {
-            accumulated += token;
+            accumulated += (token ?? '');
             updateMessages(
               [
                 ...messagesForRelic,

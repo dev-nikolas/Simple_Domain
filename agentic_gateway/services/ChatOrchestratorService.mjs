@@ -229,7 +229,7 @@ export class ChatOrchestratorService {
   }
 
   saveHistory(sessionId, prompt, responseText) {
-    if (sessionId && this.sessionStore && responseText) {
+    if (sessionId && this.sessionStore && responseText && responseText.trim()) {
       this.sessionStore.addMessage(sessionId, { role: 'user', content: prompt });
       this.sessionStore.addMessage(sessionId, { role: 'assistant', content: responseText });
     }

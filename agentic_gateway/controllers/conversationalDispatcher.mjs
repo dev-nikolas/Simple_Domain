@@ -61,7 +61,7 @@ export async function processSseStream(reader, res, stopSequences = STOP_SEQUENC
           const parsed = JSON.parse(dataStr);
           const delta = parsed.choices?.[0]?.delta;
           if (delta?.content) {
-            streamBuffer += delta.content;
+            streamBuffer += (delta.content ?? '');
 
             let stopIdx = -1;
             for (const seq of stopSequences) {
