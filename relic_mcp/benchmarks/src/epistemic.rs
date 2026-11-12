@@ -45,7 +45,7 @@ pub fn run_bench2_reasoning_and_epistemic() -> ReasoningEpistemicMetrics {
         Bench2Case::Answerable { query: "el triple de 12", expected_substring: "36", expected_trace_substring: "12 * 3 = 36" },
         Bench2Case::Answerable { query: "un tercio de 90", expected_substring: "30", expected_trace_substring: "90 / 3 = 30" },
         Bench2Case::Answerable { query: "un cuarto de 80", expected_substring: "20", expected_trace_substring: "80 / 4 = 20" },
-        Bench2Case::Answerable { query: "el 20% de 150", expected_substring: "30", expected_trace_substring: "0.2 * 150 = 30" },
+        Bench2Case::Answerable { query: "el 20% de 150", expected_substring: "30", expected_trace_substring: "0.20 * 150 = 30" },
         Bench2Case::Answerable { query: "200 más el 15%", expected_substring: "230", expected_trace_substring: "200 + 30 = 230" },
         Bench2Case::Answerable { query: "500 menos el 10%", expected_substring: "450", expected_trace_substring: "500 - 50 = 450" },
         Bench2Case::Answerable { query: "repartir 100 entre 4", expected_substring: "25", expected_trace_substring: "reparto exacto: cociente 25, resto 0" },

@@ -55,6 +55,65 @@ pub fn bytelevel_to_text(text: &str, char_to_byte: &HashMap<char, u8>) -> Result
     String::from_utf8(bytes)
 }
 
+/// Decodificador de streaming que acumula bytes parciales de caracteres UTF-8 multicapa (ej. español: á, é, í, ñ).
+/// Evita la pérdida o mutación de caracteres cuando los tokens se emiten byte a byte en tiempo real.
+#[derive(Debug, Clone, Default)]
+pub struct ByteLevelStreamDecoder {
+    pending_bytes: Vec<u8>,
+}
+
+impl ByteLevelStreamDecoder {
+    pub fn new() -> Self {
+        Self {
+            pending_bytes: Vec::new(),
+        }
+    }
+
+    /// Procesa un fragmento de texto mapeado ByteLevel, acumulando bytes y emitiendo
+    /// únicamente las secuencias UTF-8 completas.
+    pub fn decode_chunk(&mut self, text: &str, char_to_byte: &HashMap<char, u8>) -> String {
+        for c in text.chars() {
+            if let Some(&b) = char_to_byte.get(&c) {
+                self.pending_bytes.push(b);
+            }
+        }
+
+        match std::str::from_utf8(&self.pending_bytes) {
+            Ok(valid_str) => {
+                let res = valid_str.to_string();
+                self.pending_bytes.clear();
+                res
+            }
+            Err(e) => {
+                let valid_len = e.valid_up_to();
+                let mut out = String::new();
+                if valid_len > 0 {
+                    out.push_str(unsafe {
+                        std::str::from_utf8_unchecked(&self.pending_bytes[..valid_len])
+                    });
+                    self.pending_bytes.drain(..valid_len);
+                }
+
+                // Si hay un byte corrupto irreparable en lugar de una secuencia incompleta, descartarlo
+                if let Some(err_len) = e.error_len() {
+                    self.pending_bytes.drain(..err_len);
+                }
+                out
+            }
+        }
+    }
+
+    /// Vacía cualquier residuo en el búfer como cadena con reemplazo de caracteres.
+    pub fn flush(&mut self) -> String {
+        if self.pending_bytes.is_empty() {
+            return String::new();
+        }
+        let res = String::from_utf8_lossy(&self.pending_bytes).to_string();
+        self.pending_bytes.clear();
+        res
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

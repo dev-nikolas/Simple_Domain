@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Git pre-commit hook: Guardia Permanente de Arquitectura y Calidad para Simple Domain
+set -e
+
+echo "=== [PRE-COMMIT] 1/2 Verificando Rust Clippy (Denegando unwrap_or_default) ==="
+cd relic_mcp
+cargo clippy -p relic_server -p relic_mcp -- -D clippy::unwrap_or_default
+cd ..
+
+echo "=== [PRE-COMMIT] 2/2 Verificando Gateway ESLint (Cero Empty Catch / Error Swallowing) ==="
+cd agentic_gateway
+npm run lint
+cd ..
+
+echo "=== [PRE-COMMIT] Simple Domain Quality Gate Superado con Exito ==="
+exit 0
+

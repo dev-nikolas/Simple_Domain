@@ -1,0 +1,49 @@
+name: Simple Domain CI Quality Gate (Rust & Gateway)
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  rust-quality-gate:
+    name: Rust Clippy & Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Rust Clippy Guard (Deny unwrap_or_default)
+        working-directory: relic_mcp
+        run: cargo clippy -p relic_server -p relic_mcp -- -D clippy::unwrap_or_default
+
+      - name: Run Rust Test Suite
+        working-directory: relic_mcp
+        run: cargo test
+
+  node-gateway-quality-gate:
+    name: Node.js Gateway Linter & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ESLint Guard (Zero Empty Catch / Error Swallowing)
+        working-directory: agentic_gateway
+        run: npm run lint
+
+      - name: Run Gateway Test Suite
+        working-directory: agentic_gateway
+        run: npm test
+

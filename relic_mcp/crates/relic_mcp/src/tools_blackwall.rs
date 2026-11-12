@@ -5,6 +5,13 @@ use relic_lexicon::{to_dot_diff, to_mermaid_diff, EngramCapsule, LexiconPayload}
 use serde_json::{json, Value};
 use crate::types::CallToolResult;
 
+fn serialize_res<T: serde::Serialize>(val: &T) -> CallToolResult {
+    match serde_json::to_string(val) {
+        Ok(s) => CallToolResult::ok(s),
+        Err(e) => CallToolResult::err(format!("Fallo de serialización MCP JSON: {e}")),
+    }
+}
+
 pub fn handle_propose(args: &Value, blackwall: &mut BlackwallGate) -> CallToolResult {
     let Some(payload_val) = args.get("payload") else {
         return CallToolResult::err("Error: Falta parámetro 'payload'.");
@@ -15,7 +22,7 @@ pub fn handle_propose(args: &Value, blackwall: &mut BlackwallGate) -> CallToolRe
     };
     let ts = args.get("timestamp_ms").and_then(|v| v.as_u64()).unwrap_or(0);
     let outcome = blackwall.propose_mutation(payload, ts);
-    CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default())
+    serialize_res(&outcome)
 }
 
 pub fn handle_rollback(args: &Value, blackwall: &mut BlackwallGate) -> CallToolResult {
@@ -25,7 +32,7 @@ pub fn handle_rollback(args: &Value, blackwall: &mut BlackwallGate) -> CallToolR
     let reason = args.get("reason").and_then(|v| v.as_str()).unwrap_or("Rollback MCP");
     let ts = args.get("timestamp_ms").and_then(|v| v.as_u64()).unwrap_or(0);
     let outcome = blackwall.rollback_to(target_version, reason, ts);
-    CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default())
+    serialize_res(&outcome)
 }
 
 pub fn handle_consolidate(args: &Value, blackwall: &mut BlackwallGate) -> CallToolResult {
@@ -35,7 +42,7 @@ pub fn handle_consolidate(args: &Value, blackwall: &mut BlackwallGate) -> CallTo
     let min_f = args.get("min_fidelity").and_then(|v| v.as_f64()).unwrap_or(1.0);
     let ts = args.get("timestamp_ms").and_then(|v| v.as_u64()).unwrap_or(0);
     let outcome = blackwall.consolidate_memory(min_w, min_f, ts);
-    CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default())
+    serialize_res(&outcome)
 }
 
 pub fn handle_activate(args: &Value, blackwall: &BlackwallGate) -> CallToolResult {
@@ -47,7 +54,7 @@ pub fn handle_activate(args: &Value, blackwall: &BlackwallGate) -> CallToolResul
     let steps = args.get("steps").and_then(|v| v.as_u64()).unwrap_or(2) as usize;
     let max_h = args.get("max_entropy_threshold").and_then(|v| v.as_f64()).unwrap_or(1.5);
     let res = blackwall.propagate_activation(&seeds, gamma, steps, max_h);
-    CallToolResult::ok(serde_json::to_string(&res).unwrap_or_default())
+    serialize_res(&res)
 }
 
 pub fn handle_diff(args: &Value, blackwall: &BlackwallGate) -> CallToolResult {
@@ -77,7 +84,7 @@ pub fn handle_spectral(args: &Value, blackwall: &BlackwallGate) -> CallToolResul
             Err(e) => return CallToolResult::err(format!("Error en 'network_alert': {e}")),
         };
         let report = blackwall.verify_network_alert(&spec);
-        return CallToolResult::ok(serde_json::to_string(&report).unwrap_or_default());
+        return serialize_res(&report);
     }
     let Some(sig_arr) = args.get("signal").and_then(|v| v.as_array()) else {
         return CallToolResult::err("Error: Falta 'signal' o 'network_alert'.");
@@ -87,7 +94,7 @@ pub fn handle_spectral(args: &Value, blackwall: &BlackwallGate) -> CallToolResul
     let min_c = args.get("min_cycles").and_then(|v| v.as_f64()).unwrap_or(3.0);
     let hint = args.get("expected_period_hint").and_then(|v| v.as_f64());
     let outcome = blackwall.analyze_spectrum(&signal, eps, min_c, hint);
-    CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default())
+    serialize_res(&outcome)
 }
 
 pub fn handle_synchronize(args: &Value, blackwall: &BlackwallGate) -> CallToolResult {
@@ -99,7 +106,7 @@ pub fn handle_synchronize(args: &Value, blackwall: &BlackwallGate) -> CallToolRe
         Err(e) => return CallToolResult::err(format!("Error en 'spec': {e}")),
     };
     let outcome = blackwall.synchronize_kuramoto(&spec);
-    CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default())
+    serialize_res(&outcome)
 }
 
 pub fn handle_assimilate(args: &Value, blackwall: &mut BlackwallGate) -> CallToolResult {
@@ -115,7 +122,7 @@ pub fn handle_assimilate(args: &Value, blackwall: &mut BlackwallGate) -> CallToo
     };
     let ts = args.get("timestamp_ms").and_then(|v| v.as_u64()).unwrap_or(0);
     let rep = blackwall.assimilate_verified_example(raw_query, verified_op, ts);
-    CallToolResult::ok(serde_json::to_string(&rep).unwrap_or_default())
+    serialize_res(&rep)
 }
 
 pub fn handle_capsule(args: &Value, blackwall: &mut BlackwallGate) -> CallToolResult {
@@ -130,14 +137,13 @@ pub fn handle_capsule(args: &Value, blackwall: &mut BlackwallGate) -> CallToolRe
         };
         let ts = args.get("timestamp_ms").and_then(|v| v.as_u64()).unwrap_or(0);
         let outcome = blackwall.import_engram_capsule(&cap, ts);
-        return CallToolResult::ok(serde_json::to_string(&outcome).unwrap_or_default());
+        return serialize_res(&outcome);
     }
     let domain = args.get("domain").and_then(|v| v.as_str()).unwrap_or("relic_mcp");
     let v_from = args.get("v_from").and_then(|v| v.as_u64()).unwrap_or(1);
     let v_to = args.get("v_to").and_then(|v| v.as_u64()).unwrap_or(blackwall.current_version());
     match blackwall.export_engram_capsule(domain, v_from, v_to) {
-        Ok(cap) => CallToolResult::ok(serde_json::to_string(&cap).unwrap_or_default()),
+        Ok(cap) => serialize_res(&cap),
         Err(e) => CallToolResult::err(format!("Error exportando cápsula: {e}")),
     }
 }
-

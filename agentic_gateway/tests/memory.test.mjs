@@ -7,7 +7,7 @@ import { MemoryModel } from '../models/MemoryModel.mjs';
 const TEST_FILE = path.join(process.cwd(), 'data', 'test_memory_unit.json');
 
 async function cleanup() {
-  try { await fs.rm(TEST_FILE, { force: true }); } catch {}
+  try { await fs.rm(TEST_FILE, { force: true }); } catch (err) { void err; }
 }
 
 test('MemoryModel - inicialización vacía y persistencia de conclusiones', async () => {

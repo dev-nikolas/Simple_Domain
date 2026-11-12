@@ -1,165 +1,86 @@
-// Simple Domain — Chat Controller
-// Principio de Responsabilidad Única (SRP): Inferencia en streaming SSE con RELIC Engine.
+// Simple Domain — Chat Controller (Adaptador I/O y Orquestación HTTP)
+// Principio de Responsabilidad Única (SRP):
+// El controlador solo se encarga de la validación HTTP I/O, control DoS de carga útil,
+// y delegación de la inferencia al ChatOrchestratorService.
 
-import { initSSEStream, sendSSEDelta, sendSSEToolCall, sendSSEError, endSSEStream } from '../views/sseView.mjs';
-import { dispatchLocalAutonomousChat } from './localCognitiveDispatcher.mjs';
+import { parseJsonBody } from '../utils/httpBodyParser.mjs';
+import { sendError } from '../views/jsonView.mjs';
+import { ChatOrchestratorService } from '../services/ChatOrchestratorService.mjs';
+import { classifyQueryIntent, INTENT } from './cognitiveRouter.mjs';
 
-export function handleChatCompletion({
-  req,
-  res,
-  relicMemoryStore,
-  slotPersistence,
-  sessionStore,
-  allTools,
-  defaultSystemPrompt,
-  relicEngineUrl,
-}) {
-  let body = '';
-  req.on('data', (chunk) => { body += chunk; });
-  req.on('end', async () => {
-    try {
-      const clientPayload = JSON.parse(body);
-      const messages = [...(clientPayload.messages || [])];
-      const sessionId = clientPayload.session_id;
-      const maxTokens = clientPayload.max_tokens || 2048;
-      const temperature = clientPayload.temperature ?? 0.6;
+const FAST_GREETING_MESSAGE = "¡Hola! Soy RELIC. El motor neuro-simbólico está listo y en línea. ¿En qué te ayudo hoy?";
 
-      // Inyectar contexto de memoria episodica al system prompt de RELIC si existe
-      const memoryContext = relicMemoryStore.getSystemPromptMemoryContext();
-      const systemIndex = messages.findIndex((m) => m.role === 'system');
+export function checkFastConversationalBypass(userMessage) {
+  if (!userMessage || typeof userMessage !== 'string') return null;
+  const intent = classifyQueryIntent(userMessage);
+  if (intent === INTENT.GREETING) {
+    return FAST_GREETING_MESSAGE;
+  }
+  return null;
+}
 
-      if (systemIndex === -1) {
-        if (memoryContext) {
-          messages.unshift({
-            role: 'system',
-            content: memoryContext,
-          });
-        }
-      } else {
-        let content = messages[systemIndex].content || '';
-        if (memoryContext && !content.includes('[MEMORIA EPISÓDICA')) {
-          content = content ? `${content}\n\n${memoryContext}` : memoryContext;
-        }
-        messages[systemIndex].content = content;
-      }
+/**
+ * Fábrica de controlador con Inyección de Dependencias (DIP / SRP).
+ * @param {object} sessionStore
+ * @param {object} memoryStore
+ * @returns {Function}
+ */
+export function buildChatHandler(sessionStore, memoryStore) {
+  const orchestrator = new ChatOrchestratorService(sessionStore, memoryStore);
 
-      initSSEStream(res);
-      let accumulatedTotal = '';
-
-      const enableTools = clientPayload.enable_tools === true || clientPayload.tools !== undefined;
-      const toolsToSend = enableTools ? (clientPayload.tools || allTools) : undefined;
-
-      const relicPayload = {
-        messages,
-        cartridge: clientPayload.cartridge || 'auto',
-        temperature,
-        max_tokens: maxTokens,
-        stream: true,
-      };
-      if (toolsToSend && toolsToSend.length > 0) {
-        relicPayload.tools = toolsToSend;
-      }
-
-      if (sessionId && slotPersistence) {
-        await slotPersistence.restoreIfEvicted(sessionId);
-      }
-
-      let relicRes = null;
+  return function handleChatCompletion(req, res) {
+    return parseJsonBody(req, res, 1024 * 512, async (payload) => {
+      if (!payload) return;
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000);
-
-        relicRes = await fetch(relicEngineUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(relicPayload),
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-
-        if (!relicRes.ok) {
-          relicRes = null;
-        }
-      } catch {
-        // Motor C-Engine inactivo o puerto 8080 no levantado
-        relicRes = null;
-      }
-
-      // Despacho autónomo local si el motor C no está activo
-      if (!relicRes) {
-        const lastUser = messages.filter((m) => m.role === 'user').pop();
-        const prompt = lastUser?.content || '';
-        await dispatchLocalAutonomousChat({
-          res,
-          prompt,
-          cartridge: clientPayload.cartridge || 'auto',
-          sessionId,
-          sessionStore,
-          relicMemoryStore,
-        });
-        return;
-      }
-
-      if (relicRes.body) {
-        const reader = relicRes.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let buffer = '';
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed || !trimmed.startsWith('data: ')) continue;
-              const payload = trimmed.slice(6).trim();
-
-              if (payload === '[DONE]') break;
-
-              try {
-                const parsed = JSON.parse(payload);
-                const delta = parsed.choices?.[0]?.delta;
-                if (delta?.content) {
-                  accumulatedTotal += delta.content;
-                  sendSSEDelta(res, delta.content);
-                } else if (delta?.tool_calls) {
-                  sendSSEToolCall(res, parsed);
-                }
-              } catch {
-                // Buffer fragmentario
-              }
-            }
-          }
-        } finally {
-          reader.releaseLock();
+        await orchestrator.dispatch({ res, payload });
+      } catch (err) {
+        console.error('[ChatController] Error orquestando inferencia:', err);
+        if (!res.headersSent) {
+          sendError(res, 500, 'Error interno del despachador conversacional');
+        } else {
+          res.end();
         }
       }
+    });
+  };
+}
 
-      endSSEStream(res);
+/**
+ * Adaptador de compatibilidad para el enrutador MVC y tests de integración.
+ */
+export function handleChatCompletion(reqOrParams, maybeRes) {
+  let req, res, sessionStore, memoryStore, relicEngineUrl, conversationalEngineUrl;
 
-      if (sessionId && accumulatedTotal) {
-        const lastUserMsg = messages[messages.length - 1];
-        if (lastUserMsg && lastUserMsg.role === 'user') {
-          sessionStore.addMessage(sessionId, lastUserMsg);
-        }
-        sessionStore.addMessage(sessionId, {
-          role: 'assistant',
-          content: accumulatedTotal,
-        });
+  if (reqOrParams && reqOrParams.req && reqOrParams.res) {
+    req = reqOrParams.req;
+    res = reqOrParams.res;
+    sessionStore = reqOrParams.sessionStore;
+    memoryStore = reqOrParams.relicMemoryStore;
+    relicEngineUrl = reqOrParams.relicEngineUrl;
+    conversationalEngineUrl = reqOrParams.conversationalEngineUrl;
+  } else {
+    req = reqOrParams;
+    res = maybeRes;
+  }
 
-        const totalChars = messages.reduce((acc, m) => acc + (m.content?.length || 0), 0) + accumulatedTotal.length;
-        const approxTokens = Math.round(totalChars / 4);
-        if (slotPersistence) slotPersistence.scheduleSave(sessionId, approxTokens);
-      }
+  const orchestrator = new ChatOrchestratorService(sessionStore, memoryStore);
+
+  return parseJsonBody(req, res, 1024 * 512, async (payload) => {
+    if (!payload) return;
+    try {
+      await orchestrator.dispatch({
+        res,
+        payload,
+        relicEngineUrl,
+        conversationalEngineUrl,
+      });
     } catch (err) {
-      console.error('[ChatController] Error procesando completions:', err);
-      sendSSEError(res, err.message);
-      endSSEStream(res);
+      console.error('[ChatController] Error orquestando inferencia:', err);
+      if (!res.headersSent) {
+        sendError(res, 500, 'Error interno del despachador conversacional');
+      } else {
+        res.end();
+      }
     }
   });
 }

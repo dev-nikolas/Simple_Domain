@@ -29,6 +29,7 @@ export function createRouter({
   quarantineDir,
   defaultSystemPrompt,
   relicEngineUrl,
+  conversationalEngineUrl,
 }) {
   return async (req, res) => {
     setCorsHeaders(res);
@@ -95,6 +96,7 @@ export function createRouter({
         allTools,
         defaultSystemPrompt,
         relicEngineUrl,
+        conversationalEngineUrl,
       });
     }
 

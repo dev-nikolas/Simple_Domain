@@ -48,8 +48,8 @@ pub enum SyndromeVerdict {
         primary: FaultCandidate,
         hamming_distance: u8,
     },
-    /// Equifinalidad detectada: empate métrico entre al menos dos causas físicamente distintas.
-    /// Prohíbe formalmente amputar la topología hasta desambiguar.
+    /// Ambigüedad detectada: empate métrico de distancia entre dos hipótesis de falla.
+    /// Retiene la decisión topológica hasta recibir telemetría adicional.
     EpistemicUncertainty {
         candidate_a: FaultCandidate,
         candidate_b: FaultCandidate,

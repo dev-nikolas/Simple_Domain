@@ -23,12 +23,20 @@ export class SessionModel {
           if (s?.id) this.sessions.set(s.id, s);
         }
       }
-    } catch {
-      // Almacén vacío
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        const corruptPath = `${this.filePath}.corrupt.${Date.now()}`;
+        console.error(`[SessionModel] Archivo de sesiones corrupto o ilegible. Aislado en: ${corruptPath}`, err);
+        try {
+          await fs.copyFile(this.filePath, corruptPath);
+        } catch (copyErr) {
+          console.error('[SessionModel] Falló respaldo de aislamiento:', copyErr);
+        }
+      }
     }
 
     if (this.sessions.size === 0) {
-      // Almacen inicial limpio: no forzar sesiones vacias por defecto
+      this.create({ title: 'Nueva Conversación' });
     }
   }
 
@@ -91,7 +99,7 @@ export class SessionModel {
     const title = data.title || 'Nueva Conversación';
     const messages = Array.isArray(data.messages)
       ? data.messages
-      : [];
+      : (this.defaultSystemPrompt ? [{ role: 'system', content: this.defaultSystemPrompt }] : []);
 
     const session = { id, title, messages, updatedAt: Date.now() };
     this.sessions.set(id, session);
@@ -111,6 +119,9 @@ export class SessionModel {
   delete(id) {
     const existed = this.sessions.delete(id);
     if (existed) {
+      if (this.sessions.size === 0) {
+        this.create({ title: 'Nueva Conversación' });
+      }
       this.scheduleSave();
     }
     return existed;

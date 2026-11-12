@@ -1,7 +1,7 @@
 //! # SPSC Concurrency Stress Test
 //!
-//! Prueba de contención multi-hilo real: 1 hilo productor (Plano Cognitivo) y
-//! 1 hilo consumidor (Plano Reflejo) intercambiando 100,000 directivas en paralelo.
+//! Prueba de contención multi-hilo: 1 hilo productor y
+//! 1 hilo consumidor intercambiando 100,000 directivas en paralelo.
 
 use std::sync::Arc;
 use std::thread;
@@ -28,10 +28,20 @@ pub fn run_spsc_concurrency_stress_test() {
             let mut env = StagedEnvelope::new(i);
             env.add_op(1, 300.0, 200.0, 0).unwrap();
 
+            let mut backoff = 1;
             loop {
                 match ring_prod.try_stage_from_cognitive(env, 2_000_000, (0, 1, 1), &bounds_prod, 1000.0) {
                     Ok(_) => break,
-                    Err(_) => std::hint::spin_loop(),
+                    Err(_) => {
+                        if backoff < 32 {
+                            for _ in 0..backoff {
+                                std::hint::spin_loop();
+                            }
+                            backoff <<= 1;
+                        } else {
+                            thread::yield_now();
+                        }
+                    }
                 }
             }
         }
@@ -56,6 +66,7 @@ pub fn run_spsc_concurrency_stress_test() {
         let clean_snapshot = [250.0f32, 250.0, 250.0, 0.0];
 
         let mut expected_id = 1u64;
+        let mut cons_backoff = 1;
 
         while expected_id <= TOTAL_MESSAGES {
             let mut ctx = TacticalKernelContext {
@@ -82,9 +93,17 @@ pub fn run_spsc_concurrency_stress_test() {
                 TacticalDecision::TransmitDMA { envelope, .. } => {
                     assert_eq!(envelope.envelope_id, expected_id, "Corrupción o violación FIFO en SPSC");
                     expected_id += 1;
+                    cons_backoff = 1;
                 }
                 TacticalDecision::IdleNoStagedOrder { .. } => {
-                    std::hint::spin_loop();
+                    if cons_backoff < 32 {
+                        for _ in 0..cons_backoff {
+                            std::hint::spin_loop();
+                        }
+                        cons_backoff <<= 1;
+                    } else {
+                        thread::yield_now();
+                    }
                 }
                 other => panic!("Decisión inesperada durante prueba de contención SPSC: {:?}", other),
             }

@@ -4,8 +4,8 @@
 //! en el entorno ciberfísico, emitido únicamente cuando la martingala SPRT
 //! confirma la violación estadística tras la ejecución de una orden.
 //!
-//! Un `UnsatCore` del plano cognitivo (rechazo del LLM) carece de acceso a este token,
-//! protegiendo al Blackwall contra ataques de auto-inmunidad (*Auto-Immune DoS*).
+//! Impide que fallas sintéticas o no validadas alteren la memoria de contingencia
+//! del kernel sin confirmación estadística de los sensores.
 
 use super::signature::CriticalEdgeKey;
 

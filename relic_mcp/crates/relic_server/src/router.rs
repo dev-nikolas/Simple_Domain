@@ -25,7 +25,13 @@ fn cors_headers() -> Vec<Header> {
 }
 
 fn send_json<T: serde::Serialize>(request: Request, status: u16, data: &T) {
-    let body = serde_json::to_vec(data).unwrap_or_default();
+    let body = match serde_json::to_vec(data) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("[ROUTER] Error serializando JSON: {e}");
+            b"{\"status\":\"INTERNAL_ERROR\",\"detail\":\"JSON serialization failed\"}".to_vec()
+        }
+    };
     let mut headers = cors_headers();
     headers.push(Header::from_bytes(&b"Content-Type"[..], &b"application/json"[..]).unwrap());
     let _ = request.respond(Response::new(StatusCode(status), headers, std::io::Cursor::new(body), None, None));
@@ -47,7 +53,10 @@ pub fn process_query_in_process(body_str: &str, state: &ServerState, timeout_ms:
     if timeout_ms == 0 {
         return (504, json!({ "detail": "Error 504: Tiempo de ejecución excedido (timeout).", "status": "TIMEOUT" }));
     }
-    let req: QueryRequest = serde_json::from_str(body_str).unwrap_or_default();
+    let req: QueryRequest = match serde_json::from_str(body_str) {
+        Ok(r) => r,
+        Err(e) => return (400, json!({ "detail": format!("JSON inválido para QueryRequest: {e}"), "status": "BAD_REQUEST" })),
+    };
     let t0 = Instant::now();
     let res = execute_query_with_trace(&req.query, state, req.enable_trace);
     if t0.elapsed() > Duration::from_millis(timeout_ms) {
@@ -154,7 +163,13 @@ pub fn handle_request(mut request: Request, state: &ServerState) {
         },
         ("POST", "/api/generate") => match read_body(&mut request) {
             Ok(body) => {
-                let req: QueryRequest = serde_json::from_str(&body).unwrap_or_default();
+                let req: QueryRequest = match serde_json::from_str(&body) {
+                    Ok(r) => r,
+                    Err(e) => {
+                        send_json(request, 400, &json!({ "detail": format!("JSON inválido: {e}"), "status": "BAD_REQUEST" }));
+                        return;
+                    }
+                };
                 let sse_bytes = handle_generate_sse(&req.query, state);
                 let mut headers = cors_headers();
                 headers.push(Header::from_bytes(&b"Content-Type"[..], &b"text/event-stream"[..]).unwrap());

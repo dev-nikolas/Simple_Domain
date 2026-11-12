@@ -23,7 +23,7 @@ pub fn execute_query_with_trace(query: &str, state: &ServerState, enable_trace: 
     }
 
     let intent = {
-        let gate = state.blackwall.read().unwrap();
+        let gate = state.blackwall_read();
         parse_dispatch_intent_with_lexicon(trimmed, Some(gate.active_view()))
     };
 
@@ -94,7 +94,7 @@ fn execute_proposed(doc: &RirDocumentV1, state: &ServerState) -> (String, String
         }
         IntentKind::GraphQuery => {
             let spec = match &doc.graph_spec { Some(s) => s, None => return ("Error en grafo".to_string(), "semantic_compiler".to_string(), "INVALID".to_string()) };
-            let mut gate = state.blackwall.write().unwrap();
+            let mut gate = state.blackwall_write();
             let q = format!("¿Se puede ir de {} a {}?", spec.start_node, spec.target_node);
             let (_, ans) = gate.evaluate_query(&q);
             let text = format!("[Interpretado como: origen={}, destino={}] {}", spec.start_node, spec.target_node, ans.text);
@@ -105,20 +105,21 @@ fn execute_proposed(doc: &RirDocumentV1, state: &ServerState) -> (String, String
 }
 
 fn answer_deterministic(query: &str, state: &ServerState) -> (String, String, String) {
-    let mut gate = state.blackwall.write().unwrap();
+    let mut gate = state.blackwall_write();
     let (_, answer) = gate.evaluate_query(query);
     (answer.text, answer.route, answer.status)
 }
 
 fn dispatch_mcp_tool_call(tool_name: &str, args: &serde_json::Value, state: &ServerState) -> Option<String> {
-    let mut gate = state.blackwall.write().unwrap();
+    if tool_name == "relic_verify" {
+        let res = relic_mcp::tools::handle_verify(args);
+        return Some(res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n"));
+    }
+
+    let mut gate = state.blackwall_write();
     let res = match tool_name {
         "relic_interpret" => {
             let res = relic_mcp::tools::handle_interpret(args, &mut gate);
-            res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n")
-        }
-        "relic_verify" => {
-            let res = relic_mcp::tools::handle_verify(args);
             res.content.into_iter().map(|c| c.text).collect::<Vec<_>>().join("\n")
         }
         "relic_retrieve" => {
@@ -175,26 +176,45 @@ pub fn check_and_execute_tool_calls(gen_text: &mut String, state: &ServerState) 
 }
 
 fn generate_neural(text: &str, state: &ServerState, model: &relic_core::RelicModel, tok: &relic_tokenizer::BpeTokenizer) -> (String, String, String) {
-    let formatted = format!("<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n<think>\n", text.trim());
+    let is_reasoning_requested = text.contains("<think>") || text.to_lowercase().contains("razona") || text.to_lowercase().contains("piensa");
+    let formatted = if text.contains("<|im_start|>") {
+        text.to_string()
+    } else if is_reasoning_requested {
+        format!("<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n<think>\n", text.trim())
+    } else {
+        format!("<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n", text.trim())
+    };
+
     let token_ids = tok.encode(&formatted);
-    let max_budget = state.config.max_train_seq_len.saturating_sub(token_ids.len()).min(512);
+    let max_budget = state.config.max_train_seq_len.saturating_sub(token_ids.len()).min(128);
     let mut kv = KvCache::new(state.config.num_hidden_layers, state.config.max_train_seq_len, state.config.num_key_value_heads, state.config.head_dim);
     let mut logits = vec![0.0f32; state.config.vocab_size];
-    for (pos, &tid) in token_ids.iter().enumerate() { model.forward_decode_step(tid, pos, &mut kv, &mut logits); }
+    for (pos, &tid) in token_ids.iter().enumerate() {
+        let is_last = pos == token_ids.len() - 1;
+        model.forward_decode_step_ex(tid, pos, &mut kv, if is_last { Some(&mut logits) } else { None });
+    }
     let mut gen_ids = Vec::new();
+    let mut rng_state = 1337u64;
     for _ in 0..max_budget {
-        let nxt = Sampler::greedy(&logits);
+        let (nxt, next_rng) = Sampler::sample_top_k(&logits, 40, 0.3, rng_state);
+        rng_state = next_rng;
         if tok.vocab().is_eos(nxt) { break; }
         gen_ids.push(nxt);
         let pos = kv.current_len;
         if pos >= state.config.max_train_seq_len { break; }
-        model.forward_decode_step(nxt, pos, &mut kv, &mut logits);
+        model.forward_decode_step_ex(nxt, pos, &mut kv, Some(&mut logits));
     }
-    let gen_text = tok.decode(&gen_ids).unwrap_or_default();
-    let mut final_text = if gen_text.starts_with("<think>") {
-        gen_text
-    } else {
+    let gen_text = match tok.decode(&gen_ids) {
+        Ok(t) => t,
+        Err(e) => {
+            eprintln!("[RELIC ENGINE] Error decodificando tokens UTF-8: {e}");
+            return (format!("[ERROR DE INFERENCIA]: Fallo decodificando tokens UTF-8: {e}"), "neural_model".to_string(), "DECODE_ERROR".to_string());
+        }
+    };
+    let mut final_text = if is_reasoning_requested && !gen_text.starts_with("<think>") {
         format!("<think>\n{}", gen_text)
+    } else {
+        gen_text
     };
     check_and_execute_tool_calls(&mut final_text, state);
     (final_text, "neural_model".to_string(), "GENERATED".to_string())

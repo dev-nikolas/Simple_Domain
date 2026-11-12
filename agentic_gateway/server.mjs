@@ -8,6 +8,7 @@ import {
   HOST,
   RELIC_ENGINE_URL,
   RELIC_ENGINE_BASE_URL,
+  CONVERSATIONAL_ENGINE_URL,
   SESSIONS_FILE,
   MEMORY_FILE,
   QUARANTINE_DIR,
@@ -41,7 +42,9 @@ async function startServer() {
 
   try {
     await fs.mkdir(QUARANTINE_DIR, { recursive: true });
-  } catch {}
+  } catch (err) {
+    console.warn('[Server] No se pudo crear directorio de cuarentena:', err.message);
+  }
 
   // 2. Conectar al Microkernel MCP en Rust (si el binario fue compilado)
   const mcpClient = new RelicMcpClient();
@@ -56,7 +59,8 @@ async function startServer() {
   // 3. Catálogo unificado de herramientas (Rust MCP + Locales)
   const allTools = [...LOCAL_TOOLS, ...mcpClient.getOpenAiToolsSchema()];
 
-  // 4. Enrutador MVC
+  // 4. Enrutador MVC (Motor C99 unificado como endpoint principal)
+  const engineTargetUrl = process.env.CONVERSATIONAL_ENGINE_URL || RELIC_ENGINE_URL;
   const requestHandler = createRouter({
     sessionStore: sessionModel,
     relicMemoryStore: memoryModel,
@@ -67,6 +71,7 @@ async function startServer() {
     quarantineDir: QUARANTINE_DIR,
     defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
     relicEngineUrl: RELIC_ENGINE_URL,
+    conversationalEngineUrl: engineTargetUrl,
   });
 
   const server = http.createServer(requestHandler);
@@ -78,7 +83,7 @@ async function startServer() {
     } else {
       console.log(`[Agentic Gateway] Modo Soberano: ${LOCAL_TOOLS.length} herramientas locales JS activas`);
     }
-    console.log(`[Agentic Gateway] Operación autónoma activa (con fallback local si ${RELIC_ENGINE_URL} no responde)`);
+    console.log(`[Agentic Gateway] Endpoint de inferencia: ${engineTargetUrl}`);
     console.log(`[Agentic Gateway] Sesiones: ${SESSIONS_FILE} | Memoria: ${MEMORY_FILE}`);
   });
 }

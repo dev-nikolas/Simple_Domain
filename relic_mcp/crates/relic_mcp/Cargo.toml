@@ -5,6 +5,9 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 relic_core = { path = "../relic_core" }
 relic_lexicon = { path = "../relic_lexicon" }

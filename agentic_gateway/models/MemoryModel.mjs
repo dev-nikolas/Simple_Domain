@@ -15,7 +15,16 @@ export class MemoryModel {
       const raw = await fs.readFile(this.filePath, 'utf-8');
       const list = JSON.parse(raw);
       if (Array.isArray(list)) this.memories = list;
-    } catch {
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        const corruptPath = `${this.filePath}.corrupt.${Date.now()}`;
+        console.error(`[MemoryModel] Archivo de memorias corrupto o ilegible. Aislado en: ${corruptPath}`, err);
+        try {
+          await fs.copyFile(this.filePath, corruptPath);
+        } catch (copyErr) {
+          console.error('[MemoryModel] Falló respaldo de aislamiento:', copyErr);
+        }
+      }
       this.memories = [];
     }
   }
@@ -35,6 +44,8 @@ export class MemoryModel {
       await fs.rename(tempPath, this.filePath);
     } catch (err) {
       console.error('[MemoryModel] Error escribiendo memoria:', err.message);
+      this.memories.pop();
+      throw err;
     }
     return entry;
   }
@@ -42,11 +53,18 @@ export class MemoryModel {
   async delete(id) {
     const idx = this.memories.findIndex((m) => m.id === id);
     if (idx !== -1) {
-      const removed = this.memories.splice(idx, 1)[0];
+      const removed = this.memories[idx];
+      const nextMemories = this.memories.filter((_, i) => i !== idx);
       try {
-        await fs.writeFile(this.filePath, JSON.stringify(this.memories, null, 2), 'utf-8');
-      } catch {}
-      return removed;
+        const tempPath = `${this.filePath}.${Date.now()}.tmp`;
+        await fs.writeFile(tempPath, JSON.stringify(nextMemories, null, 2), 'utf-8');
+        await fs.rename(tempPath, this.filePath);
+        this.memories = nextMemories;
+        return removed;
+      } catch (err) {
+        console.error('[MemoryModel] Error al persistir borrado:', err.message);
+        throw err;
+      }
     }
     return null;
   }

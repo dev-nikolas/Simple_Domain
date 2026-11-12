@@ -2,6 +2,8 @@
 //!
 //! Servicio HTTP de inferencia sin estado para RELIC.
 //! Diagnóstico de arranque y traza de ejecución detallada.
+#![deny(clippy::unwrap_or_default)]
+
 use std::sync::Arc;
 use std::thread;
 use tiny_http::Server;
@@ -10,9 +12,13 @@ use relic_server::{handle_request, ServerState};
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let port = if args.len() > 1 {
-        args[1].parse::<u16>().unwrap_or(5000)
+        args[1].parse::<u16>().unwrap_or(8080)
     } else {
-        std::env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(5000)
+        std::env::var("RELIC_SERVER_PORT")
+            .or_else(|_| std::env::var("PORT"))
+            .ok()
+            .and_then(|p| p.parse().ok())
+            .unwrap_or(8080)
     };
 
     let bind_addr = format!("0.0.0.0:{}", port);

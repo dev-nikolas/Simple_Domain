@@ -34,7 +34,8 @@ function setupRouter() {
     executeTool,
     quarantineDir: './quarantine',
     defaultSystemPrompt: 'Prompt base',
-    relicEngineUrl: 'http://localhost:8080'
+    relicEngineUrl: 'http://127.0.0.1:59998',
+    conversationalEngineUrl: 'http://127.0.0.1:59999'
   });
 
   return { router, sessionStore, relicMemoryStore };

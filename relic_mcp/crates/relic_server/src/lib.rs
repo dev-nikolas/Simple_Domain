@@ -1,6 +1,8 @@
 //! # relic_server
 //!
 //! Servidor HTTP nativo ultraliviano y servicio de inferencia sin estado para RELIC.
+#![deny(clippy::unwrap_or_default)]
+
 pub mod engine;
 pub mod generate;
 pub mod router;

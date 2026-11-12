@@ -7,7 +7,7 @@ pub mod byte_level;
 pub mod vocab;
 
 pub use bpe::BpeTokenizer;
-pub use byte_level::{bytelevel_to_text, bytes_to_unicode, text_to_bytelevel};
+pub use byte_level::{bytelevel_to_text, bytes_to_unicode, text_to_bytelevel, ByteLevelStreamDecoder};
 pub use vocab::{Vocab, VocabError};
 
 #[cfg(test)]

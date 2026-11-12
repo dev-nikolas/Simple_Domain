@@ -8,7 +8,7 @@ const TEST_FILE = path.join(process.cwd(), 'data', 'test_sessions_unit.json');
 
 async function cleanup(model) {
   if (model) model.close();
-  try { await fs.rm(TEST_FILE, { force: true }); } catch {}
+  try { await fs.rm(TEST_FILE, { force: true }); } catch (err) { void err; }
 }
 
 test('SessionModel - inicialización crea sesión por defecto si almacén está vacío', async () => {

@@ -1,0 +1,14 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-empty": ["error", { "allowEmptyCatch": false }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+  }
+}
+

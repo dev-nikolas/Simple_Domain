@@ -15,7 +15,9 @@ export class SlotModel {
   async init() {
     try {
       await fs.mkdir(this.cacheDir, { recursive: true });
-    } catch {}
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+    }
   }
 
   getSnapshotFilename(sessionId) {
@@ -39,7 +41,9 @@ export class SlotModel {
   async deleteSnapshot(sessionId) {
     try {
       await fs.unlink(this.getSnapshotPath(sessionId));
-    } catch {}
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err;
+    }
   }
 
   async enforceMaxCacheSize() {
@@ -55,7 +59,9 @@ export class SlotModel {
           const s = await fs.stat(p);
           stats.push({ path: p, size: s.size, mtime: s.mtimeMs });
           total += s.size;
-        } catch {}
+        } catch (err) {
+          console.warn('[SlotModel] No se pudo leer stat de archivo:', p, err.message);
+        }
       }
 
       if (total <= this.maxBytes) return;
@@ -66,9 +72,13 @@ export class SlotModel {
         try {
           await fs.unlink(item.path);
           total -= item.size;
-        } catch {}
+        } catch (err) {
+          console.warn('[SlotModel] Error purgando snapshot excedente:', item.path, err.message);
+        }
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[SlotModel] Error en ciclo de retencion de cache:', err.message);
+    }
   }
 
   async getSlots() {
@@ -133,7 +143,9 @@ export class SlotModel {
         });
 
         if (res.ok) await this.enforceMaxCacheSize();
-      } catch {}
+      } catch (err) {
+        console.warn('[SlotModel] Error en persistencia diferida de snapshot:', err.message);
+      }
     }, 4000);
 
     this.saveDebounceTimers.set(sessionId, timer);

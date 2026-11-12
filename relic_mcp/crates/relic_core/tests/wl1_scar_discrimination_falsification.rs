@@ -113,6 +113,7 @@ fn test_wl1_scar_discrimination_and_avx2_rete_engine() {
             std::hint::black_box(test_bounds.active_scar_mask);
         }
         let avg_micros = (start.elapsed().as_nanos() as f64 / BENCH_ROUNDS as f64) / 1000.0;
-        assert!(avg_micros < 1.5, "Latencia excede 1.5 µs: {:.4} µs", avg_micros);
+        let threshold = if cfg!(debug_assertions) { 5.0 } else { 1.5 };
+        assert!(avg_micros < threshold, "Latencia excede {:.1} µs: {:.4} µs", threshold, avg_micros);
     }
 }

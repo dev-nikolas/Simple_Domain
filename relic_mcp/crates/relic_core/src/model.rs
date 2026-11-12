@@ -41,16 +41,16 @@ impl RelicModel {
     }
 
     /// Decodifica un solo token autoregresivo con KV-Cache en tiempo O(1) proyecciones.
-    pub fn forward_decode_step(
+    /// Permite omitir la proyección LM Head (`logits_out: None`) durante el prefill de prompt.
+    pub fn forward_decode_step_ex(
         &self,
         token_id: u32,
         pos: usize,
         cache: &mut KvCache,
-        logits_out: &mut [f32],
+        logits_out: Option<&mut [f32]>,
     ) {
         let h = self.config.hidden_size;
         let v = self.config.vocab_size;
-        debug_assert_eq!(logits_out.len(), v);
 
         // 1. Embedding lookup del token
         let tid = (token_id as usize).min(v - 1);
@@ -61,12 +61,26 @@ impl RelicModel {
             layer.forward_decode_step(&mut x, pos, &self.rope, &mut cache.layers[i]);
         }
 
-        // 3. Normalizacion RMSNorm final y proyeccion LM Head
-        let mut normed = vec![0.0f32; h];
-        self.norm.forward(&mut normed, &x);
-        linear_forward(logits_out, &normed, &self.lm_head, h, v);
+        // 3. Normalizacion RMSNorm final y proyeccion LM Head solo si se requieren logits
+        if let Some(logits) = logits_out {
+            debug_assert_eq!(logits.len(), v);
+            let mut normed = vec![0.0f32; h];
+            self.norm.forward(&mut normed, &x);
+            linear_forward(logits, &normed, &self.lm_head, h, v);
+        }
 
         cache.advance();
+    }
+
+    /// Decodifica un solo token autoregresivo calculando siempre los logits finales.
+    pub fn forward_decode_step(
+        &self,
+        token_id: u32,
+        pos: usize,
+        cache: &mut KvCache,
+        logits_out: &mut [f32],
+    ) {
+        self.forward_decode_step_ex(token_id, pos, cache, Some(logits_out));
     }
 
     /// Forward pass causal completo sobre secuencia completa.

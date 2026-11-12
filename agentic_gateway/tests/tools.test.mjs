@@ -10,8 +10,8 @@ const TEST_QUARANTINE = path.join(process.cwd(), 'data', 'test_quarantine');
 const TEST_MEMORY_FILE = path.join(process.cwd(), 'data', 'test_memory_tools.json');
 
 async function cleanup() {
-  try { await fs.rm(TEST_QUARANTINE, { recursive: true, force: true }); } catch {}
-  try { await fs.rm(TEST_MEMORY_FILE, { force: true }); } catch {}
+  try { await fs.rm(TEST_QUARANTINE, { recursive: true, force: true }); } catch (err) { void err; }
+  try { await fs.rm(TEST_MEMORY_FILE, { force: true }); } catch (err) { void err; }
 }
 
 test('Catalog - validación de esquemas de herramientas declaradas', () => {

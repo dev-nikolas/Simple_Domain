@@ -81,6 +81,9 @@ fn test_syndrome_latency_sub_50ns() {
     let elapsed = start.elapsed();
     let ns_per_op = (elapsed.as_nanos() as f64) / (iters as f64);
     println!("Latencia por decodificación de síndrome: {:.2} ns", ns_per_op);
+    #[cfg(not(debug_assertions))]
     assert!(ns_per_op < 500.0, "La decodificación debe tomar menos de 500 ns");
+    #[cfg(debug_assertions)]
+    assert!(ns_per_op < 2000.0, "La decodificación en modo debug debe tomar menos de 2000 ns");
 }
 

@@ -110,6 +110,17 @@ def log_line(service_id: str, line: str) -> None:
         return
     with LOCK:
         LOG_BUFFERS[service_id].append(clean)
+        if service_id == "relic_engine":
+            if "Pre-calentando" in clean:
+                STATUS[service_id] = "Calentando KV (20s)..."
+            elif "Servidor HTTP activo" in clean or "[MODO SERVIDOR]" in clean:
+                STATUS[service_id] = "Online (Listo)"
+        elif service_id == "gateway":
+            if "En línea en" in clean:
+                STATUS[service_id] = "Online"
+        elif service_id == "frontend":
+            if "ready in" in clean or "Local:" in clean:
+                STATUS[service_id] = "Online"
 
 
 def run_relic_engine() -> None:
@@ -118,11 +129,9 @@ def run_relic_engine() -> None:
     exe_name = "relic.exe" if os.name == "nt" else "relic"
     engine_exe = RELIC_PROJECT_ROOT / exe_name
 
-    if not engine_exe.exists():
-        # Intentar relic_cli.exe como alternativa
-        alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
-        if alt_exe.exists():
-            engine_exe = alt_exe
+    alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
+    if alt_exe.exists() and (not engine_exe.exists() or alt_exe.stat().st_mtime > engine_exe.stat().st_mtime):
+        engine_exe = alt_exe
 
     if not engine_exe.exists():
         STATUS[service_id] = "Compilación requerida"
@@ -249,7 +258,10 @@ def spawn_and_stream(
     cwd: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> None:
-    STATUS[service_id] = "Activo"
+    if service_id == "relic_engine":
+        STATUS[service_id] = "Cargando Modelo..."
+    else:
+        STATUS[service_id] = "Iniciando..."
     try:
         proc = subprocess.Popen(
             cmd,
@@ -339,11 +351,15 @@ def update_layout(layout: Layout, term_height: int) -> None:
     for s in SERVICES:
         layout[s["id"]].update(make_service_panel(s, panel_height))
 
-    footer_text = Text(
-        f"Frontend: :{ASSIGNED_PORTS['frontend']}  |  Gateway: :{ASSIGNED_PORTS['gateway']}  |  RELIC MCP: :{ASSIGNED_PORTS['relic_mcp']}  |  RELIC Engine: :{ASSIGNED_PORTS['relic_engine']}    (Ctrl+C para salir)",
-        style="dim white",
-        justify="center",
-    )
+    engine_status = STATUS.get("relic_engine", "")
+    if "Online" not in engine_status:
+        footer_msg = f"⏳ Esperando motor C99 (pre-calentando tensores en CPU ~20s)... | Frontend: :{ASSIGNED_PORTS['frontend']} | Gateway: :{ASSIGNED_PORTS['gateway']}"
+        footer_style = "bold yellow"
+    else:
+        footer_msg = f"🟢 Sistema 100% Online | Frontend: http://127.0.0.1:{ASSIGNED_PORTS['frontend']} | Motor C99: :{ASSIGNED_PORTS['relic_engine']} (Ctrl+C para salir)"
+        footer_style = "bold green"
+
+    footer_text = Text(footer_msg, style=footer_style, justify="center")
     layout["footer"].update(
         Panel(footer_text, border_style="dim white", padding=(0, 1))
     )
