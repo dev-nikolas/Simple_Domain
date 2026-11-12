@@ -113,7 +113,7 @@ export class ChatOrchestratorService {
       return;
     }
 
-    const timeoutMs = config.ENGINE_TIMEOUT_MS || 5000;
+    const timeoutMs = config.ENGINE_TIMEOUT_MS || 180000;
 
     const requestPayload = {
       model: payload.model || "relic_core",
@@ -122,30 +122,41 @@ export class ChatOrchestratorService {
         : [{ role: "user", content: prompt }],
       cartridge: payload.cartridge || 'auto',
       stream: true,
-      temperature: payload.temperature !== undefined ? payload.temperature : 0.6,
-      max_tokens: payload.max_tokens !== undefined ? payload.max_tokens : 512,
+      temperature: payload.temperature !== undefined ? payload.temperature : 0.3,
+      max_tokens: payload.max_tokens !== undefined ? payload.max_tokens : 256,
     };
+
+    const connectController = new AbortController();
+    const connectTimer = setTimeout(() => connectController.abort(new Error("ENGINE_CONNECT_TIMEOUT")), timeoutMs);
+    let streamStarted = false;
 
     try {
       const response = await this.fetchClient(targetUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestPayload),
-        signal: AbortSignal.timeout(timeoutMs),
+        signal: connectController.signal,
       });
+      clearTimeout(connectTimer);
 
       if (!response.ok || !response.body) {
         throw new Error(`HTTP Error: ${response.status}`);
       }
 
       this.circuitConv.recordSuccess();
+      streamStarted = true;
       const fullText = await processSseStream(response.body.getReader(), res);
       endSSEStream(res);
       this.saveHistory(sessionId, prompt, fullText);
     } catch (err) {
+      clearTimeout(connectTimer);
       this.circuitConv.recordFailure();
       console.warn(`[Orchestrator] Motor de inferencia (${targetUrl}) inaccesible. Activando Fallback:`, err.message);
-      await this.executeAutonomousFallback(res, prompt, sessionId, payload.cartridge, targetUrl);
+      if (!streamStarted) {
+        await this.executeAutonomousFallback(res, prompt, sessionId, payload.cartridge, targetUrl);
+      } else {
+        endSSEStream(res);
+      }
     }
   }
 

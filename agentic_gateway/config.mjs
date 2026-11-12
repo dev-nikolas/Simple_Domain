@@ -16,7 +16,7 @@ export const CONVERSATIONAL_SERVER_URL = process.env.CONVERSATIONAL_SERVER_URL |
 export const CONVERSATIONAL_ENGINE_URL = CONVERSATIONAL_SERVER_URL.endsWith('/v1/chat/completions')
   ? CONVERSATIONAL_SERVER_URL
   : `${CONVERSATIONAL_SERVER_URL.replace(/\/+$/, '')}/v1/chat/completions`;
-export const ENGINE_TIMEOUT_MS = parseInt(process.env.ENGINE_TIMEOUT_MS || '60000', 10);
+export const ENGINE_TIMEOUT_MS = parseInt(process.env.ENGINE_TIMEOUT_MS || '180000', 10);
 
 export const SESSIONS_FILE = process.env.SESSIONS_FILE || path.resolve(process.cwd(), 'data', 'sessions.json');
 export const MEMORY_FILE = process.env.MEMORY_FILE || path.resolve(process.cwd(), 'data', 'relic_memory.json');

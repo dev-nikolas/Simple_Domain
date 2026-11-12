@@ -4,7 +4,17 @@
 
 import { sendSSEDelta, sendSSEToolCall } from '../views/sseView.mjs';
 
-const STOP_SEQUENCES = ["<|im_end|>", "<|endoftext|>", "<|eot_id|>"];
+const STOP_SEQUENCES = [
+  "<|im_end|>",
+  "<|endoftext|>",
+  "<|eot_id|>",
+  "<｜end of sentence｜>",
+  "<｜begin of sentence｜>",
+  "<｜end of sentence｜>",
+  "<｜begin of sentence｜>",
+  "end of sentence",
+  "begin of sentence"
+];
 
 /**
  * Procesa un flujo de eventos SSE upstream emitiendo deltas de forma segura con ventana deslizante.
@@ -18,7 +28,7 @@ export async function processSseStream(reader, res, stopSequences = STOP_SEQUENC
   const decoder = new TextDecoder('utf-8');
   let sseLineBuffer = '';
   let streamBuffer = '';
-  const MAX_STOP_LEN = 14;
+  const MAX_STOP_LEN = 36;
 
   try {
     while (true) {
