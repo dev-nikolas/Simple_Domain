@@ -126,18 +126,7 @@ def log_line(service_id: str, line: str) -> None:
 def run_relic_engine() -> None:
     service_id = "relic_engine"
     engine_port = ASSIGNED_PORTS[service_id]
-    exe_name = "relic.exe" if os.name == "nt" else "relic"
-    engine_exe = RELIC_PROJECT_ROOT / exe_name
-
-    alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
-    if alt_exe.exists() and (not engine_exe.exists() or alt_exe.stat().st_mtime > engine_exe.stat().st_mtime):
-        engine_exe = alt_exe
-
-    if not engine_exe.exists():
-        STATUS[service_id] = "Compilación requerida"
-        log_line(service_id, f"[INFO] Binario {exe_name} no encontrado en {RELIC_PROJECT_ROOT}.")
-        log_line(service_id, "[INFO] Compila RELIC-project con build.ps1 / Makefile o usa Docker Compose.")
-        return
+    dll_path = RELIC_PROJECT_ROOT / "bin" / "relic.dll"
 
     # Buscar modelo .relic en models/ o resultados/
     candidates = [
@@ -151,6 +140,32 @@ def run_relic_engine() -> None:
         if cand.exists():
             model_file = cand
             break
+
+    if dll_path.exists():
+        model_arg = str(model_file) if model_file else ""
+        py_code = (
+            "import ctypes, sys; "
+            "lib = ctypes.CDLL(sys.argv[1]); "
+            "lib.relic_dll_serve.argtypes = [ctypes.c_char_p, ctypes.c_int]; "
+            "lib.relic_dll_serve.restype = ctypes.c_int; "
+            "sys.exit(lib.relic_dll_serve(sys.argv[2].encode('utf-8'), int(sys.argv[3])))"
+        )
+        cmd = [sys.executable, "-u", "-c", py_code, str(dll_path), model_arg, str(engine_port)]
+        log_line(service_id, f"[START] Iniciando RELIC Engine (DLL) en puerto {engine_port} con modelo: {model_file.name if model_file else 'default'}...")
+        spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
+        return
+
+    exe_name = "relic.exe" if os.name == "nt" else "relic"
+    engine_exe = RELIC_PROJECT_ROOT / exe_name
+
+    alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
+    if alt_exe.exists() and (not engine_exe.exists() or alt_exe.stat().st_mtime > engine_exe.stat().st_mtime):
+        engine_exe = alt_exe
+
+    if not engine_exe.exists():
+        STATUS[service_id] = "Compilación requerida"
+        log_line(service_id, f"[INFO] Ni bin/relic.dll ni {exe_name} encontrados en {RELIC_PROJECT_ROOT}.")
+        return
 
     # relic.exe recibe la ruta al modelo posicionalmente y las opciones con flags
     cmd = [str(engine_exe)]
