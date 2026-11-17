@@ -18,6 +18,7 @@ import signal
 import socket
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from collections import deque
@@ -37,15 +38,16 @@ RELIC_PROJECT_ROOT = PROJECT_ROOT.parent / "RELIC-project"
 # Puertos asignados dinámicamente
 ASSIGNED_PORTS: dict[str, int] = {}
 
-def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
-    """Comprueba si un puerto TCP está disponible para enlace en host local."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.4)
-        try:
-            s.bind((host, port))
-            return True
-        except OSError:
-            return False
+def is_port_free(port: int, host: str = "0.0.0.0") -> bool:
+    """Comprueba si un puerto TCP está disponible para enlace (0.0.0.0 y 127.0.0.1)."""
+    for check_host in (host, "127.0.0.1") if host != "127.0.0.1" else (host,):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.4)
+            try:
+                s.bind((check_host, port))
+            except OSError:
+                return False
+    return True
 
 def find_available_port(default_port: int, service_id: str, max_attempts: int = 50) -> int:
     """
@@ -113,7 +115,9 @@ def log_line(service_id: str, line: str) -> None:
         if service_id == "relic_engine":
             if "Pre-calentando" in clean:
                 STATUS[service_id] = "Calentando KV (20s)..."
-            elif "Servidor HTTP activo" in clean or "[MODO SERVIDOR]" in clean:
+            elif "[MODO SERVIDOR]" in clean or "Iniciando API Server" in clean:
+                STATUS[service_id] = "Abriendo puerto..."
+            elif "Servidor HTTP activo" in clean:
                 STATUS[service_id] = "Online (Listo)"
         elif service_id == "gateway":
             if "En línea en" in clean:
@@ -123,57 +127,95 @@ def log_line(service_id: str, line: str) -> None:
                 STATUS[service_id] = "Online"
 
 
+def _find_c_compiler() -> str | None:
+    for candidate in ("clang", "gcc", "cc"):
+        found = shutil.which(candidate)
+        if found:
+            return found
+    if os.name == "nt":
+        llvm_clang = Path(r"C:\Program Files\LLVM\bin\clang.exe")
+        if llvm_clang.exists():
+            return str(llvm_clang)
+    return None
+
+
+def _build_relic_server_from_source(service_id: str) -> Path | None:
+    """Compila el servidor C directamente desde RELIC-project/src a caché temporal si hace falta."""
+    src_dir = RELIC_PROJECT_ROOT / "src"
+    inc_dir = RELIC_PROJECT_ROOT / "include"
+    if not src_dir.exists():
+        STATUS[service_id] = "Error (src no encontrado)"
+        log_line(service_id, f"[ERROR] No existe {src_dir}")
+        return None
+
+    c_files = sorted(src_dir.rglob("*.c"))
+    h_files = sorted(list(inc_dir.rglob("*.h")) + list(src_dir.rglob("*.h")))
+    if not c_files:
+        STATUS[service_id] = "Error (sin fuentes .c)"
+        return None
+
+    ext = ".exe" if os.name == "nt" else ""
+    out_bin = Path(tempfile.gettempdir()) / f"relic_server_runtime{ext}"
+    latest_src_mtime = max(p.stat().st_mtime for p in (*c_files, *h_files))
+
+    if out_bin.exists() and out_bin.stat().st_mtime >= latest_src_mtime:
+        return out_bin
+
+    cc = _find_c_compiler()
+    if not cc:
+        STATUS[service_id] = "Error (Compilador C no encontrado)"
+        log_line(service_id, "[ERROR] No se encontró clang/gcc para compilar RELIC-project/src/server.")
+        return None
+
+    STATUS[service_id] = "Compilando src/server..."
+    log_line(service_id, f"[BUILD] Compilando RELIC-project/src (server) con {Path(cc).name}...")
+    include_dirs = [inc_dir, *(p for p in src_dir.iterdir() if p.is_dir())]
+    cmd = [cc, "-std=c11", "-O2"]
+    for inc in include_dirs:
+        cmd.extend(["-I", str(inc)])
+    if os.name == "nt":
+        cmd.extend(["-D_CRT_SECURE_NO_WARNINGS", "-mavx2", "-mfma"])
+    else:
+        cmd.extend(["-march=native"])
+    cmd.extend(str(p) for p in c_files)
+    if os.name == "nt":
+        cmd.append("-lws2_32")
+    else:
+        cmd.extend(["-lm", "-lpthread"])
+    cmd.extend(["-o", str(out_bin)])
+
+    res = subprocess.run(cmd, cwd=RELIC_PROJECT_ROOT, capture_output=True, text=True)
+    if res.returncode != 0:
+        STATUS[service_id] = "Error de compilación"
+        for line in (res.stderr or res.stdout).splitlines()[-15:]:
+            log_line(service_id, line)
+        return None
+    return out_bin
+
+
 def run_relic_engine() -> None:
     service_id = "relic_engine"
     engine_port = ASSIGNED_PORTS[service_id]
-    dll_path = RELIC_PROJECT_ROOT / "bin" / "relic.dll"
 
-    # Buscar modelo .relic en models/ o resultados/
+    # Buscar modelo .relic en models/
     candidates = [
         RELIC_PROJECT_ROOT / "models" / "relic_core.relic",
         RELIC_PROJECT_ROOT / "resultados" / "relic_core.relic",
         RELIC_PROJECT_ROOT / "relic_core.relic",
         RELIC_PROJECT_ROOT / "models" / "nano_model.relic",
     ]
-    model_file = None
-    for cand in candidates:
-        if cand.exists():
-            model_file = cand
-            break
-
-    if dll_path.exists():
-        model_arg = str(model_file) if model_file else ""
-        py_code = (
-            "import ctypes, sys; "
-            "lib = ctypes.CDLL(sys.argv[1]); "
-            "lib.relic_dll_serve.argtypes = [ctypes.c_char_p, ctypes.c_int]; "
-            "lib.relic_dll_serve.restype = ctypes.c_int; "
-            "sys.exit(lib.relic_dll_serve(sys.argv[2].encode('utf-8'), int(sys.argv[3])))"
-        )
-        cmd = [sys.executable, "-u", "-c", py_code, str(dll_path), model_arg, str(engine_port)]
-        log_line(service_id, f"[START] Iniciando RELIC Engine (DLL) en puerto {engine_port} con modelo: {model_file.name if model_file else 'default'}...")
-        spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
+    model_file = next((c for c in candidates if c.exists()), None)
+    if model_file is None:
+        STATUS[service_id] = "Error (sin modelo .relic)"
+        log_line(service_id, f"[ERROR] No se encontró ningún modelo .relic en {RELIC_PROJECT_ROOT / 'models'}.")
         return
 
-    exe_name = "relic.exe" if os.name == "nt" else "relic"
-    engine_exe = RELIC_PROJECT_ROOT / exe_name
-
-    alt_exe = RELIC_PROJECT_ROOT / ("relic_cli.exe" if os.name == "nt" else "relic_cli")
-    if alt_exe.exists() and (not engine_exe.exists() or alt_exe.stat().st_mtime > engine_exe.stat().st_mtime):
-        engine_exe = alt_exe
-
-    if not engine_exe.exists():
-        STATUS[service_id] = "Compilación requerida"
-        log_line(service_id, f"[INFO] Ni bin/relic.dll ni {exe_name} encontrados en {RELIC_PROJECT_ROOT}.")
+    server_bin = _build_relic_server_from_source(service_id)
+    if server_bin is None:
         return
 
-    # relic.exe recibe la ruta al modelo posicionalmente y las opciones con flags
-    cmd = [str(engine_exe)]
-    if model_file:
-        cmd.append(str(model_file))
-    cmd.extend(["--server", "--port", str(engine_port)])
-
-    log_line(service_id, f"[START] Iniciando RELIC Engine (C) en puerto {engine_port} con modelo: {model_file.name if model_file else 'default'}...")
+    cmd = [str(server_bin), "--model", str(model_file), "--server", "--port", str(engine_port)]
+    log_line(service_id, f"[START] Iniciando RELIC Server (src/server) en puerto {engine_port} con modelo: {model_file.name}...")
     spawn_and_stream(service_id, cmd, cwd=RELIC_PROJECT_ROOT)
 
 
